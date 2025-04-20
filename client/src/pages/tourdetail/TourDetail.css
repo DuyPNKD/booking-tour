@@ -1,0 +1,167 @@
+.tour-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.tour-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.tour-header h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.tour-meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    color: #666;
+    font-size: 1.2rem;
+}
+
+.tour-image {
+    width: 100%;
+    height: 500px;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tour-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tour-info {
+    display: grid;
+    gap: 2rem;
+}
+
+.tour-info h2 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #007bff;
+}
+
+.tour-description p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #444;
+}
+
+.tour-highlights ul,
+.tour-inclusions ul,
+.tour-exclusions ul,
+.tour-policies ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.tour-highlights li,
+.tour-inclusions li,
+.tour-exclusions li,
+.tour-policies li {
+    padding: 0.5rem 0;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
+
+.tour-highlights li:before,
+.tour-inclusions li:before,
+.tour-exclusions li:before,
+.tour-policies li:before {
+    content: "•";
+    color: #007bff;
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.tour-itinerary {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.day-schedule {
+    margin-bottom: 2rem;
+}
+
+.day-schedule h3 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.day-schedule ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.day-schedule li {
+    padding: 0.5rem 0;
+    color: #444;
+    display: flex;
+    align-items: center;
+}
+
+.day-schedule li:before {
+    content: "→";
+    color: #007bff;
+    margin-right: 0.5rem;
+}
+
+.tour-booking {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.book-now {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.book-now:hover {
+    background: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tour-detail {
+        padding: 1rem;
+    }
+
+    .tour-header h1 {
+        font-size: 2rem;
+    }
+
+    .tour-meta {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .tour-image {
+        height: 300px;
+    }
+
+    .tour-info h2 {
+        font-size: 1.5rem;
+    }
+
+    .tour-itinerary {
+        padding: 1rem;
+    }
+}
