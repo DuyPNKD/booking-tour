@@ -17,7 +17,7 @@
 
 .tour-meta {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 2rem;
     color: #666;
     font-size: 1.2rem;
@@ -39,7 +39,6 @@
 
 .tour-info {
     display: grid;
-    gap: 2rem;
 }
 
 .tour-info h2 {

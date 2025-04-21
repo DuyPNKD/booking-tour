@@ -17,7 +17,7 @@ const Navbar = () => {
         <nav className="navbar">
             <div className="navbar-container">
                 <Link to="/" className="navbar-logo">
-                    TOUR BOOKING
+                    ViVuTour
                 </Link>
 
                 <ul className="navbar-menu">
