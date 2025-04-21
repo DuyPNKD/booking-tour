@@ -1,6 +1,12 @@
 import React from "react";
 import {Link} from "react-router-dom";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Autoplay, Pagination, Navigation} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 import "./Home.css";
+import Search from "../../components/Search/Search";
 
 const Home = () => {
     // Mock data for domestic tours
@@ -32,78 +38,24 @@ const Home = () => {
     const internationalTours = [
         {
             id: 4,
-            title: "Tour Singapore - Malaysia",
-            image: "https://images.unsplash.com/photo-1534274867514-d5b80ef98447?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            price: "12.500.000",
-        },
-        {
-            id: 5,
-            title: "Tour Thái Lan - Bangkok",
-            image: "https://images.unsplash.com/photo-1528181304800-259b08848526?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            price: "9.800.000",
-        },
-        {
-            id: 6,
-            title: "Tour Hàn Quốc - Seoul",
-            image: "https://images.unsplash.com/photo-1538485399081-695137bcebcd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "6 ngày 5 đêm",
-            price: "15.900.000",
-        },
-    ];
-
-    // Mock data for cherry blossom tours
-    const cherryBlossomTours = [
-        {
-            id: 7,
-            title: "Tour Nhật Bản Mùa Hoa Anh Đào",
-            image: "https://images.unsplash.com/photo-1541233349642-6e425fe619a8?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Tour Nhật Bản",
+            image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "7 ngày 6 đêm",
             price: "25.000.000",
         },
         {
-            id: 8,
-            title: "Tour Hàn Quốc Mùa Hoa Anh Đào",
-            image: "https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            id: 5,
+            title: "Tour Hàn Quốc",
+            image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "6 ngày 5 đêm",
-            price: "18.500.000",
-        },
-    ];
-
-    // Mock data for explore Vietnam tours
-    const exploreVietnamTours = [
-        {
-            id: 9,
-            title: "Tour Miền Tây Sông Nước",
-            image: "https://images.unsplash.com/photo-1583417319070-4a9415c5d1e4?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            price: "3.800.000",
+            price: "22.000.000",
         },
         {
-            id: 10,
-            title: "Tour Phú Quốc - Đảo Ngọc",
-            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            id: 6,
+            title: "Tour Thái Lan",
+            image: "https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "5 ngày 4 đêm",
-            price: "5.500.000",
-        },
-    ];
-
-    // Mock data for abroad tours
-    const abroadTours = [
-        {
-            id: 11,
-            title: "Tour Châu Âu - Pháp, Ý, Thụy Sĩ",
-            image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "12 ngày 11 đêm",
-            price: "45.000.000",
-        },
-        {
-            id: 12,
-            title: "Tour Úc - Sydney, Melbourne",
-            image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "8 ngày 7 đêm",
-            price: "32.000.000",
+            price: "15.000.000",
         },
     ];
 
@@ -123,184 +75,149 @@ const Home = () => {
         },
     ];
 
+    // Mock data for banner slides
+    const bannerSlides = [
+        {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1578676030146-86ef415dec0f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            title: "Khám phá Việt Nam",
+            description: "Hành trình đến những điểm đến tuyệt vời",
+        },
+        {
+            id: 2,
+            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+            title: "Du lịch nước ngoài",
+            description: "Trải nghiệm văn hóa đa dạng",
+        },
+        {
+            id: 3,
+            image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+            title: "Tour mùa anh đào",
+            description: "Ngắm hoa anh đào nở rộ",
+        },
+    ];
+
     return (
         <div className="home">
-            {/* Banner Section */}
-            <section className="banner">
-                <div className="banner-content">
-                    <h1>Khám phá thế giới cùng chúng tôi</h1>
-                    <p>Hành trình của bạn bắt đầu từ đây</p>
+            <div className="home-content">
+                {/* Banner slider */}
+                <Swiper
+                    modules={[Autoplay, Pagination, Navigation]}
+                    spaceBetween={10}
+                    slidesPerView={1}
+                    autoplay={{
+                        delay: 3000,
+                        disableOnInteraction: false,
+                    }}
+                    pagination={{clickable: true}}
+                    navigation
+                    loop={true}
+                    speed={700}
+                >
+                    {bannerSlides.map((slide) => (
+                        <SwiperSlide key={slide.id}>
+                            <div
+                                className="banner-slide"
+                                style={{
+                                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${slide.image})`,
+                                }}
+                            >
+                                <div className="banner-content">
+                                    <h1>{slide.title}</h1>
+                                    <p>{slide.description}</p>
+                                </div>
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+
+                {/* Search Component */}
+                <Search />
+
+                {/* Tour Categories */}
+                <div className="tour-categories">
+                    {/* Tour trong nước */}
+                    <section className="category-section">
+                        <div className="category-header">
+                            <h2>Tour trong nước</h2>
+                            <Link to="/tours?type=domestic" className="view-all">
+                                Xem tất cả
+                            </Link>
+                        </div>
+                        <div className="tours-grid">
+                            {domesticTours.map((tour) => (
+                                <div key={tour.id} className="tour-card">
+                                    <img src={tour.image} alt={tour.title} className="tour-image" />
+                                    <div className="tour-content">
+                                        <h3 className="tour-title">{tour.title}</h3>
+                                        <div className="tour-details">
+                                            <span>
+                                                <i className="fas fa-clock"></i> {tour.duration}
+                                            </span>
+                                        </div>
+                                        <div className="tour-price">{tour.price} VNĐ</div>
+                                        <Link to={`/tour/${tour.id}`} className="tour-button">
+                                            Xem chi tiết
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Tour nước ngoài */}
+                    <section className="category-section">
+                        <div className="category-header">
+                            <h2>Tour nước ngoài</h2>
+                            <Link to="/tours?type=international" className="view-all">
+                                Xem tất cả
+                            </Link>
+                        </div>
+                        <div className="tours-grid">
+                            {internationalTours.map((tour) => (
+                                <div key={tour.id} className="tour-card">
+                                    <img src={tour.image} alt={tour.title} className="tour-image" />
+                                    <div className="tour-content">
+                                        <h3 className="tour-title">{tour.title}</h3>
+                                        <div className="tour-details">
+                                            <span>
+                                                <i className="fas fa-clock"></i> {tour.duration}
+                                            </span>
+                                        </div>
+                                        <div className="tour-price">{tour.price} VNĐ</div>
+                                        <Link to={`/tour/${tour.id}`} className="tour-button">
+                                            Xem chi tiết
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Cẩm Nang Du Lịch */}
+                    <section className="category-section">
+                        <div className="category-header">
+                            <h2>Cẩm Nang Du Lịch</h2>
+                            <Link to="/travel-guide" className="view-all">
+                                Xem tất cả
+                            </Link>
+                        </div>
+                        <div className="travel-guide-grid">
+                            {travelGuides.map((guide) => (
+                                <div key={guide.id} className="guide-card">
+                                    <img src={guide.image} alt={guide.title} className="guide-image" />
+                                    <div className="guide-content">
+                                        <span className="guide-category">{guide.category}</span>
+                                        <h3>{guide.title}</h3>
+                                        <Link to={`/travel-guide/${guide.id}`} className="guide-button">
+                                            Đọc thêm
+                                        </Link>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
                 </div>
-            </section>
-
-            {/* Search Box */}
-            <div className="search-container">
-                <div className="search-box">
-                    <input type="text" placeholder="Bạn muốn đi đâu?" />
-                    <input type="date" placeholder="Ngày đi" />
-                    <input type="date" placeholder="Ngày về" />
-                    <select>
-                        <option value="">Số người</option>
-                        <option value="1">1 người</option>
-                        <option value="2">2 người</option>
-                        <option value="3">3 người</option>
-                        <option value="4">4 người</option>
-                        <option value="5">5+ người</option>
-                    </select>
-                    <button className="search-button">Tìm kiếm</button>
-                </div>
-            </div>
-
-            {/* Tour Categories */}
-            <div className="tour-categories">
-                {/* Tour Hot Trong Nước */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Tour Hot Trong Nước Giá Tốt</h2>
-                        <Link to="/tours/domestic" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="tours-grid">
-                        {domesticTours.map((tour) => (
-                            <div key={tour.id} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3>{tour.title}</h3>
-                                    <p className="tour-duration">{tour.duration}</p>
-                                    <p className="tour-price">{tour.price} VNĐ</p>
-                                    <Link to={`/tour/${tour.id}`} className="tour-button">
-                                        Xem chi tiết
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Tour Hot Nước Ngoài */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Tour Hot Nước Ngoài Giá Tốt</h2>
-                        <Link to="/tours/international" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="tours-grid">
-                        {internationalTours.map((tour) => (
-                            <div key={tour.id} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3>{tour.title}</h3>
-                                    <p className="tour-duration">{tour.duration}</p>
-                                    <p className="tour-price">{tour.price} VNĐ</p>
-                                    <Link to={`/tour/${tour.id}`} className="tour-button">
-                                        Xem chi tiết
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Chùm Tour Mùa Anh Đào */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Chùm Tour Mùa Anh Đào</h2>
-                        <Link to="/tours/cherry-blossom" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="tours-grid">
-                        {cherryBlossomTours.map((tour) => (
-                            <div key={tour.id} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3>{tour.title}</h3>
-                                    <p className="tour-duration">{tour.duration}</p>
-                                    <p className="tour-price">{tour.price} VNĐ</p>
-                                    <Link to={`/tour/${tour.id}`} className="tour-button">
-                                        Xem chi tiết
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Khám Phá Việt Nam */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Khám Phá Việt Nam</h2>
-                        <Link to="/tours/explore-vietnam" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="tours-grid">
-                        {exploreVietnamTours.map((tour) => (
-                            <div key={tour.id} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3>{tour.title}</h3>
-                                    <p className="tour-duration">{tour.duration}</p>
-                                    <p className="tour-price">{tour.price} VNĐ</p>
-                                    <Link to={`/tour/${tour.id}`} className="tour-button">
-                                        Xem chi tiết
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Vi Vu Nước Ngoài */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Vi Vu Nước Ngoài</h2>
-                        <Link to="/tours/abroad" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="tours-grid">
-                        {abroadTours.map((tour) => (
-                            <div key={tour.id} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3>{tour.title}</h3>
-                                    <p className="tour-duration">{tour.duration}</p>
-                                    <p className="tour-price">{tour.price} VNĐ</p>
-                                    <Link to={`/tour/${tour.id}`} className="tour-button">
-                                        Xem chi tiết
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Cẩm Nang Du Lịch */}
-                <section className="category-section">
-                    <div className="category-header">
-                        <h2>Cẩm Nang Du Lịch</h2>
-                        <Link to="/travel-guide" className="view-all">
-                            Xem tất cả
-                        </Link>
-                    </div>
-                    <div className="travel-guide-grid">
-                        {travelGuides.map((guide) => (
-                            <div key={guide.id} className="guide-card">
-                                <img src={guide.image} alt={guide.title} className="guide-image" />
-                                <div className="guide-content">
-                                    <span className="guide-category">{guide.category}</span>
-                                    <h3>{guide.title}</h3>
-                                    <Link to={`/travel-guide/${guide.id}`} className="guide-button">
-                                        Đọc thêm
-                                    </Link>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
             </div>
         </div>
     );

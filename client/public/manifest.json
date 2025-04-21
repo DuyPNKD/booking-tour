@@ -1,0 +1,8 @@
+{
+    "short_name": "Booking Tour",
+    "name": "Booking Tour - Your Travel Companion",
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#FF4D00",
+    "background_color": "#ffffff"
+}
