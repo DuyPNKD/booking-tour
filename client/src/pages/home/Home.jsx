@@ -2,9 +2,13 @@ import React from "react";
 import {Link} from "react-router-dom";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Autoplay, Pagination, Navigation} from "swiper/modules";
+import TourCategory from "../../components/tourCategory/TourCategory";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircleChevronRight} from "@fortawesome/free-solid-svg-icons";
+
 import "./Home.css";
 import Search from "../../components/Search/Search";
 
@@ -99,8 +103,7 @@ const Home = () => {
 
     return (
         <div className="home">
-            <div className="home-content">
-                {/* Banner slider */}
+            <div className="home-container">
                 <Swiper
                     modules={[Autoplay, Pagination, Navigation]}
                     spaceBetween={10}
@@ -137,69 +140,17 @@ const Home = () => {
                 {/* Tour Categories */}
                 <div className="tour-categories">
                     {/* Tour trong nước */}
-                    <section className="category-section">
-                        <div className="category-header">
-                            <h2>Tour trong nước</h2>
-                            <Link to="/tours?type=domestic" className="view-all">
-                                Xem tất cả
-                            </Link>
-                        </div>
-                        <div className="tours-grid">
-                            {domesticTours.map((tour) => (
-                                <div key={tour.id} className="tour-card">
-                                    <img src={tour.image} alt={tour.title} className="tour-image" />
-                                    <div className="tour-content">
-                                        <h3 className="tour-title">{tour.title}</h3>
-                                        <div className="tour-details">
-                                            <span>
-                                                <i className="fas fa-clock"></i> {tour.duration}
-                                            </span>
-                                        </div>
-                                        <div className="tour-price">{tour.price} VNĐ</div>
-                                        <Link to={`/tour/${tour.id}`} className="tour-button">
-                                            Xem chi tiết
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/tours?type=domestic" />
 
                     {/* Tour nước ngoài */}
-                    <section className="category-section">
-                        <div className="category-header">
-                            <h2>Tour nước ngoài</h2>
-                            <Link to="/tours?type=international" className="view-all">
-                                Xem tất cả
-                            </Link>
-                        </div>
-                        <div className="tours-grid">
-                            {internationalTours.map((tour) => (
-                                <div key={tour.id} className="tour-card">
-                                    <img src={tour.image} alt={tour.title} className="tour-image" />
-                                    <div className="tour-content">
-                                        <h3 className="tour-title">{tour.title}</h3>
-                                        <div className="tour-details">
-                                            <span>
-                                                <i className="fas fa-clock"></i> {tour.duration}
-                                            </span>
-                                        </div>
-                                        <div className="tour-price">{tour.price} VNĐ</div>
-                                        <Link to={`/tour/${tour.id}`} className="tour-button">
-                                            Xem chi tiết
-                                        </Link>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/tours?type=international" />
 
                     {/* Cẩm Nang Du Lịch */}
                     <section className="category-section">
                         <div className="category-header">
                             <h2>Cẩm Nang Du Lịch</h2>
                             <Link to="/travel-guide" className="view-all">
-                                Xem tất cả
+                                Xem thêm
                             </Link>
                         </div>
                         <div className="travel-guide-grid">
@@ -219,6 +170,7 @@ const Home = () => {
                     </section>
                 </div>
             </div>
+            {/* Banner slider */}
         </div>
     );
 };
