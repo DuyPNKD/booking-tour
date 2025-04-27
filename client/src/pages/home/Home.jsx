@@ -6,8 +6,6 @@ import TourCategory from "../../components/tourCategory/TourCategory";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCircleChevronRight} from "@fortawesome/free-solid-svg-icons";
 
 import "./Home.css";
 import Search from "../../components/Search/Search";
@@ -17,49 +15,227 @@ const Home = () => {
     const domesticTours = [
         {
             id: 1,
-            title: "Tour Hà Nội - Sapa",
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
             image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "3 ngày 2 đêm",
+            location: "Hà Nội, Sapa",
+            rating: 4.8,
+            booked: 320,
+            oldPrice: "2.800.000",
             price: "2.500.000",
         },
         {
             id: 2,
-            title: "Tour Đà Nẵng - Hội An",
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
             image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
             price: "3.500.000",
         },
         {
             id: 3,
-            title: "Tour Nha Trang - Đà Lạt",
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
             image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
             price: "4.200.000",
+        },
+        {
+            id: 4,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 5,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 6,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 7,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 8,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 9,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 10,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
         },
     ];
 
     // Mock data for international tours
     const internationalTours = [
         {
-            id: 4,
-            title: "Tour Nhật Bản",
-            image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "7 ngày 6 đêm",
-            price: "25.000.000",
+            id: 11,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "3 ngày 2 đêm",
+            location: "Hà Nội, Sapa",
+            rating: 4.8,
+            booked: 320,
+            oldPrice: "2.800.000",
+            price: "2.500.000",
         },
         {
-            id: 5,
-            title: "Tour Hàn Quốc",
-            image: "https://images.unsplash.com/photo-1517154421773-0529f29ea451?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "6 ngày 5 đêm",
-            price: "22.000.000",
+            id: 12,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
         },
         {
-            id: 6,
-            title: "Tour Thái Lan",
-            image: "https://images.unsplash.com/photo-1527004013197-933c4bb611b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            id: 13,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
             duration: "5 ngày 4 đêm",
-            price: "15.000.000",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 14,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 15,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 16,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 17,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 18,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
+        },
+        {
+            id: 19,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "5 ngày 4 đêm",
+            location: "Nha Trang, Đà Lạt",
+            rating: 4.9,
+            booked: 500,
+            oldPrice: "4.600.000",
+            price: "4.200.000",
+        },
+        {
+            id: 20,
+            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            duration: "4 ngày 3 đêm",
+            location: "Đà Nẵng, Hội An",
+            rating: 4.7,
+            booked: 410,
+            oldPrice: "3.800.000",
+            price: "3.500.000",
         },
     ];
 
@@ -104,35 +280,47 @@ const Home = () => {
     return (
         <div className="home">
             <div className="home-container">
-                <Swiper
-                    modules={[Autoplay, Pagination, Navigation]}
-                    spaceBetween={10}
-                    slidesPerView={1}
-                    autoplay={{
-                        delay: 3000,
-                        disableOnInteraction: false,
-                    }}
-                    pagination={{clickable: true}}
-                    navigation
-                    loop={true}
-                    speed={700}
-                >
-                    {bannerSlides.map((slide) => (
-                        <SwiperSlide key={slide.id}>
-                            <div
-                                className="banner-slide"
-                                style={{
-                                    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${slide.image})`,
-                                }}
-                            >
-                                <div className="banner-content">
-                                    <h1>{slide.title}</h1>
-                                    <p>{slide.description}</p>
+                <div className="banner">
+                    <div className="custom-prev">
+                        <i className="fa-solid fa-chevron-left"></i>
+                    </div>
+                    <Swiper
+                        modules={[Autoplay, Pagination, Navigation]}
+                        spaceBetween={10}
+                        slidesPerView={1}
+                        autoplay={{
+                            delay: 3000,
+                            disableOnInteraction: false,
+                        }}
+                        pagination={{clickable: true}}
+                        navigation={{
+                            prevEl: ".custom-prev",
+                            nextEl: ".custom-next",
+                        }}
+                        loop={true}
+                        speed={700}
+                    >
+                        {bannerSlides.map((slide) => (
+                            <SwiperSlide key={slide.id}>
+                                <div
+                                    className="banner-slide"
+                                    style={{
+                                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${slide.image})`,
+                                    }}
+                                >
+                                    <div className="banner-content">
+                                        <h1>{slide.title}</h1>
+                                        <p>{slide.description}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </SwiperSlide>
-                    ))}
-                </Swiper>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                    {/* Nút phải */}
+                    <div className="custom-next">
+                        <i className="fa-solid fa-chevron-right"></i>
+                    </div>
+                </div>
 
                 {/* Search Component */}
                 <Search />
