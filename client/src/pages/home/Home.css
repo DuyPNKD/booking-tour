@@ -14,6 +14,12 @@
 }
 
 /* Banner Slider */
+.banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
 .banner-slide {
     height: 60vh;
     background-size: cover;
