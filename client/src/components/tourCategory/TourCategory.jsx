@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useRef} from "react";
 import {Link} from "react-router-dom";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Navigation} from "swiper/modules";
@@ -6,7 +6,10 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "./TourCategory.css";
 
-const TourCategory = ({title, tours, link}) => {
+const TourCategory = ({title, tours, link, categoryId}) => {
+    const prevRef = useRef(null);
+    const nextRef = useRef(null);
+
     return (
         <section className="category-section">
             <div className="category-header">
@@ -18,8 +21,8 @@ const TourCategory = ({title, tours, link}) => {
             </div>
 
             <div className="slider-container">
-                {/* Nút trái */}
-                <div className="custom-prev">
+                {/* Nút trái - với ID duy nhất */}
+                <div className={`custom-prev custom-prev-${categoryId}`} ref={prevRef}>
                     <i className="fa-solid fa-chevron-left"></i>
                 </div>
 
@@ -29,8 +32,8 @@ const TourCategory = ({title, tours, link}) => {
                     slidesPerView={3.5}
                     grabCursor={true}
                     navigation={{
-                        prevEl: ".custom-prev",
-                        nextEl: ".custom-next",
+                        prevEl: `.custom-prev-${categoryId}`, // Sử dụng class riêng cho từng danh mục
+                        nextEl: `.custom-next-${categoryId}`, // Sử dụng class riêng cho từng danh mục
                     }}
                     loop={true}
                     className="tours-slider"
@@ -69,8 +72,8 @@ const TourCategory = ({title, tours, link}) => {
                     ))}
                 </Swiper>
 
-                {/* Nút phải */}
-                <div className="custom-next">
+                {/* Nút phải - với ID duy nhất */}
+                <div className={`custom-next custom-next-${categoryId}`} ref={nextRef}>
                     <i className="fa-solid fa-chevron-right"></i>
                 </div>
             </div>

@@ -6,9 +6,23 @@ import TourCategory from "../../components/tourCategory/TourCategory";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import haGiang from "../../assets/ha_giang.webp";
+import haLong from "../../assets/ha_long.webp";
+import hoBaBe from "../../assets/ho_ba_be.webp";
+import daNang from "../../assets/da_nang.webp";
+import ninhThuan from "../../assets/ninh_thuan.webp";
+import mienTay from "../../assets/mien_tay.webp";
+import camNang1 from "../../assets/cam_nang_1.webp";
+import camNang2 from "../../assets/cam_nang_2.webp";
+import camNang3 from "../../assets/cam_nang3.webp";
+import camNang4 from "../../assets/cam_nang4.webp";
+import food1 from "../../assets/am_thuc1.webp";
+import food2 from "../../assets/am_thuc2.webp";
+import food3 from "../../assets/am_thuc3.webp";
+import food4 from "../../assets/am_thuc4.webp";
 
 import "./Home.css";
-import Search from "../../components/Search/Search";
+import Banner from "../../components/banner/Banner";
 
 const Home = () => {
     // Mock data for domestic tours
@@ -243,14 +257,54 @@ const Home = () => {
     const travelGuides = [
         {
             id: 1,
-            title: "Kinh nghiệm du lịch Nhật Bản mùa hoa anh đào",
-            image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Checkin tại Bãi Sao biển Phú Quốc: Bữa tiệc thiên nhiên đang gọi mời",
+            image: camNang1,
             category: "Cẩm nang du lịch",
         },
         {
             id: 2,
-            title: "Top 10 địa điểm check-in tại Đà Lạt",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Thành phố Phan Thiết và những thông tin cần biết trước khi du lịch",
+            image: camNang2,
+            category: "Cẩm nang du lịch",
+        },
+        {
+            id: 3,
+            title: "Đảo Ngọc Phú Quốc thiên đường du lịch biển đảo Việt Nam",
+            image: camNang3,
+            category: "Cẩm nang du lịch",
+        },
+        {
+            id: 4,
+            title: "Review khu du lịch Hồ Tràm chi tiết cho team mê xê dịch",
+            image: camNang4,
+            category: "Cẩm nang du lịch",
+        },
+    ];
+
+    // Mock data for foods
+    const foods = [
+        {
+            id: 1,
+            title: "10 đặc sản Điện Biên ngon không thể cưỡng lại",
+            image: food1,
+            category: "Cẩm nang du lịch",
+        },
+        {
+            id: 2,
+            title: "Cách ít người biết để thưởng thức Food tour Hạ Long",
+            image: food2,
+            category: "Cẩm nang du lịch",
+        },
+        {
+            id: 3,
+            title: "Tổng hợp những quán ăn ngon ở Mù Cang Chải",
+            image: food3,
+            category: "Cẩm nang du lịch",
+        },
+        {
+            id: 4,
+            title: "Danh sách nhà hàng ở đảo Cô Tô, chất lượng tuyệt vời, giá thành phải chăng",
+            image: food4,
             category: "Cẩm nang du lịch",
         },
     ];
@@ -277,88 +331,266 @@ const Home = () => {
         },
     ];
 
+    // Mock data for khuyến mãi
+
+    const promotions = [
+        {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Khám phá bãi biển Maldives",
+        },
+        {
+            id: 2,
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Ưu đãi đặc biệt tại Hawaii",
+        },
+        {
+            id: 3,
+            image: "https://images.unsplash.com/photo-1493558103817-58b2924bce98?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Tour biển Bali giá cực sốc",
+        },
+    ];
+
+    // Mock data for promotions
+    const trendingTours = [
+        {
+            id: 1,
+            title: "Tour Biển Đảo",
+            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 2,
+            title: "Tour Nhật Bản",
+            image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 3,
+            title: "Tour Trung Quốc",
+            image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 4,
+            title: "Tour Đông Tây Bắc",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 5,
+            title: "Tour Lễ 30/4",
+            image: "https://images.unsplash.com/photo-1493558103817-58b2924bce98?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+    ];
+
+    // Mock data for vietnamDestinations
+    const vietnamDestinations = [
+        {
+            id: 1,
+            title: "Hà Giang",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 2,
+            title: "Hạ Long",
+            image: "https://images.unsplash.com/photo-1519822476265-6de8c1f6058f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 3,
+            title: "Hồ Ba Bể - Thác Bản Giốc",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 4,
+            title: "Đà Nẵng",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 5,
+            title: "Ninh Thuận",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+        {
+            id: 6,
+            title: "Miền Tây",
+            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        },
+    ];
     return (
         <div className="home">
             <div className="home-container">
-                <div className="banner">
-                    <div className="custom-prev">
-                        <i className="fa-solid fa-chevron-left"></i>
+                <Banner bannerSlides={bannerSlides} />
+
+                {/* Promotions Section */}
+                <div className="promotions-section">
+                    <div className="category-header">
+                        <h2>Chương Trình Khuyến Mãi</h2>
+                        <Link to="/travel-guide?category=promotion" className="view-all">
+                            Xem thêm
+                            <i className="fa-solid fa-circle-chevron-right"></i>
+                        </Link>
                     </div>
                     <Swiper
-                        modules={[Autoplay, Pagination, Navigation]}
-                        spaceBetween={10}
-                        slidesPerView={1}
+                        modules={[Autoplay]}
+                        spaceBetween={20}
+                        slidesPerView={3}
                         autoplay={{
                             delay: 3000,
                             disableOnInteraction: false,
                         }}
-                        pagination={{clickable: true}}
-                        navigation={{
-                            prevEl: ".custom-prev",
-                            nextEl: ".custom-next",
-                        }}
-                        loop={true}
-                        speed={700}
+                        className="promotions-slider"
                     >
-                        {bannerSlides.map((slide) => (
-                            <SwiperSlide key={slide.id}>
-                                <div
-                                    className="banner-slide"
-                                    style={{
-                                        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${slide.image})`,
-                                    }}
+                        {promotions.map((promo) => (
+                            <SwiperSlide key={promo.id}>
+                                <Link
+                                    to={
+                                        promo.id === 1 || promo.id === 3
+                                            ? "/tours?type=domestic" // Link đến trang trong nước
+                                            : "/tours?type=international" // Link đến trang nước ngoài
+                                    }
+                                    className="promotion-card"
                                 >
-                                    <div className="banner-content">
-                                        <h1>{slide.title}</h1>
-                                        <p>{slide.description}</p>
-                                    </div>
-                                </div>
+                                    <img src={promo.image} alt={promo.title} className="promotion-image" />
+                                </Link>
                             </SwiperSlide>
                         ))}
                     </Swiper>
-                    {/* Nút phải */}
-                    <div className="custom-next">
-                        <i className="fa-solid fa-chevron-right"></i>
-                    </div>
                 </div>
 
-                {/* Search Component */}
-                <Search />
+                {/* Tour Trending */}
+                <div className="trending-tours-section">
+                    <div className="container">
+                        <h2>Tour Đang Xu Hướng</h2>
+                        <div className="trending-tours-grid">
+                            {trendingTours.map((tour) => (
+                                <div key={tour.id} className="trending-tour-card">
+                                    <img src={tour.image} alt={tour.title} className="trending-tour-image" />
+                                    <div className="trending-tour-title">{tour.title}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
 
                 {/* Tour Categories */}
                 <div className="tour-categories">
                     {/* Tour trong nước */}
-                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/tours?type=domestic" />
+                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/tours?type=domestic" categoryId="domestic" />
 
                     {/* Tour nước ngoài */}
-                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/tours?type=international" />
+                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/tours?type=international" categoryId="international" />
+                </div>
 
-                    {/* Cẩm Nang Du Lịch */}
-                    <section className="category-section">
-                        <div className="category-header">
-                            <h2>Cẩm Nang Du Lịch</h2>
-                            <Link to="/travel-guide" className="view-all">
-                                Xem thêm
-                            </Link>
+                {/* Khám phá Việt Nam */}
+                <div className="vietnam-section">
+                    <h2>Khám Phá Việt Nam</h2>
+                    <div className="vietnam-grid">
+                        <div className="vietnam-card ha-giang">
+                            <img src={haGiang} alt="Hà Giang" className="vietnam-image" />
+                            <div className="vietnam-title">Hà Giang</div>
                         </div>
-                        <div className="travel-guide-grid">
-                            {travelGuides.map((guide) => (
-                                <div key={guide.id} className="guide-card">
-                                    <img src={guide.image} alt={guide.title} className="guide-image" />
-                                    <div className="guide-content">
-                                        <span className="guide-category">{guide.category}</span>
-                                        <h3>{guide.title}</h3>
-                                        <Link to={`/travel-guide/${guide.id}`} className="guide-button">
-                                            Đọc thêm
-                                        </Link>
+                        <div className="vietnam-card ha-long">
+                            <img src={haLong} alt="Hạ Long" className="vietnam-image" />
+                            <div className="vietnam-title">Hạ Long</div>
+                        </div>
+                        <div className="vietnam-card ho-ba-be">
+                            <img src={hoBaBe} alt="Hồ Ba Bể - Thác Bản Giốc" className="vietnam-image" />
+                            <div className="vietnam-title">Hồ Ba Bể - Thác Bản Giốc</div>
+                        </div>
+                        <div className="vietnam-card da-nang">
+                            <img src={daNang} alt="Đà Nẵng" className="vietnam-image" />
+                            <div className="vietnam-title">Đà Nẵng</div>
+                        </div>
+                        <div className="vietnam-card ninh-thuan">
+                            <img src={ninhThuan} alt="Ninh Thuận" className="vietnam-image" />
+                            <div className="vietnam-title">Ninh Thuận</div>
+                        </div>
+                        <div className="vietnam-card mien-tay">
+                            <img src={mienTay} alt="Miền Tây" className="vietnam-image" />
+                            <div className="vietnam-title">Miền Tây</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Vi Vu Nước Ngoài */}
+                <div className="foreign-section">
+                    <h2>Vi Vu Nước Ngoài</h2>
+                    <div className="vietnam-grid">
+                        <div className="vietnam-card item1">
+                            <img src="https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Korea" className="vietnam-image" />
+                            <div className="vietnam-title">Hàn Quốc</div>
+                        </div>
+                        <div className="vietnam-card item2">
+                            <img src="https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="India" className="vietnam-image" />
+                            <div className="vietnam-title">Ấn Độ</div>
+                        </div>
+                        <div className="vietnam-card item3">
+                            <img src="https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="China" className="vietnam-image" />
+                            <div className="vietnam-title">Trung Quốc</div>
+                        </div>
+                        <div className="vietnam-card item4">
+                            <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Japan" className="vietnam-image" />
+                            <div className="vietnam-title">Nhật Bản</div>
+                        </div>
+                        <div className="vietnam-card item5">
+                            <img src="https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Indonesia" className="vietnam-image" />
+                            <div className="vietnam-title">Bali - Indonesia</div>
+                        </div>
+                        <div className="vietnam-card item6">
+                            <img src="https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thailand" className="vietnam-image" />
+                            <div className="vietnam-title">Thái Lan</div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Cẩm Nang Du Lịch */}
+                <div className="travel-guide-section">
+                    <div className="travel-guide-container">
+                        {/* Cẩm Nang Du Lịch */}
+                        <div className="travel-guide">
+                            <div className="category-header">
+                                <h2>Cẩm Nang Du Lịch</h2>
+                                <Link to="/blog?category=travel-guide" className="view-all">
+                                    Xem thêm
+                                    <i className="fa-solid fa-circle-chevron-right"></i>
+                                </Link>
+                            </div>
+                            <div className="travel-guide-grid">
+                                {travelGuides.map((guide) => (
+                                    <div key={guide.id} className="travel-guide-card">
+                                        <img src={guide.image} alt={guide.title} className="travel-guide-image" />
+                                        <div className="travel-guide-content">
+                                            <p className="travel-guide-title">{guide.title}</p>
+                                            <p className="travel-guide-date">
+                                                <i class="fa-regular fa-clock"></i> 06/05/2025
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </section>
+
+                        {/* Ẩm thực */}
+                        <div className="foods">
+                            <div className="category-header">
+                                <h2>Ẩm thực</h2>
+                                <Link to="/blog?category=foods" className="view-all">
+                                    Xem thêm
+                                    <i className="fa-solid fa-circle-chevron-right"></i>
+                                </Link>
+                            </div>
+                            <div className="foods-list">
+                                {foods.map((foods) => (
+                                    <div key={foods.id} className="foods-item">
+                                        <img src={foods.image} alt={foods.title} className="foods-image" />
+                                        <div className="foods-content">
+                                            <p className="foods-title">{foods.title}</p>
+                                            <p className="foods-date">06/05/2025</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            {/* Banner slider */}
         </div>
     );
 };

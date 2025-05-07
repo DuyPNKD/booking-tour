@@ -1,0 +1,77 @@
+/* Banner Slider */
+.banner {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.banner-slide {
+    height: 520px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    position: relative;
+    border-radius: 1rem;
+}
+
+.banner-content {
+    max-width: 800px;
+    padding: 0 2rem;
+    z-index: 2;
+}
+
+.banner-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.banner-content p {
+    font-size: 1.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.banner-prev,
+.banner-next {
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.banner-prev {
+    position: absolute;
+    left: -50px; /* đẩy ra ngoài trái */
+}
+
+.banner-next {
+    position: absolute;
+    right: -50px; /* đẩy ra ngoài phải */
+}
+
+.banner-prev i,
+.banner-next i {
+    font-size: 16px;
+    color: #333;
+}
+
+.banner-search {
+    position: absolute;
+    bottom: 0%; /* Đặt cách đáy slider 20% */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 15; /* Đảm bảo ô tìm kiếm nằm trên slider */
+    width: 80%; /* Đặt chiều rộng cho ô tìm kiếm */
+    max-width: 800px; /* Giới hạn chiều rộng tối đa */
+}
