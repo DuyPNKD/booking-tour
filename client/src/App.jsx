@@ -4,12 +4,11 @@ import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
 import Tours from "./pages/tours/Tours";
 import TourDetail from "./pages/tourdetail/TourDetail";
-import TravelGuide from "./pages/travelguide/TravelGuide";
-import TravelGuideDetail from "./pages/travelguide/TravelGuideDetail";
 import About from "./pages/about/About";
 import Contact from "./pages/contact/Contact";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
+import Blog from "./pages/blog/Blog";
 import "./App.css";
 
 function App() {
@@ -27,10 +26,7 @@ function App() {
                 <Route path="/tours/:id" element={<TourDetail />} />
 
                 {/* Cẩm nang du lịch */}
-                <Route path="/travel-guide" element={<TravelGuide />} />
-
-                {/* Chi tiết bài viết cẩm nang */}
-                <Route path="/travel-guide/:id" element={<TravelGuideDetail />} />
+                <Route path="/blog" element={<Blog />} />
 
                 {/* Trang giới thiệu */}
                 <Route path="/about" element={<About />} />

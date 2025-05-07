@@ -13,47 +13,9 @@
     padding: 0 16px;
 }
 
-/* Banner Slider */
-.banner {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.banner-slide {
-    height: 60vh;
-    background-size: cover;
-    background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    color: white;
-    position: relative;
-    border-radius: 1rem;
-}
-
-.banner-content {
-    max-width: 800px;
-    padding: 0 2rem;
-    z-index: 2;
-}
-
-.banner-content h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.banner-content p {
-    font-size: 1.5rem;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-}
-
 /* Customize Swiper styles */
 .swiper {
     width: 100%;
-    height: 60vh;
 }
 
 .swiper-pagination-bullet {
@@ -87,7 +49,117 @@
     background: rgba(0, 0, 0, 0.5);
 }
 
-/* Tour Categories */
+/* Promotions Section */
+.promotions-slider {
+    margin-top: 32px;
+}
+
+.promotions-section {
+    margin: 3rem 0;
+}
+
+.promotions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.promotion-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+    display: flex;
+}
+
+.promotion-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.promotion-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    padding: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Tour Đang Xu Hướng Section */
+.container {
+    max-width: 1280px; /* Giới hạn chiều rộng */
+    margin: 0 auto; /* Căn giữa nội dung */
+    padding: 0 16px; /* Thêm padding để tránh sát mép màn hình */
+}
+
+.trending-tours-section {
+    background-color: #ffefe5;
+    width: 100vw; /* Chiều rộng toàn màn hình */
+    margin-left: calc(-50vw + 50%); /* Loại bỏ giới hạn của container */
+    padding: 2rem 0; /* Khoảng cách trên và dưới */
+}
+
+.trending-tours-section h2 {
+    font-size: 1.625rem;
+    color: #333;
+    text-align: left;
+}
+
+.trending-tours-grid {
+    display: flex;
+    gap: 32px;
+    margin: 0 auto;
+    justify-content: center;
+    padding-top: 32px;
+}
+
+.trending-tour-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    width: 150px;
+    height: 150px;
+    text-align: center;
+}
+
+.trending-tour-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.trending-tour-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.trending-tour-title {
+    position: absolute;
+    width: 100%;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
 
 /* Travel Guide */
 .travel-guide-grid {
@@ -162,6 +234,274 @@
 
 .guide-button:hover {
     background: #218838;
+}
+
+.vietnam-section {
+    margin: 3rem 0;
+}
+
+.vietnam-section h2 {
+    font-size: 1.625rem;
+    color: #333;
+    text-align: left;
+}
+
+.foreign-section {
+    margin: 3rem 0;
+}
+
+.foreign-section h2 {
+    font-size: 1.625rem;
+    color: #333;
+    text-align: left;
+}
+
+.vietnam-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(2, 200px); /* Định nghĩa 2 hàng có chiều cao cố định */
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.vietnam-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.vietnam-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.vietnam-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.vietnam-title {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    color: white;
+    border-radius: 20px;
+    font-size: 1rem;
+}
+
+/* Layout cho từng hình ảnh */
+.ha-giang {
+    grid-column: 1 / span 5; /* Bắt đầu từ cột 1, chiếm 5 cột */
+    grid-row: 1; /* Nằm ở hàng 1 */
+}
+
+.ha-long {
+    grid-column: 1 / span 2; /* Bắt đầu từ cột 1, chiếm 2 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
+
+.ho-ba-be {
+    grid-column: 3 / span 3; /* Bắt đầu từ cột 3, chiếm 3 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
+
+.da-nang {
+    grid-column: 6 / span 4; /* Bắt đầu từ cột 6, chiếm 4 cột */
+    grid-row: 1 / span 2; /* Bắt đầu từ hàng 1, chiếm 2 hàng */
+}
+
+.ninh-thuan {
+    grid-column: 10 / span 3; /* Bắt đầu từ cột 10, chiếm 3 cột */
+    grid-row: 1; /* Nằm ở hàng 1 */
+}
+
+.mien-tay {
+    grid-column: 10 / span 3; /* Bắt đầu từ cột 10, chiếm 3 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
+
+/* Nước ngoài */
+.item1 {
+    grid-column: 1 / span 3;
+    grid-row: 1;
+}
+
+.item2 {
+    grid-column: 1 / span 3;
+    grid-row: 2;
+}
+
+.item3 {
+    grid-column: 4 / span 4;
+    grid-row: 1 / span 2;
+}
+
+.item4 {
+    grid-column: 8 / span 5;
+    grid-row: 1;
+}
+
+.item5 {
+    grid-column: 8 / span 2;
+    grid-row: 2;
+}
+
+.item6 {
+    grid-column: 10 / span 3;
+    grid-row: 2;
+}
+
+.travel-guide-section {
+    margin: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.travel-guide-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Cẩm Nang Du Lịch chiếm 2 phần, Bản Tin chiếm 1 phần */
+    gap: 2rem;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.category-header h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.category-header .view-all {
+    font-size: 0.9rem;
+    color: rgba(31, 80, 234, 1);
+    text-decoration: none;
+}
+
+.category-header .view-all:hover {
+    text-decoration: underline;
+}
+
+/* Cẩm Nang Du Lịch */
+.travel-guide-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 cột */
+    gap: 1rem;
+}
+
+.travel-guide-card {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.travel-guide-card:hover {
+    cursor: pointer;
+}
+
+.travel-guide-image {
+    width: 100%;
+    height: 150px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    margin-bottom: 8px;
+    object-fit: cover;
+}
+
+.travel-guide-content {
+    background-color: transparent;
+    text-align: left;
+}
+
+.travel-guide-title {
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.travel-guide-date {
+    font-size: 0.8rem;
+    color: #828282;
+}
+
+.travel-guide-date i {
+    margin-right: 2px;
+    color: rgba(31, 80, 234, 1);
+    font-weight: 600;
+}
+
+/* Bản Tin */
+.foods-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.foods-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    height: 100px;
+}
+
+.foods-image {
+    width: 190px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.foods-content {
+    flex: 1;
+    flex-grow: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Đẩy nội dung lên trên */
+    align-items: flex-start; /* Căn nội dung sang trái */
+    margin: 0; /* Loại bỏ khoảng cách mặc định */
+    padding: 0; /* Loại bỏ padding nếu có */
+    height: 100%;
+}
+
+.foods-title {
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.foods-date {
+    font-size: 0.8rem;
+    color: #828282;
+}
+
+/* Responsive cho màn hình nhỏ hơn */
+@media (max-width: 768px) {
+    .vietnam-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+        gap: 10px;
+    }
+
+    .vietnam-card {
+        grid-column: span 1 !important; /* Reset tất cả card về 1 cột trên mobile */
+        grid-row: auto !important;
+        height: 150px;
+    }
+
+    .ha-giang,
+    .da-nang {
+        grid-column: span 2 !important; /* Cho 2 card lớn chiếm trọn hàng */
+    }
 }
 
 /* Responsive */

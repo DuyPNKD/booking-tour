@@ -23,9 +23,17 @@
 }
 
 .view-all {
-    color: rgb(31, 80, 243);
+    color: #1f50ea;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 400;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+.view-all i {
+    margin-left: 8px;
+    font-size: 1.5rem;
 }
 
 .view-all:hover {
@@ -68,7 +76,7 @@
 
 .tours-slider {
     width: 100%;
-    height: auto !important;
+    height: auto;
     padding: 10px 10px;
 }
 
