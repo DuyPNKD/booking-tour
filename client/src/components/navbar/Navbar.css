@@ -9,7 +9,7 @@
 }
 
 .navbar-container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
     padding: 0 1rem;
     display: flex;
@@ -18,11 +18,10 @@
     height: 64px;
 }
 
-.navbar-logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #1976d2;
-    text-decoration: none;
+.navbar-logo-image {
+    height: 60px; /* Chiều cao của logo */
+    width: auto; /* Tự động điều chỉnh chiều rộng theo tỷ lệ */
+    object-fit: contain; /* Đảm bảo logo không bị méo */
 }
 
 .navbar-menu {
