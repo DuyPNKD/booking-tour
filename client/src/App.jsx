@@ -20,7 +20,7 @@ function App() {
                 <Route path="/" element={<Home />} />
 
                 {/* Danh mục tour */}
-                <Route path="/tours" element={<Tours />} />
+                <Route path="/danh-muc-tour" element={<Tours />} />
 
                 {/* Chi tiết tour */}
                 <Route path="/tours/:id" element={<TourDetail />} />

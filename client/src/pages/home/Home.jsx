@@ -442,8 +442,8 @@ const Home = () => {
                                 <Link
                                     to={
                                         promo.id === 1 || promo.id === 3
-                                            ? "/tours?type=domestic" // Link đến trang trong nước
-                                            : "/tours?type=international" // Link đến trang nước ngoài
+                                            ? "/danh-muc-tour?type=domestic" // Link đến trang trong nước
+                                            : "/danh-muc-tour?type=international" // Link đến trang nước ngoài
                                     }
                                     className="promotion-card"
                                 >
@@ -472,10 +472,10 @@ const Home = () => {
                 {/* Tour Categories */}
                 <div className="tour-categories">
                     {/* Tour trong nước */}
-                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/tours?type=domestic" categoryId="domestic" />
+                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/danh-muc-tour?type=domestic" categoryId="domestic" />
 
                     {/* Tour nước ngoài */}
-                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/tours?type=international" categoryId="international" />
+                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/danh-muc-tour?type=international" categoryId="international" />
                 </div>
 
                 {/* Khám phá Việt Nam */}
@@ -559,7 +559,7 @@ const Home = () => {
                                         <div className="travel-guide-content">
                                             <p className="travel-guide-title">{guide.title}</p>
                                             <p className="travel-guide-date">
-                                                <i class="fa-regular fa-clock"></i> 06/05/2025
+                                                <i className="fa-regular fa-clock"></i> 06/05/2025
                                             </p>
                                         </div>
                                     </div>

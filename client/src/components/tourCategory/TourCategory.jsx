@@ -40,28 +40,28 @@ const TourCategory = ({title, tours, link, categoryId}) => {
                 >
                     {tours.map((tour) => (
                         <SwiperSlide key={tour.id}>
-                            <Link to={`/tour/${tour.id}`} className="tour-card">
-                                <img src={tour.image} alt={tour.title} className="tour-image" />
-                                <div className="tour-content">
-                                    <h3 className="tour-title">{tour.title}</h3>
-                                    <div className="tour-rating-booked">
+                            <Link to={`/tour/${tour.id}`} className="tourCategory-card">
+                                <img src={tour.image} alt={tour.title} className="tourCategory-image" />
+                                <div className="tourCategory-content">
+                                    <h3 className="tourCategory-title">{tour.title}</h3>
+                                    <div className="tourCategory-rating-booked">
                                         <i className="fa-solid fa-star"></i>
                                         <span>
                                             {tour.rating} <span>|</span> {tour.booked}+ đã đặt chỗ
                                         </span>
                                     </div>
-                                    <div className="tour-footer">
-                                        <div className="tour-infos">
-                                            <div className="tour-info-item">
+                                    <div className="tourCategory-footer">
+                                        <div className="tourCategory-infos">
+                                            <div className="tourCategory-info-item">
                                                 <i className="fa-regular fa-clock"></i>
                                                 <span>{tour.duration}</span>
                                             </div>
-                                            <div className="tour-info-item">
+                                            <div className="tourCategory-info-item">
                                                 <i className="fa-solid fa-location-dot"></i>
                                                 <span>Điểm đi: {tour.location}</span>
                                             </div>
                                         </div>
-                                        <div className="tour-pricing">
+                                        <div className="tourCategory-pricing">
                                             <span className="old-price">{tour.oldPrice} đ</span>
                                             <span className="new-price">{tour.price} đ</span>
                                         </div>

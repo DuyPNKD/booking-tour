@@ -48,8 +48,8 @@ const Navbar = () => {
     const [showAuthPopup, setShowAuthPopup] = useState(false);
 
     const menuItems = [
-        {text: "Tour trong nước", path: "/tours?type=domestic"},
-        {text: "Tour nước ngoài", path: "/tours?type=international"},
+        {text: "Tour trong nước", path: "/danh-muc-tour?type=domestic"},
+        {text: "Tour nước ngoài", path: "/danh-muc-tour?type=international"},
         {text: "Cẩm nang du lịch", path: "/travel-guide"},
         {text: "Liên hệ", path: "/contact"},
     ];
@@ -64,7 +64,9 @@ const Navbar = () => {
                 <ul className="navbar-menu">
                     {/* Tour trong nước */}
                     <li className="navbar-menu-dropdown">
-                        <span className="navbar-menu-item">Tour trong nước</span>
+                        <Link to="/danh-muc-tour?type=domestic" className="navbar-menu-item">
+                            Tour trong nước
+                        </Link>
                         <div className="mega-menu">
                             <div className="mega-menu-left">
                                 {domesticRegions.map((region) => (
@@ -97,7 +99,9 @@ const Navbar = () => {
 
                     {/* Tour nước ngoài */}
                     <li className="navbar-menu-dropdown">
-                        <span className="navbar-menu-item">Tour nước ngoài</span>
+                        <Link to="/tours?type=international" className="navbar-menu-item">
+                            Tour nước ngoài
+                        </Link>
                         <div className="mega-menu">
                             <div className="mega-menu-left">
                                 {internationalRegions.map((region) => (

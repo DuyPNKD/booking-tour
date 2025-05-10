@@ -3,7 +3,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding-top: 80px;
+    padding-top: 100px;
 }
 
 .home-container {
@@ -159,6 +159,15 @@
     color: white;
     font-size: 0.9rem;
     font-weight: bold;
+}
+
+.tour-categories {
+    margin: 3rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+    position: relative;
+    z-index: 2;
 }
 
 /* Travel Guide */
