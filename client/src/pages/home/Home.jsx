@@ -313,19 +313,19 @@ const Home = () => {
     const bannerSlides = [
         {
             id: 1,
-            image: "https://images.unsplash.com/photo-1578676030146-86ef415dec0f?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            image: "https://images.unsplash.com/photo-1643029891412-92f9a81a8c16?q=80&w=2086&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             title: "Khám phá Việt Nam",
             description: "Hành trình đến những điểm đến tuyệt vời",
         },
         {
             id: 2,
-            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+            image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             title: "Du lịch nước ngoài",
             description: "Trải nghiệm văn hóa đa dạng",
         },
         {
             id: 3,
-            image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80",
+            image: "https://images.unsplash.com/photo-1712035758319-9bfc9ffea604?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             title: "Tour mùa anh đào",
             description: "Ngắm hoa anh đào nở rộ",
         },

@@ -19,7 +19,7 @@ const Banner = ({bannerSlides}) => {
                 spaceBetween={10}
                 slidesPerView={1}
                 autoplay={{
-                    delay: 3000,
+                    delay: 30000,
                     disableOnInteraction: false,
                 }}
                 pagination={{clickable: true}}
@@ -35,7 +35,7 @@ const Banner = ({bannerSlides}) => {
                         <div
                             className="banner-slide"
                             style={{
-                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(${slide.image})`,
+                                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), url(${slide.image})`,
                             }}
                         >
                             <div className="banner-content">
