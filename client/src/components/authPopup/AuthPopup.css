@@ -1,0 +1,58 @@
+.auth-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 99;
+}
+
+.auth-popup {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    padding: 20px 24px 16px 24px;
+    z-index: 100;
+    min-width: 250px;
+}
+.auth-popup-arrow {
+    position: absolute;
+    top: -12px;
+    right: 32px;
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 12px solid #fff;
+}
+.auth-popup-register {
+    width: 100%;
+    background: #1cc0e3;
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 0;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s, filter 0.3s;
+}
+.auth-popup-register:hover {
+    background: #38d6f6;
+    filter: brightness(1.08);
+}
+.auth-popup-text {
+    font-size: 15px;
+    color: #222;
+    text-align: left;
+}
+.auth-popup-login-link {
+    color: #1a73e8;
+    text-decoration: underline;
+    cursor: pointer;
+}

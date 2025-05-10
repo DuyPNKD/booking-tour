@@ -16,6 +16,7 @@
     justify-content: space-between;
     align-items: center;
     height: 64px;
+    position: relative;
 }
 
 .navbar-logo-image {
@@ -34,14 +35,30 @@
 
 .navbar-menu-item {
     text-decoration: none;
-    color: #333;
+    font-weight: 600;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border-radius: 16px;
     transition: background-color 0.3s;
 }
 
 .navbar-menu-item:hover {
-    background-color: rgba(0, 0, 0, 0.04);
+    background-color: #ff5b00;
+    color: white;
+}
+
+.navbar-menu-item.active,
+.navbar-menu-item:hover {
+    background-color: #ff5b00;
+    color: white;
+}
+
+.navbar-menu-item:hover {
+    cursor: pointer;
+}
+
+.navbar-menu-dropdown:hover .navbar-menu-item {
+    background-color: #ff5b00;
+    color: white;
 }
 
 .mobile-menu-button {
@@ -73,6 +90,120 @@
 
 .mobile-menu-item:hover {
     background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Dropdown menu cho navbar */
+.navbar-menu-dropdown {
+}
+
+.navbar-menu-dropdown:hover .mega-menu {
+    display: flex;
+}
+
+.mega-menu {
+    display: none;
+    flex-direction: row;
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%; /* Căn giữa menu so với viewport */
+    transform: translateX(-50%); /* Hoặc -50% nếu muốn căn giữa tuyệt đối */
+    width: 100%;
+    max-width: 1250px;
+    min-width: 800px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(5, 5, 5, 0.3);
+    border-radius: 16px;
+    padding: 0;
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+.mega-menu::after {
+    content: "";
+    position: absolute;
+    top: -38px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 50px;
+}
+
+.mega-menu-left {
+    width: 220px;
+    background: #fff;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    border-top-left-radius: 16px;
+    border-bottom-left-radius: 16px;
+}
+
+.mega-menu-region {
+    padding: 72px 24px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s;
+}
+
+.mega-menu-region:first-child {
+    border-top-left-radius: 16px;
+}
+
+.mega-menu-region:last-child {
+    border-bottom-left-radius: 16px;
+}
+
+.mega-menu-region.active,
+.mega-menu-region:hover {
+    background: #ff6600;
+    color: #fff;
+    cursor: pointer;
+}
+
+.mega-menu-right {
+    flex: 1;
+    padding: 32px 32px;
+    background: #fff;
+    min-height: 500px;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
+}
+
+.mega-menu-title {
+    font-weight: 600;
+    color: rgba(130, 130, 130, 1);
+    text-align: left;
+}
+
+.mega-menu-group-container {
+    margin-top: 32px;
+    display: flex;
+}
+
+.mega-menu-group {
+    font-weight: bold;
+    width: 11rem;
+    text-align: left;
+}
+
+.mega-menu-places {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1;
+    gap: 16px 32px;
+}
+
+.mega-menu-place {
+    color: #333;
+    cursor: pointer;
+    padding: 2px 0;
+    transition: color 0.2s;
+}
+
+.mega-menu-place:hover {
+    text-decoration: underline;
 }
 
 @media (max-width: 768px) {
