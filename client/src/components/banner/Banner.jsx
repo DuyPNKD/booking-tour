@@ -50,11 +50,6 @@ const Banner = ({bannerSlides}) => {
             <div className="banner-next">
                 <i className="fa-solid fa-chevron-right"></i>
             </div>
-
-            {/* Search Component */}
-            <div className="banner-search">
-                <Search />
-            </div>
         </div>
     );
 };

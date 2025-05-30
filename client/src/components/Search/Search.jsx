@@ -70,14 +70,13 @@ const Search = () => {
 
     return (
         <div className="search-container" ref={searchRef}>
-            <div className="search-box" onClick={handleSearchClick}>
+            <div className="search-box">
                 <div className="search-input">
                     <i className="fas fa-map-marker-alt"></i>
-                    <input ref={searchInputRef} type="text" placeholder="Bạn muốn đi đâu?" />
+                    <input ref={searchInputRef} type="text" placeholder="Bạn muốn đi đâu?" onFocus={() => setIsSearchOpen(true)} />
                 </div>
                 <button className="search-submit">
                     <i className="fas fa-search"></i>
-                    Tìm tour
                 </button>
             </div>
 

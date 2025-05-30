@@ -30,6 +30,9 @@
 .view-all:hover {
     text-decoration: underline;
 }
+.view-all:hover i {
+    text-decoration: none;
+}
 
 /* Slider */
 .slider-container {
