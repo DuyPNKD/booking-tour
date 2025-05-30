@@ -15,7 +15,7 @@ const TourCategory = ({title, tours, link, categoryId}) => {
             <div className="category-header">
                 <h2>{title}</h2>
                 <Link to={link} className="view-all">
-                    Xem thêm
+                    <span>Xem thêm</span>
                     <i className="fa-solid fa-circle-chevron-right"></i>
                 </Link>
             </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {Link} from "react-router-dom";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Autoplay, Pagination, Navigation} from "swiper/modules";
@@ -20,11 +20,33 @@ import food1 from "../../assets/am_thuc1.webp";
 import food2 from "../../assets/am_thuc2.webp";
 import food3 from "../../assets/am_thuc3.webp";
 import food4 from "../../assets/am_thuc4.webp";
+import km1 from "../../assets/km1.webp";
+import km2 from "../../assets/km2.webp";
+import km3 from "../../assets/km3.webp";
+import beach from "../../assets/beach.jpg";
 
 import "./Home.css";
 import Banner from "../../components/banner/Banner";
 
 const Home = () => {
+    useEffect(() => {
+        const handleScroll = () => {
+            const navbar = document.querySelector(".navbar");
+            const videoBanner = document.querySelector(".video-banner");
+            if (navbar && videoBanner) {
+                const videoBottom = videoBanner.getBoundingClientRect().bottom;
+                if (videoBottom <= 0) {
+                    navbar.classList.add("navbar-scrolled");
+                } else {
+                    navbar.classList.remove("navbar-scrolled");
+                }
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     // Mock data for domestic tours
     const domesticTours = [
         {
@@ -336,17 +358,17 @@ const Home = () => {
     const promotions = [
         {
             id: 1,
-            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: km1,
             title: "Khám phá bãi biển Maldives",
         },
         {
             id: 2,
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: km2,
             title: "Ưu đãi đặc biệt tại Hawaii",
         },
         {
             id: 3,
-            image: "https://images.unsplash.com/photo-1493558103817-58b2924bce98?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: km3,
             title: "Tour biển Bali giá cực sốc",
         },
     ];
@@ -356,27 +378,27 @@ const Home = () => {
         {
             id: 1,
             title: "Tour Biển Đảo",
-            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
         },
         {
             id: 2,
             title: "Tour Nhật Bản",
-            image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
             id: 3,
             title: "Tour Trung Quốc",
-            image: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
         },
         {
             id: 4,
-            title: "Tour Đông Tây Bắc",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Tour Hà Giang",
+            image: haGiang,
         },
         {
             id: 5,
-            title: "Tour Lễ 30/4",
-            image: "https://images.unsplash.com/photo-1493558103817-58b2924bce98?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            title: "Tour Hạ Long",
+            image: haLong,
         },
     ];
 
@@ -414,184 +436,185 @@ const Home = () => {
         },
     ];
     return (
-        <div className="home">
-            <div className="home-container">
-                <Banner bannerSlides={bannerSlides} />
-
-                {/* Promotions Section */}
-                <div className="promotions-section">
-                    <div className="category-header">
-                        <h2>Chương Trình Khuyến Mãi</h2>
-                        <Link to="/travel-guide?category=promotion" className="view-all">
-                            Xem thêm
-                            <i className="fa-solid fa-circle-chevron-right"></i>
-                        </Link>
-                    </div>
-                    <Swiper
-                        modules={[Autoplay]}
-                        spaceBetween={20}
-                        slidesPerView={3}
-                        autoplay={{
-                            delay: 3000,
-                            disableOnInteraction: false,
-                        }}
-                        className="promotions-slider"
-                    >
-                        {promotions.map((promo) => (
-                            <SwiperSlide key={promo.id}>
-                                <Link
-                                    to={
-                                        promo.id === 1 || promo.id === 3
-                                            ? "/danh-muc-tour?type=domestic" // Link đến trang trong nước
-                                            : "/danh-muc-tour?type=international" // Link đến trang nước ngoài
-                                    }
-                                    className="promotion-card"
-                                >
-                                    <img src={promo.image} alt={promo.title} className="promotion-image" />
-                                </Link>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </div>
-
-                {/* Tour Trending */}
-                <div className="trending-tours-section">
-                    <div className="container">
-                        <h2>Tour Đang Xu Hướng</h2>
-                        <div className="trending-tours-grid">
-                            {trendingTours.map((tour) => (
-                                <div key={tour.id} className="trending-tour-card">
-                                    <img src={tour.image} alt={tour.title} className="trending-tour-image" />
-                                    <div className="trending-tour-title">{tour.title}</div>
-                                </div>
+        <>
+            <div className="home">
+                <div className="home-container">
+                    <Banner bannerSlides={bannerSlides} />
+                    {/* Promotions Section */}
+                    <div className="promotions-section">
+                        <div className="category-header">
+                            <h2>Chương Trình Khuyến Mãi</h2>
+                            <Link to="/travel-guide?category=promotion" className="view-all">
+                                <span>Xem thêm</span>
+                                <i className="fa-solid fa-circle-chevron-right"></i>
+                            </Link>
+                        </div>
+                        <Swiper
+                            modules={[Autoplay]}
+                            spaceBetween={20}
+                            slidesPerView={3}
+                            autoplay={{
+                                delay: 3000,
+                                disableOnInteraction: false,
+                            }}
+                            className="promotions-slider"
+                        >
+                            {promotions.map((promo) => (
+                                <SwiperSlide key={promo.id}>
+                                    <Link
+                                        to={
+                                            promo.id === 1 || promo.id === 3
+                                                ? "/danh-muc-tour?type=domestic" // Link đến trang trong nước
+                                                : "/danh-muc-tour?type=international" // Link đến trang nước ngoài
+                                        }
+                                        className="promotion-card"
+                                    >
+                                        <img src={promo.image} alt={promo.title} className="promotion-image" />
+                                    </Link>
+                                </SwiperSlide>
                             ))}
-                        </div>
+                        </Swiper>
                     </div>
-                </div>
 
-                {/* Tour Categories */}
-                <div className="tour-categories">
-                    {/* Tour trong nước */}
-                    <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/danh-muc-tour?type=domestic" categoryId="domestic" />
-
-                    {/* Tour nước ngoài */}
-                    <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/danh-muc-tour?type=international" categoryId="international" />
-                </div>
-
-                {/* Khám phá Việt Nam */}
-                <div className="vietnam-section">
-                    <h2>Khám Phá Việt Nam</h2>
-                    <div className="vietnam-grid">
-                        <div className="vietnam-card ha-giang">
-                            <img src={haGiang} alt="Hà Giang" className="vietnam-image" />
-                            <div className="vietnam-title">Hà Giang</div>
-                        </div>
-                        <div className="vietnam-card ha-long">
-                            <img src={haLong} alt="Hạ Long" className="vietnam-image" />
-                            <div className="vietnam-title">Hạ Long</div>
-                        </div>
-                        <div className="vietnam-card ho-ba-be">
-                            <img src={hoBaBe} alt="Hồ Ba Bể - Thác Bản Giốc" className="vietnam-image" />
-                            <div className="vietnam-title">Hồ Ba Bể - Thác Bản Giốc</div>
-                        </div>
-                        <div className="vietnam-card da-nang">
-                            <img src={daNang} alt="Đà Nẵng" className="vietnam-image" />
-                            <div className="vietnam-title">Đà Nẵng</div>
-                        </div>
-                        <div className="vietnam-card ninh-thuan">
-                            <img src={ninhThuan} alt="Ninh Thuận" className="vietnam-image" />
-                            <div className="vietnam-title">Ninh Thuận</div>
-                        </div>
-                        <div className="vietnam-card mien-tay">
-                            <img src={mienTay} alt="Miền Tây" className="vietnam-image" />
-                            <div className="vietnam-title">Miền Tây</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Vi Vu Nước Ngoài */}
-                <div className="foreign-section">
-                    <h2>Vi Vu Nước Ngoài</h2>
-                    <div className="vietnam-grid">
-                        <div className="vietnam-card item1">
-                            <img src="https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Korea" className="vietnam-image" />
-                            <div className="vietnam-title">Hàn Quốc</div>
-                        </div>
-                        <div className="vietnam-card item2">
-                            <img src="https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="India" className="vietnam-image" />
-                            <div className="vietnam-title">Ấn Độ</div>
-                        </div>
-                        <div className="vietnam-card item3">
-                            <img src="https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="China" className="vietnam-image" />
-                            <div className="vietnam-title">Trung Quốc</div>
-                        </div>
-                        <div className="vietnam-card item4">
-                            <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Japan" className="vietnam-image" />
-                            <div className="vietnam-title">Nhật Bản</div>
-                        </div>
-                        <div className="vietnam-card item5">
-                            <img src="https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Indonesia" className="vietnam-image" />
-                            <div className="vietnam-title">Bali - Indonesia</div>
-                        </div>
-                        <div className="vietnam-card item6">
-                            <img src="https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thailand" className="vietnam-image" />
-                            <div className="vietnam-title">Thái Lan</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Cẩm Nang Du Lịch */}
-                <div className="travel-guide-section">
-                    <div className="travel-guide-container">
-                        {/* Cẩm Nang Du Lịch */}
-                        <div className="travel-guide">
-                            <div className="category-header">
-                                <h2>Cẩm Nang Du Lịch</h2>
-                                <Link to="/blog?category=travel-guide" className="view-all">
-                                    Xem thêm
-                                    <i className="fa-solid fa-circle-chevron-right"></i>
-                                </Link>
-                            </div>
-                            <div className="travel-guide-grid">
-                                {travelGuides.map((guide) => (
-                                    <div key={guide.id} className="travel-guide-card">
-                                        <img src={guide.image} alt={guide.title} className="travel-guide-image" />
-                                        <div className="travel-guide-content">
-                                            <p className="travel-guide-title">{guide.title}</p>
-                                            <p className="travel-guide-date">
-                                                <i className="fa-regular fa-clock"></i> 06/05/2025
-                                            </p>
-                                        </div>
+                    {/* Tour Trending */}
+                    <div className="trending-tours-section">
+                        <div className="container">
+                            <h2>Tour Đang Xu Hướng</h2>
+                            <div className="trending-tours-grid">
+                                {trendingTours.map((tour) => (
+                                    <div key={tour.id} className="trending-tour-card">
+                                        <img src={tour.image} alt={tour.title} className="trending-tour-image" />
+                                        <div className="trending-tour-title">{tour.title}</div>
                                     </div>
                                 ))}
                             </div>
                         </div>
+                    </div>
 
-                        {/* Ẩm thực */}
-                        <div className="foods">
-                            <div className="category-header">
-                                <h2>Ẩm thực</h2>
-                                <Link to="/blog?category=foods" className="view-all">
-                                    Xem thêm
-                                    <i className="fa-solid fa-circle-chevron-right"></i>
-                                </Link>
+                    {/* Tour Categories */}
+                    <div className="tour-categories">
+                        {/* Tour trong nước */}
+                        <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/danh-muc-tour?type=domestic" categoryId="domestic" />
+
+                        {/* Tour nước ngoài */}
+                        <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/danh-muc-tour?type=international" categoryId="international" />
+                    </div>
+
+                    {/* Khám phá Việt Nam */}
+                    <div className="vietnam-section">
+                        <h2>Khám Phá Việt Nam</h2>
+                        <div className="vietnam-grid">
+                            <div className="vietnam-card ha-giang">
+                                <img src={haGiang} alt="Hà Giang" className="vietnam-image" />
+                                <div className="vietnam-title">Hà Giang</div>
                             </div>
-                            <div className="foods-list">
-                                {foods.map((foods) => (
-                                    <div key={foods.id} className="foods-item">
-                                        <img src={foods.image} alt={foods.title} className="foods-image" />
-                                        <div className="foods-content">
-                                            <p className="foods-title">{foods.title}</p>
-                                            <p className="foods-date">06/05/2025</p>
+                            <div className="vietnam-card ha-long">
+                                <img src={haLong} alt="Hạ Long" className="vietnam-image" />
+                                <div className="vietnam-title">Hạ Long</div>
+                            </div>
+                            <div className="vietnam-card ho-ba-be">
+                                <img src={hoBaBe} alt="Hồ Ba Bể - Thác Bản Giốc" className="vietnam-image" />
+                                <div className="vietnam-title">Hồ Ba Bể - Thác Bản Giốc</div>
+                            </div>
+                            <div className="vietnam-card da-nang">
+                                <img src={daNang} alt="Đà Nẵng" className="vietnam-image" />
+                                <div className="vietnam-title">Đà Nẵng</div>
+                            </div>
+                            <div className="vietnam-card ninh-thuan">
+                                <img src={ninhThuan} alt="Ninh Thuận" className="vietnam-image" />
+                                <div className="vietnam-title">Ninh Thuận</div>
+                            </div>
+                            <div className="vietnam-card mien-tay">
+                                <img src={mienTay} alt="Miền Tây" className="vietnam-image" />
+                                <div className="vietnam-title">Miền Tây</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Vi Vu Nước Ngoài */}
+                    <div className="foreign-section">
+                        <h2>Vi Vu Nước Ngoài</h2>
+                        <div className="vietnam-grid">
+                            <div className="vietnam-card item1">
+                                <img src="https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Korea" className="vietnam-image" />
+                                <div className="vietnam-title">Hàn Quốc</div>
+                            </div>
+                            <div className="vietnam-card item2">
+                                <img src="https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="India" className="vietnam-image" />
+                                <div className="vietnam-title">Ấn Độ</div>
+                            </div>
+                            <div className="vietnam-card item3">
+                                <img src="https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="China" className="vietnam-image" />
+                                <div className="vietnam-title">Trung Quốc</div>
+                            </div>
+                            <div className="vietnam-card item4">
+                                <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Japan" className="vietnam-image" />
+                                <div className="vietnam-title">Nhật Bản</div>
+                            </div>
+                            <div className="vietnam-card item5">
+                                <img src="https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Indonesia" className="vietnam-image" />
+                                <div className="vietnam-title">Bali - Indonesia</div>
+                            </div>
+                            <div className="vietnam-card item6">
+                                <img src="https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thailand" className="vietnam-image" />
+                                <div className="vietnam-title">Thái Lan</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Cẩm Nang Du Lịch */}
+                    <div className="travel-guide-section">
+                        <div className="travel-guide-container">
+                            {/* Cẩm Nang Du Lịch */}
+                            <div className="travel-guide">
+                                <div className="category-header">
+                                    <h2>Cẩm Nang Du Lịch</h2>
+                                    <Link to="/blog?category=travel-guide" className="view-all">
+                                        <span>Xem thêm</span>
+                                        <i className="fa-solid fa-circle-chevron-right"></i>
+                                    </Link>
+                                </div>
+                                <div className="travel-guide-grid">
+                                    {travelGuides.map((guide) => (
+                                        <div key={guide.id} className="travel-guide-card">
+                                            <img src={guide.image} alt={guide.title} className="travel-guide-image" />
+                                            <div className="travel-guide-content">
+                                                <p className="travel-guide-title">{guide.title}</p>
+                                                <p className="travel-guide-date">
+                                                    <i className="fa-regular fa-clock"></i> 06/05/2025
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Ẩm thực */}
+                            <div className="foods">
+                                <div className="category-header">
+                                    <h2>Ẩm thực</h2>
+                                    <Link to="/blog?category=foods" className="view-all">
+                                        <span>Xem thêm</span>
+                                        <i className="fa-solid fa-circle-chevron-right"></i>
+                                    </Link>
+                                </div>
+                                <div className="foods-list">
+                                    {foods.map((foods) => (
+                                        <div key={foods.id} className="foods-item">
+                                            <img src={foods.image} alt={foods.title} className="foods-image" />
+                                            <div className="foods-content">
+                                                <p className="foods-title">{foods.title}</p>
+                                                <p className="foods-date">06/05/2025</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

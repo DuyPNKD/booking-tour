@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {Link} from "react-router-dom";
 import "./Navbar.css";
 import AuthPopup from "../authPopup/AuthPopup";
-
+import Search from "../Search/Search";
 const domesticRegions = [
     {
         name: "Tour Miền Bắc",
@@ -142,6 +142,10 @@ const Navbar = () => {
                     </li>
                 </ul>
 
+                {/* Search Component */}
+                <div className="search-wrapper">
+                    <Search />
+                </div>
                 <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                     ☰
                 </button>

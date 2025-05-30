@@ -142,14 +142,17 @@ const Tours = () => {
     const [tours, setTours] = useState([]);
     const [visibleCount, setVisibleCount] = useState(6); // Hiển thị 6 tour đầu tiên
 
-    const handleShowMore = () => {
-        setVisibleCount((prev) => prev + 6); // Mỗi lần nhấn hiện thêm 6 tour
-    };
-
     useEffect(() => {
+        // Scroll to top when component mounts
+        window.scrollTo(0, 0);
+
         // Gọi API thực tế ở đây, tạm thời dùng mock data
         setTours(mockTours);
     }, []);
+
+    const handleShowMore = () => {
+        setVisibleCount((prev) => prev + 6); // Mỗi lần nhấn hiện thêm 6 tour
+    };
 
     return (
         <div id="tour-list">
