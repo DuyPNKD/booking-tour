@@ -1,0 +1,68 @@
+.vietnam-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: repeat(2, 200px); /* Định nghĩa 2 hàng có chiều cao cố định */
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.vietnam-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.vietnam-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.vietnam-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.vietnam-title {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    color: white;
+    border-radius: 20px;
+    font-size: 1rem;
+}
+
+/* Layout cho từng hình ảnh */
+.ha-giang {
+    grid-column: 1 / span 5; /* Bắt đầu từ cột 1, chiếm 5 cột */
+    grid-row: 1; /* Nằm ở hàng 1 */
+}
+
+.ha-long {
+    grid-column: 1 / span 2; /* Bắt đầu từ cột 1, chiếm 2 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
+
+.ho-ba-be {
+    grid-column: 3 / span 3; /* Bắt đầu từ cột 3, chiếm 3 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
+
+.da-nang {
+    grid-column: 6 / span 4; /* Bắt đầu từ cột 6, chiếm 4 cột */
+    grid-row: 1 / span 2; /* Bắt đầu từ hàng 1, chiếm 2 hàng */
+}
+
+.ninh-thuan {
+    grid-column: 10 / span 3; /* Bắt đầu từ cột 10, chiếm 3 cột */
+    grid-row: 1; /* Nằm ở hàng 1 */
+}
+
+.mien-tay {
+    grid-column: 10 / span 3; /* Bắt đầu từ cột 10, chiếm 3 cột */
+    grid-row: 2; /* Nằm ở hàng 2 */
+}
