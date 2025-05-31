@@ -27,6 +27,7 @@ import beach from "../../assets/beach.jpg";
 
 import "./Home.css";
 import Banner from "../../components/banner/Banner";
+import VietnamGrid from "../../components/vietNam/VietnamGrid";
 
 const Home = () => {
     useEffect(() => {
@@ -402,39 +403,25 @@ const Home = () => {
         },
     ];
 
-    // Mock data for vietnamDestinations
+    // Dữ liệu cho Khám phá Việt Nam
     const vietnamDestinations = [
-        {
-            id: 1,
-            title: "Hà Giang",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            id: 2,
-            title: "Hạ Long",
-            image: "https://images.unsplash.com/photo-1519822476265-6de8c1f6058f?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            id: 3,
-            title: "Hồ Ba Bể - Thác Bản Giốc",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            id: 4,
-            title: "Đà Nẵng",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            id: 5,
-            title: "Ninh Thuận",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
-        {
-            id: 6,
-            title: "Miền Tây",
-            image: "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-        },
+        {title: "Hà Giang", image: haGiang, className: "ha-giang"},
+        {title: "Hạ Long", image: haLong, className: "ha-long"},
+        {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be"},
+        {title: "Đà Nẵng", image: daNang, className: "da-nang"},
+        {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan"},
+        {title: "Miền Tây", image: mienTay, className: "mien-tay"},
     ];
+    // Dữ liệu cho Vi Vu Nước Ngoài
+    const foreignDestinations = [
+        {title: "Hàn Quốc", image: "https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item1"},
+        {title: "Ấn Độ", image: "https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item2"},
+        {title: "Trung Quốc", image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item3"},
+        {title: "Nhật Bản", image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item4"},
+        {title: "Bali - Indonesia", image: "https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item5"},
+        {title: "Thái Lan", image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item6"},
+    ];
+
     return (
         <>
             <div className="home">
@@ -503,63 +490,13 @@ const Home = () => {
                     {/* Khám phá Việt Nam */}
                     <div className="vietnam-section">
                         <h2>Khám Phá Việt Nam</h2>
-                        <div className="vietnam-grid">
-                            <div className="vietnam-card ha-giang">
-                                <img src={haGiang} alt="Hà Giang" className="vietnam-image" />
-                                <div className="vietnam-title">Hà Giang</div>
-                            </div>
-                            <div className="vietnam-card ha-long">
-                                <img src={haLong} alt="Hạ Long" className="vietnam-image" />
-                                <div className="vietnam-title">Hạ Long</div>
-                            </div>
-                            <div className="vietnam-card ho-ba-be">
-                                <img src={hoBaBe} alt="Hồ Ba Bể - Thác Bản Giốc" className="vietnam-image" />
-                                <div className="vietnam-title">Hồ Ba Bể - Thác Bản Giốc</div>
-                            </div>
-                            <div className="vietnam-card da-nang">
-                                <img src={daNang} alt="Đà Nẵng" className="vietnam-image" />
-                                <div className="vietnam-title">Đà Nẵng</div>
-                            </div>
-                            <div className="vietnam-card ninh-thuan">
-                                <img src={ninhThuan} alt="Ninh Thuận" className="vietnam-image" />
-                                <div className="vietnam-title">Ninh Thuận</div>
-                            </div>
-                            <div className="vietnam-card mien-tay">
-                                <img src={mienTay} alt="Miền Tây" className="vietnam-image" />
-                                <div className="vietnam-title">Miền Tây</div>
-                            </div>
-                        </div>
+                        <VietnamGrid destinations={vietnamDestinations} />
                     </div>
 
                     {/* Vi Vu Nước Ngoài */}
                     <div className="foreign-section">
                         <h2>Vi Vu Nước Ngoài</h2>
-                        <div className="vietnam-grid">
-                            <div className="vietnam-card item1">
-                                <img src="https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Korea" className="vietnam-image" />
-                                <div className="vietnam-title">Hàn Quốc</div>
-                            </div>
-                            <div className="vietnam-card item2">
-                                <img src="https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="India" className="vietnam-image" />
-                                <div className="vietnam-title">Ấn Độ</div>
-                            </div>
-                            <div className="vietnam-card item3">
-                                <img src="https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="China" className="vietnam-image" />
-                                <div className="vietnam-title">Trung Quốc</div>
-                            </div>
-                            <div className="vietnam-card item4">
-                                <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Japan" className="vietnam-image" />
-                                <div className="vietnam-title">Nhật Bản</div>
-                            </div>
-                            <div className="vietnam-card item5">
-                                <img src="https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Indonesia" className="vietnam-image" />
-                                <div className="vietnam-title">Bali - Indonesia</div>
-                            </div>
-                            <div className="vietnam-card item6">
-                                <img src="https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Thailand" className="vietnam-image" />
-                                <div className="vietnam-title">Thái Lan</div>
-                            </div>
-                        </div>
+                        <VietnamGrid destinations={foreignDestinations} />
                     </div>
 
                     {/* Cẩm Nang Du Lịch */}
