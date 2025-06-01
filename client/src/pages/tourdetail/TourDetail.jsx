@@ -292,7 +292,7 @@ export default function TourDetail() {
             {/* Suggestions */}
             <div className="tour-suggest">
                 <h3>Có thể bạn sẽ thích</h3>
-                <VietnamGrid destinations={tour.suggestions} customClass="tour-suggest-list" />
+                <VietnamGrid destinations={tour.suggestions} />
             </div>
         </div>
     );
