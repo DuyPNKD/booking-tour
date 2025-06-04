@@ -117,7 +117,7 @@
     height: 120px;
     overflow: hidden;
     border-radius: 12px;
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
     display: block;
 }
@@ -134,6 +134,7 @@
     transition: transform 0.3s ease;
     display: block;
     cursor: pointer;
+    transform-origin: center; /* Thêm dòng này để zoom từ giữa */
 }
 
 /* Zoom ảnh khi hover */
@@ -230,13 +231,25 @@
     margin-top: 10px;
 }
 .accordion-item {
-    border-bottom: 1px solid #eee;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    margin-top: 24px;
+    padding: 24px;
 }
 .accordion-title {
-    font-weight: 600;
-    padding: 10px 0;
+    font-weight: 500;
+    margin-bottom: 16px;
     cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    justify-content: space-between;
 }
+
+.accordion-title span i {
+    color: #1f50ea;
+    transition: transform 0.2s ease;
+}
+
 .accordion-content {
     margin: 0 0 10px 18px;
     padding: 0;
@@ -287,7 +300,7 @@
     text-decoration: line-through;
     font-size: 1rem;
 }
-.tour-price {
+.tour-prices {
     color: #ff6600;
     font-size: 2rem;
     font-weight: 700;
@@ -318,6 +331,10 @@
 
 .tour-related {
     margin: 32px 0 0 0;
+}
+
+.tour-related h2 {
+    text-align: left;
 }
 .tour-related-list {
     display: flex;
@@ -420,4 +437,34 @@
     margin-right: 8px;
     color: rgba(31, 80, 234, 1);
     font-size: 1.15em;
+}
+
+.tour-intro-content {
+    position: relative;
+    transition: max-height 0.3s;
+}
+.see-more-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 60px;
+    background: linear-gradient(to top, #fff 80%, rgba(255, 255, 255, 0));
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    pointer-events: none;
+}
+.see-more-btn {
+    background: none;
+    border: 1px solid rgba(239, 231, 225, 1);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    justify-content: center;
 }
