@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useRef, useEffect} from "react";
 import "./TourDetail.css";
 import detail1 from "../../assets/detail1.webp";
 import detail2 from "../../assets/detail2.webp";
@@ -14,6 +14,7 @@ import hoBaBe from "../../assets/ho_ba_be.webp";
 import daNang from "../../assets/da_nang.webp";
 import ninhThuan from "../../assets/ninh_thuan.webp";
 import mienTay from "../../assets/mien_tay.webp";
+import TourCategory from "../../components/tourCategory/TourCategory";
 
 const tour = {
     title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
@@ -28,23 +29,46 @@ const tour = {
         {
             day: "NGÀY 1",
             title: "HỒ CHÍ MINH – NINH THUẬN – KHU DU LỊCH TANYOLI",
-            meals: "(ăn sáng, trưa, tối)",
+            meals: "(Ăn sáng, trưa, tối)",
         },
         {
             day: "NGÀY 2",
             title: "ĐỒNG CỪU AN HOÀ – HANG RÁI – VỊNH VĨNH HY – VƯỜN NHO THÁI AN – ĐỒI CÁT NAM CƯƠNG",
-            meals: "(ăn sáng, trưa, tối)",
+            meals: "(Ăn sáng, trưa, tối)",
         },
         {
             day: "NGÀY 3",
             title: "KHÁM PHÁ NINH THUẬN",
-            meals: "(ăn sáng, trưa)",
+            meals: "(Ăn sáng, trưa)",
         },
     ],
-    includes: ["Xe du lịch đời mới, máy lạnh suốt tuyến", "Khách sạn 3 sao, 2 khách/phòng", "Ăn uống theo chương trình", "Vé tham quan các điểm du lịch", "Hướng dẫn viên chuyên nghiệp"],
-    excludes: ["Chi phí cá nhân, giặt ủi, điện thoại", "Nước uống, ăn uống ngoài chương trình", "Tiền tip cho hướng dẫn viên, tài xế"],
-    childrenPolicy: ["Trẻ em dưới 5 tuổi: miễn phí", "Trẻ em từ 5-10 tuổi: 75% giá tour", "Trẻ em trên 10 tuổi: tính như người lớn"],
-    cancelPolicy: ["Huỷ trước 7 ngày: không mất phí", "Huỷ từ 3-6 ngày: mất 50% giá tour", "Huỷ sau 3 ngày: mất 100% giá tour"],
+    includes: [
+        "Thuế VAT",
+        "Xe tham quan theo chương trình",
+        "Khách sạn theo tiêu chuẩn 3 sao : 2 khách/1 phòng, lẻ nam nữ ghép 3",
+        "Vé tham quan các điểm theo chương trình",
+        "Tàu đáy kính ngắm san hô theo chương trình tham quan Vịnh Vĩnh Hy",
+        "Các bữa ăn theo chương trình (4 bữa chính: tiêu chuẩn 150.000 VNĐ/ khách + 1 bữa hải sản trên bè 200.000 VNĐ/khách + 01 bữa sáng 60.000 VNĐ/ khách/ bữa + 02 bữa sáng tại khách sạn)",
+        "Hướng dẫn viên tiếng Việt kinh nghiệm, nhiệt tình",
+        "Bảo hiểm du lịch với mức bồi thường 30.000.000 VNĐ/vụ",
+        "Nước suối 1 chai 500ml/khách/ngày",
+    ],
+    excludes: ["Chi phí cá nhân, giặt ủi, điện thoại, minibar, phụ phí phòng đơn, đồ uống trong các bữa ăn….", "Các chi phí khác ngoài chương trình tour.", "Tiền tip cho lái xe và HDV địa phương", "Phụ Thu phòng đơn: 800.000 VNĐ/khách"],
+    childrenPolicy: ["Trẻ em dưới 5 tuổi miễn phí (ăn uống và ngủ cùng với bố mẹ, bố mẹ tự túc lo cho bé). Hai người lớn chỉ kèm 1 trẻ em, trẻ em thứ 2 trở đi tính giá 50% giá tour người lớn.", "Trẻ em từ 5- dưới 11 tuổi giá tour là 75% giá tour người lớn. (Tiêu chuẩn: 01 suất ăn + 01 ghế ngồi và ngủ ghép cùng giường với bố mẹ). Hai người lớn chỉ kèm 1 trẻ em , trẻ em thứ 2 trở đi tính giá tour như người lớn.", "Trẻ từ 11 tuổi trở lên, tính bằng chi phí người lớn."],
+    notes: [
+        "Giá và hành trình có thể thay đổi theo từng thời điểm cụ thể, Quý khách vui lòng liên hệ để cập nhật giá và hành trình trước khi đặt tour.",
+        "Giờ bay có thể thay đổi theo giờ bay của Hãng hàng không.",
+        "Về tính chất đoàn ghép, tour không đủ khách khởi hành sẽ hủy. Đơn vị lữ hành sẽ có nhiệm vụ báo trước tới khách",
+        "15ngày và thỏa thuận với khách về ngày khởi hành mới. Mọi chi phí phát sinh hai bên cùng thỏa thuận",
+        "Đối với các khách hàng đi riêng lẻ (lẻ 01 người) thì sẽ chịu phí phòng đơn. Khi có khách lẻ khác cùng đăng",
+        "kýghép vào thì chúng tôi sẽ trả lại phụ phí phòng đơn cho quý khách",
+        "Trẻ em từ 0-5 tuổi: Miễn phí tour, ăn ngủ chung với bố mẹ. (Hai người lớn chỉ được kèm 01 trẻ em. Từ trẻ em thứ",
+        "2phụ thu 50% người lớn). Trẻ em từ 1 tuổi trở lên đóng 700.000 VNĐ vé tàu cao tốc",
+        "Trẻ em từ 5-11 tuổi: Phụ thu 75% tour. Hai người lớn chỉ được kèm 01 suất trẻ em từ 5-11 tuổi. Từ bé thứ 2, ba mẹ nên mua thêm 01 suất giường đơn.",
+        "Trẻ trên 11 tuổi: Tính như người lớn.",
+        "Khách nước ngoài phụ thu 10USD/người/ngày, khi đi mang theo 2 bản photo hộ chiếu và bản gốc để đối chiếu.",
+    ],
+    cancelPolicy: ["Nếu quý khách hủy tour sau khi đăng ký và trước 20 ngày khởi hành: mất phí cọc tour", "Nếu quý khách hủy tour trước 15 ngày khởi hành: phí hủy 50% tiền tour + 100% tiền Vé máy bay.", "Nếu quý khách hủy tour trước 07 ngày khởi hành: phí hủy 70% tiền tour + 100% tiền vé máy bay", "Nếu quý khách hủy tour trong vòng 07 ngày trước ngày khởi hành: phí hủy 100% tiền tour + 100% tiền vé máy bay ( 100% giá trị tour trọn gói)"],
     reviews: [
         {
             name: "Lan Hương Trương",
@@ -89,6 +113,119 @@ const tour = {
     ],
 };
 
+const domesticTours = [
+    {
+        id: 1,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "3 ngày 2 đêm",
+        location: "Hà Nội, Sapa",
+        rating: 4.8,
+        booked: 320,
+        oldPrice: "2.800.000",
+        price: "2.500.000",
+    },
+    {
+        id: 2,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "4 ngày 3 đêm",
+        location: "Đà Nẵng, Hội An",
+        rating: 4.7,
+        booked: 410,
+        oldPrice: "3.800.000",
+        price: "3.500.000",
+    },
+    {
+        id: 3,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "5 ngày 4 đêm",
+        location: "Nha Trang, Đà Lạt",
+        rating: 4.9,
+        booked: 500,
+        oldPrice: "4.600.000",
+        price: "4.200.000",
+    },
+    {
+        id: 4,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "4 ngày 3 đêm",
+        location: "Đà Nẵng, Hội An",
+        rating: 4.7,
+        booked: 410,
+        oldPrice: "3.800.000",
+        price: "3.500.000",
+    },
+    {
+        id: 5,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "5 ngày 4 đêm",
+        location: "Nha Trang, Đà Lạt",
+        rating: 4.9,
+        booked: 500,
+        oldPrice: "4.600.000",
+        price: "4.200.000",
+    },
+    {
+        id: 6,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "4 ngày 3 đêm",
+        location: "Đà Nẵng, Hội An",
+        rating: 4.7,
+        booked: 410,
+        oldPrice: "3.800.000",
+        price: "3.500.000",
+    },
+    {
+        id: 7,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "5 ngày 4 đêm",
+        location: "Nha Trang, Đà Lạt",
+        rating: 4.9,
+        booked: 500,
+        oldPrice: "4.600.000",
+        price: "4.200.000",
+    },
+    {
+        id: 8,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "4 ngày 3 đêm",
+        location: "Đà Nẵng, Hội An",
+        rating: 4.7,
+        booked: 410,
+        oldPrice: "3.800.000",
+        price: "3.500.000",
+    },
+    {
+        id: 9,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "5 ngày 4 đêm",
+        location: "Nha Trang, Đà Lạt",
+        rating: 4.9,
+        booked: 500,
+        oldPrice: "4.600.000",
+        price: "4.200.000",
+    },
+    {
+        id: 10,
+        title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
+        image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        duration: "4 ngày 3 đêm",
+        location: "Đà Nẵng, Hội An",
+        rating: 4.7,
+        booked: 410,
+        oldPrice: "3.800.000",
+        price: "3.500.000",
+    },
+];
+
 const tabSections = [
     {label: "Giới thiệu", key: "intro", id: "tour-intro-section"},
     {label: "Lịch trình", key: "itinerary", id: "tour-itinerary-section"},
@@ -100,6 +237,23 @@ export default function TourDetail() {
     const [accordion, setAccordion] = useState(null);
     const [mainImgIdx, setMainImgIdx] = useState(0);
     const [activeTab, setActiveTab] = useState(tabSections[0].key);
+    const [showFullIntro, setShowFullIntro] = useState(false); // Trạng thái hiển thị nội dung đầy đủ
+    const [showSeeMore, setShowSeeMore] = useState(false); // Trạng thái hiển thị nút "Xem thêm"
+    const introRef = useRef(null); // Ref cho phần nội dung
+    const seeMoreRef = useRef(null); // Ref cho nút "Xem thêm"
+    const seeMorePositionRef = useRef(null); // Ref lưu vị trí của nút
+
+    useEffect(() => {
+        if (introRef.current && introRef.current.scrollHeight > 300) {
+            setShowSeeMore(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!showFullIntro && seeMoreRef.current) {
+            seeMoreRef.current.scrollIntoView({behavior: "smooth", block: "start"});
+        }
+    }, [showFullIntro]);
 
     const prevImg = () => setMainImgIdx((prev) => (prev === 0 ? tour.images.length - 1 : prev - 1));
     const nextImg = () => setMainImgIdx((prev) => (prev === tour.images.length - 1 ? 0 : prev + 1));
@@ -119,6 +273,29 @@ export default function TourDetail() {
         if (el) {
             el.scrollIntoView({behavior: "smooth", block: "start"});
         }
+    };
+
+    const handleExpand = () => {
+        if (seeMoreRef.current) {
+            // Lưu vị trí theo đơn vị pixel so với viewport
+            const rect = seeMoreRef.current.getBoundingClientRect();
+            seeMorePositionRef.current = window.scrollY + rect.top;
+        }
+        setShowFullIntro(true);
+    };
+
+    const handleCollapse = () => {
+        setShowFullIntro(false);
+
+        // Đợi nội dung co lại rồi scroll
+        setTimeout(() => {
+            if (seeMoreRef.current) {
+                seeMoreRef.current.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+            }
+        }, 100);
     };
 
     return (
@@ -168,8 +345,8 @@ export default function TourDetail() {
                         {getVisibleThumbnails().map((img, i) => {
                             const realIdx = (mainImgIdx + i) % tour.images.length;
                             return (
-                                <div key={img} className="thumb-wrapper">
-                                    <img src={img} alt={`thumb${realIdx}`} className={mainImgIdx === realIdx ? "active" : ""} onClick={() => setMainImgIdx(realIdx)} />
+                                <div key={img} className={"thumb-wrapper" + (mainImgIdx === realIdx ? " active" : "")} onClick={() => setMainImgIdx(realIdx)}>
+                                    <img src={img} alt={`thumb${realIdx}`} />
                                 </div>
                             );
                         })}
@@ -183,9 +360,70 @@ export default function TourDetail() {
                         ))}
                     </div>
                     <div className="tour-main-tab-content">
-                        <div id="tour-intro-section" style={{scrollMarginTop: 120}}>
+                        <div id="tour-intro-section" style={{scrollMarginTop: 120, position: "relative"}}>
                             <h2>Giới thiệu chung</h2>
-                            <p>Trải nghiệm tour du lịch Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất "nắng như rang, gió như phan". </p>
+                            <div
+                                ref={introRef}
+                                className={`tour-intro-content${showFullIntro ? " expanded" : ""}`}
+                                style={{
+                                    maxHeight: showFullIntro ? "none" : 300,
+                                    overflow: showFullIntro ? "visible" : "hidden",
+                                    position: "relative",
+                                    transition: "max-height 0.3s",
+                                }}
+                            >
+                                <p>
+                                    Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích
+                                    tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2
+                                    đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang
+                                    động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú
+                                    vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau.
+                                    - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như
+                                    rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của
+                                    đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh
+                                    Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần
+                                    tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã
+                                    ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe
+                                    điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng -
+                                    Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với
+                                    những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn
+                                    cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và
+                                    hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở
+                                    cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3
+                                    ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những
+                                    hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy
+                                    thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên
+                                    nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng
+                                    như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa
+                                    của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour
+                                    Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị
+                                    thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch
+                                    dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên
+                                    xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng -
+                                    Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với
+                                    những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và hấp dẫn. Trải nghiệm tour du lịch Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm từ TP.HCM sẽ mang đến cho bạn những khám phá đầy thú vị và sự tận hưởng không thể quên tại vùng đất “nắng như rang, gió như phan”. Một số điểm đặc biệt trong Tour Ninh Thuận - Vĩnh Hy 3 ngày 2 đêm: - Khám phá khu du lịch dã ngoại Tanyoli được mệnh danh là vùng đất 300 ngày nắng - Đón bình minh trên đồng cừu An Hòa, chiêm ngưỡng cảnh đàn
+                                    cừu ra đồng rất đáng yêu và ngộ nghĩnh. - Lạc vào xứ sở cổ tích tại Hang Rái, khám phá kiến trúc độc đáo của những hang động, vốn được tạo nên từ nhiều hòn đá xếp chồng lên nhau. - Khám phá tháp Pô Klông Garai, biểu tượng văn hóa của đồng bào Chăm, nghe những truyền thuyết xung quanh vị thần tài ba này. - Băng qua tiểu sa mạc cát Mũi Dinh trên xe điện. Hành trình mang đầy tính thách thức, mạo hiểm với những cung đường bụi mù cát, nhưng đảm bảo rất thú vị và
+                                    hấp dẫn.
+                                </p>
+                            </div>
+                            {showSeeMore && showFullIntro && (
+                                <div style={{display: "flex", justifyContent: "center", marginTop: "16px"}} ref={seeMoreRef}>
+                                    <div className="see-more-btn" onClick={handleCollapse}>
+                                        <i className="fa fa-chevron-up"></i>&nbsp;
+                                        <span style={{color: "#1f50ea", cursor: "pointer"}}>Thu gọn</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {showSeeMore && !showFullIntro && (
+                                <div style={{display: "flex", justifyContent: "center", marginTop: "16px"}} ref={seeMoreRef}>
+                                    <div className="see-more-btn" onClick={handleExpand}>
+                                        <i className="fa fa-chevron-down"></i>&nbsp;
+                                        <span style={{color: "#1f50ea", cursor: "pointer"}}>Xem thêm</span>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="tour-highlight">
                                 <span>Điểm nổi bật:</span>
                                 <ul>
@@ -200,24 +438,51 @@ export default function TourDetail() {
                             <ul className="tour-itinerary">
                                 {tour.itinerary.map((item, idx) => (
                                     <li key={idx}>
-                                        <b>{item.day}:</b> {item.title} <span>{item.meals}</span>
+                                        <b>
+                                            {item.day}: {item.title} <span>{item.meals}</span>
+                                        </b>
                                     </li>
                                 ))}
                             </ul>
                         </div>
                         <div id="tour-terms-section" style={{scrollMarginTop: 120, marginTop: 40}}>
+                            <h2>Bao gồm và điều khoản</h2>
                             <div className="tour-accordion">
                                 {[
-                                    {title: "Giá tour bao gồm", content: tour.includes},
-                                    {title: "Giá tour không bao gồm", content: tour.excludes},
-                                    {title: "Chính sách trẻ em", content: tour.childrenPolicy},
-                                    {title: "Chính sách hoàn huỷ", content: tour.cancelPolicy},
+                                    {
+                                        title: "Giá tour bao gồm",
+                                        icon: <i className="fa-regular fa-circle-check" style={{color: "#1f50ea"}}></i>,
+                                        content: tour.includes,
+                                    },
+                                    {
+                                        title: "Giá tour không bao gồm",
+                                        icon: <i className="fa-regular fa-circle-xmark" style={{color: "#1f50ea"}}></i>,
+                                        content: tour.excludes,
+                                    },
+                                    {
+                                        title: "Chính sách trẻ em",
+                                        icon: <i className="fa-solid fa-child" style={{color: "#1f50ea"}}></i>,
+                                        content: tour.childrenPolicy,
+                                    },
+                                    {
+                                        title: "Lưu ý",
+                                        icon: <i className="fa-solid fa-circle-exclamation" style={{color: "#1f50ea"}}></i>,
+                                        content: tour.notes,
+                                    },
+                                    {
+                                        title: "Chính sách hoàn huỷ",
+                                        icon: <i className="fa-solid fa-rotate-left" style={{color: "#1f50ea"}}></i>,
+                                        content: tour.cancelPolicy,
+                                    },
                                 ].map((item, idx) => (
                                     <div key={item.title} className="accordion-item">
                                         <div className="accordion-title" onClick={() => setAccordion(accordion === idx ? null : idx)}>
-                                            {item.title}
-                                            <span>{accordion === idx ? "−" : "+"}</span>
+                                            <span>
+                                                {item.icon}&nbsp;&nbsp;{item.title}
+                                            </span>
+                                            <span style={{fontSize: "13px"}}>{accordion === idx ? <i className="fa-solid fa-chevron-up"></i> : <i className="fa-solid fa-chevron-down"></i>}</span>
                                         </div>
+
                                         {accordion === idx && (
                                             <ul className="accordion-content">
                                                 {item.content.map((c, i) => (
@@ -252,7 +517,7 @@ export default function TourDetail() {
                         <img src={tour.images[0]} alt="main" className="tour-price-img" />
                         <div className="tour-price-title">{tour.title}</div>
                         <div className="tour-old-price">{tour.oldPrice.toLocaleString()}đ</div>
-                        <div className="tour-price">
+                        <div className="tour-prices">
                             {tour.price.toLocaleString()}
                             <span style={{fontSize: 20, fontWeight: 500}}>đ</span>
                         </div>
@@ -277,16 +542,7 @@ export default function TourDetail() {
 
             {/* Related tours */}
             <div className="tour-related">
-                <h3>Khách hàng còn xem thêm</h3>
-                <div className="tour-related-list">
-                    {tour.relatedTours.map((t, idx) => (
-                        <div key={idx} className="tour-related-item">
-                            <img src={t.image} alt={t.title} />
-                            <div className="tour-related-title">{t.title}</div>
-                            <div className="tour-related-price">{t.price.toLocaleString()}đ</div>
-                        </div>
-                    ))}
-                </div>
+                <TourCategory title="Khách hàng còn xem thêm" tours={domesticTours} link="/danh-muc-tour?type=domestic" categoryId="domestic" />
             </div>
 
             {/* Suggestions */}
