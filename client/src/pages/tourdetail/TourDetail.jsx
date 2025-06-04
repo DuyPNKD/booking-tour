@@ -23,7 +23,7 @@ const tour = {
     duration: "3 ngày 2 đêm",
     location: "Khởi hành: Hồ Chí Minh",
     schedule: "Lịch khởi hành: Thứ 6 hàng tuần",
-    images: [detail1, detail2, detail3, detail4, detail5, detail6, detail7],
+    images: [ninhThuan, detail1, detail2, detail3, detail4, detail5, detail6, detail7],
     highlights: ["Khuyến mãi ĐẶC BIỆT", "Khám phá vịnh Vĩnh Hy", "Tham quan tháp Chàm", "Trải nghiệm vườn nho Ninh Thuận", "Ưu đãi cho khách hàng cao tuổi"],
     itinerary: [
         {
