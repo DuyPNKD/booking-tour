@@ -9,6 +9,7 @@ import Contact from "./pages/contact/Contact";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Blog from "./pages/blog/Blog";
+import BookingPage from "./pages/booking/BookingPage";
 import "./App.css";
 
 function App() {
@@ -39,6 +40,10 @@ function App() {
 
                 {/* Trang đăng ký */}
                 <Route path="/register" element={<Register />} />
+
+                {/* Trang đặt tour */}
+                <Route path="/booking" element={<BookingPage />} />
+
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />
             </Routes>

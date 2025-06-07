@@ -175,42 +175,40 @@ const Tours = () => {
                 <div className="tour-list-content">
                     <div className="tour-list-main">
                         {tours.slice(0, visibleCount).map((tour) => (
-                            <Link to={`/tours/${tour.id}`} key={tour.id} className="tour-card-link">
-                                <div className="tour-card" key={tour.id}>
-                                    <img src={tour.image} alt={tour.title} className="tour-card-img" />
-                                    <div className="tour-card-info-container">
-                                        <h2 className="tour-card-title">{tour.title}</h2>
-                                        <div className="tour-card-info-wrap">
-                                            <div className="tour-card-info">
-                                                <span>
-                                                    <i className="fa-solid fa-house"></i>Điểm khởi hành: {tour.location}
-                                                </span>
-                                                <br />
-                                                <span>
-                                                    <i className="fa-solid fa-clock"></i>Thời gian: {tour.duration}
-                                                </span>
-                                                <br />
-                                                <span>
-                                                    <i className="fa-solid fa-calendar-days"></i>Khởi hành: {tour.schedule}
-                                                </span>
-                                                <div className="section-info-underline"></div>
-                                            </div>
-                                            <div className="tour-card-price">
-                                                <span className="price">{tour.price.toLocaleString()}đ</span>
-                                                <span className="old-price">{tour.oldPrice.toLocaleString()}đ</span>
-                                                <Link to={`/tours/${tour.id}`} className="tour-card-detail-btn">
-                                                    Xem chi tiết
-                                                </Link>
-                                            </div>
+                            <div className="tour-card-row" key={tour.id}>
+                                <img src={tour.image} alt={tour.title} className="tour-card-row-img" />
+                                <div className="tour-card-row-content">
+                                    <div className="tour-card-row-header">
+                                        <span className="tour-card-row-title">{tour.title}</span>
+                                    </div>
+                                    <div className="tour-card-row-rating">
+                                        <span className="tour-card-row-rating-badge">9.2</span>
+                                        <span className="tour-card-row-rating-text">Tuyệt vời</span>
+                                        <span className="tour-card-row-rating-count">| 124 đánh giá</span>
+                                    </div>
+                                    <div className="tour-card-row-info">
+                                        <div>
+                                            <i className="fa-solid fa-house"></i>
+                                            <span>Điểm khởi hành: Hồ Chí Minh</span>
                                         </div>
-                                        <ul className="tour-card-promotions">
-                                            {tour.promotions.map((promo, idx) => (
-                                                <li key={idx}>{promo}</li>
-                                            ))}
-                                        </ul>
+                                        <div>
+                                            <i className="fa-regular fa-clock"></i>
+                                            <span>Thời gian: 3 ngày 2 đêm</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </Link>
+                                <div className="tour-card-row-pricebox">
+                                    <span className="tour-card-row-date">
+                                        <i className="fa-regular fa-calendar"></i>
+                                        13-06-2025
+                                    </span>
+                                    <div className="tour-card-row-oldprice">2.170.000 đ</div>
+                                    <div className="tour-card-row-price">2.140.000 đ</div>
+                                    <Link to={`/tours/${tour.id}`} className="tour-card-row-btn">
+                                        Xem Tour <i className="fa-solid fa-chevron-right"></i>
+                                    </Link>
+                                </div>
+                            </div>
                         ))}
 
                         {visibleCount < tours.length && (
@@ -223,8 +221,6 @@ const Tours = () => {
                             </div>
                         )}
                     </div>
-
-                    {/* Sidebar */}
                     <div className="tour-sidebar">
                         {/* Filter */}
                         <div className="tour-filter">
