@@ -434,9 +434,9 @@
     margin-bottom: 16px;
 }
 .tour-price-icon {
-    margin-right: 8px;
     color: rgba(31, 80, 234, 1);
-    font-size: 1.15em;
+    font-size: 18px;
+    width: 18px;
 }
 
 .tour-intro-content {

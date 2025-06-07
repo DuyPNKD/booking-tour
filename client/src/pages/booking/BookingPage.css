@@ -1,0 +1,353 @@
+.booking-bg {
+    background: #f2f7fa;
+    margin-top: 90px;
+    min-height: 100vh;
+    padding: 0;
+}
+.booking-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    gap: 24px;
+    padding: 32px 0;
+}
+.booking-form {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    padding: 32px;
+    min-width: 400px;
+}
+.booking-form-title {
+    margin-bottom: 24px;
+}
+.booking-form-group {
+    margin-bottom: 16px;
+    text-align: left;
+}
+.booking-label {
+    font-weight: 500;
+}
+.booking-required {
+    color: red;
+}
+.booking-gender-group {
+    display: flex;
+    gap: 24px;
+    margin-top: 8px;
+}
+.booking-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.booking-radio {
+    accent-color: #00bcd4;
+}
+.booking-input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #cfd8dc;
+    margin-top: 6px;
+    font-size: 14px;
+}
+.booking-textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #cfd8dc;
+    margin-top: 6px;
+    min-height: 60px;
+    resize: vertical;
+    font-family: "__Inter_d65c78", "__Inter_Fallback_d65c78", sans-serif;
+    font-size: 14px;
+}
+.booking-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.booking-checkbox {
+    accent-color: #00bcd4;
+}
+.booking-submit-btn {
+    background: #ff9800;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+    padding: 12px 0;
+    border: none;
+    border-radius: 8px;
+    width: 200px;
+    cursor: pointer;
+}
+.booking-room-info {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 370px;
+    padding: 24px;
+    min-width: 320px;
+}
+.booking-stars {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #ff9800;
+    font-size: 18px;
+}
+.booking-room-title {
+    font-weight: 600;
+    font-size: 18px;
+    margin: 8px 0;
+}
+.booking-room-address {
+    color: #757575;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+.booking-room-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.custom-room-title {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 6px;
+    text-align: left;
+}
+.booking-room-info-group {
+    margin-bottom: 10px;
+}
+.booking-room-info-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 16px;
+}
+.booking-room-info-icon {
+    color: #1976d2;
+}
+.booking-room-label {
+    font-size: 16px;
+    margin-bottom: 4px;
+    text-align: left;
+}
+.booking-room-date-input-wrap {
+    margin-bottom: 12px;
+}
+.booking-room-date-input {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    font-size: 15px;
+    background: #f7f7f7;
+    margin-bottom: 0;
+    font-family: "__Inter_d65c78", "__Inter_Fallback_d65c78", sans-serif;
+}
+.booking-room-people-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.booking-room-people-col {
+    flex: 1;
+    text-align: center;
+}
+.booking-room-people-label {
+    font-size: 16px;
+}
+.booking-room-people-age {
+    font-size: 11px;
+}
+.booking-room-people-value {
+    font-weight: 600;
+    font-size: 16px;
+}
+.booking-room-link {
+    color: #2196f3;
+    font-size: 14px;
+    text-decoration: underline;
+    margin-bottom: 10px;
+    display: inline-block;
+}
+.booking-room-link-custom {
+    font-size: 13px;
+    color: #1976d2;
+    margin-bottom: 8px;
+    text-align: left;
+}
+.booking-room-price-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 15px;
+}
+.booking-room-price-row-custom {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0 0 0;
+    font-size: 15px;
+}
+.booking-room-hr {
+    margin: 12px 0;
+}
+.booking-room-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-weight: 700;
+    font-size: 22px;
+    color: #ff9800;
+}
+.booking-room-total-row-custom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 18px;
+}
+.booking-room-total-amount {
+    color: #ff8000;
+}
+.booking-submit-btn-custom {
+    margin-top: 18px;
+    width: 100%;
+    background: #ffa600;
+    color: #fff;
+    font-weight: 600;
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 12px 0;
+}
+.booking-room-people-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    padding: 8px 0;
+    font-size: 20px;
+    min-width: 70px;
+}
+.booking-room-people-input-vertical {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    gap: 8px;
+    position: relative;
+}
+.booking-room-people-input-vertical span:first-child {
+    flex: 1;
+    text-align: left;
+    font-size: 16px;
+    font-weight: 500;
+}
+.people-vertical-btn-group {
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+    gap: 0;
+}
+.people-vertical-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    width: 22px;
+    height: 12px;
+    cursor: pointer;
+    color: #222;
+    border-radius: 4px;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+.people-vertical-btn:hover {
+    background: #e0e0e0;
+}
+
+.people-vertical-btn i {
+    font-size: 13px;
+}
+.people-input-number {
+    max-width: 100px;
+    min-height: 40px;
+    padding: 12px 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    background: #f5f5f5;
+    outline: none;
+}
+.people-input-number::-webkit-inner-spin-button,
+.people-input-number::-webkit-outer-spin-button {
+    opacity: 1;
+}
+.cancel-tooltip {
+    display: none;
+    position: absolute;
+    left: 37%;
+    transform: translateX(-50%);
+    top: 120%;
+    background: #003366;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    white-space: nowrap;
+    z-index: 10;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.cancel-tooltip-arrow {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 10px;
+    overflow: hidden;
+    pointer-events: none;
+}
+.cancel-tooltip-arrow::after {
+    content: "";
+    display: block;
+    width: 18px;
+    height: 10px;
+    background: transparent;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.cancel-tooltip-arrow::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    border-bottom: 10px solid #003366;
+    width: 0;
+    height: 0;
+}
+
+.cancel-tooltip-trigger:hover + .cancel-tooltip,
+.cancel-tooltip-trigger:focus + .cancel-tooltip {
+    display: block;
+}

@@ -61,6 +61,11 @@ const Navbar = () => {
                     <img src="/logo.png" alt="DTravel Logo" className="navbar-logo-image" />
                 </Link>
 
+                {/* Search Component */}
+                <div className="search-wrapper">
+                    <Search />
+                </div>
+
                 <ul className="navbar-menu">
                     {/* Tour trong nước */}
                     <li className="navbar-menu-dropdown">
@@ -142,10 +147,6 @@ const Navbar = () => {
                     </li>
                 </ul>
 
-                {/* Search Component */}
-                <div className="search-wrapper">
-                    <Search />
-                </div>
                 <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                     ☰
                 </button>

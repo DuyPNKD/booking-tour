@@ -40,7 +40,7 @@ const TourCategory = ({title, tours, link, categoryId}) => {
                 >
                     {tours.map((tour) => (
                         <SwiperSlide key={tour.id}>
-                            <Link to={`/tour/${tour.id}`} className="tourCategory-card">
+                            <Link to={`/tours/${tour.id}`} className="tourCategory-card">
                                 <img src={tour.image} alt={tour.title} className="tourCategory-image" />
                                 <div className="tourCategory-content">
                                     <h3 className="tourCategory-title">{tour.title}</h3>
