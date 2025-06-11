@@ -2,6 +2,7 @@ import React, {useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import "./Tours.css"; // Tạo file css này để style
 import ninhThuan from "../../assets/ninh_thuan.webp";
+import {getRatingLabel} from "../../utils/ratingUtils";
 const mockTours = [
     {
         id: 1,
@@ -9,10 +10,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 2,
@@ -20,10 +22,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 3,
@@ -31,10 +34,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 4,
@@ -42,10 +46,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 5,
@@ -53,10 +58,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 6,
@@ -64,10 +70,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 7,
@@ -75,10 +82,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 8,
@@ -86,10 +94,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 9,
@@ -97,10 +106,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 10,
@@ -108,10 +118,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 11,
@@ -119,10 +130,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     {
         id: 12,
@@ -130,10 +142,11 @@ const mockTours = [
         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
         location: "Hồ Chí Minh",
         duration: "3 ngày 2 đêm",
-        schedule: "Thứ 6 hàng tuần",
+        schedule: "13-06-2025",
         price: 3380000,
         oldPrice: 4056000,
-        promotions: ["Khuyến mãi Đặt xa", "Khuyến mãi cho Khách hàng thân thiết", "Khuyến mãi Đặt theo Nhóm", "Khuyến mãi cho Người Cao tuổi"],
+        rating: "9.2",
+        ratingCount: 124,
     },
     // Thêm các tour khác tương tự...
 ];
@@ -181,29 +194,32 @@ const Tours = () => {
                                     <div className="tour-card-row-header">
                                         <span className="tour-card-row-title">{tour.title}</span>
                                     </div>
+
                                     <div className="tour-card-row-rating">
-                                        <span className="tour-card-row-rating-badge">9.2</span>
-                                        <span className="tour-card-row-rating-text">Tuyệt vời</span>
-                                        <span className="tour-card-row-rating-count">| 124 đánh giá</span>
+                                        <span className="tour-card-row-rating-badge">{tour.rating}</span>
+                                        <span className="tour-card-row-rating-text">{getRatingLabel(tour.rating)}</span>
+                                        <span className="tour-card-row-rating-count">| {tour.ratingCount} đánh giá</span>
                                     </div>
+
                                     <div className="tour-card-row-info">
                                         <div>
                                             <i className="fa-solid fa-house"></i>
-                                            <span>Điểm khởi hành: Hồ Chí Minh</span>
+                                            <span>Điểm khởi hành: {tour.location}</span>
                                         </div>
                                         <div>
                                             <i className="fa-regular fa-clock"></i>
-                                            <span>Thời gian: 3 ngày 2 đêm</span>
+                                            <span>Thời gian: {tour.duration}</span>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div className="tour-card-row-pricebox">
                                     <span className="tour-card-row-date">
                                         <i className="fa-regular fa-calendar"></i>
-                                        13-06-2025
+                                        {tour.schedule}
                                     </span>
-                                    <div className="tour-card-row-oldprice">2.170.000 đ</div>
-                                    <div className="tour-card-row-price">2.140.000 đ</div>
+                                    <div className="tour-card-row-oldprice">{tour.oldPrice.toLocaleString("vi-VN")} đ</div>
+                                    <div className="tour-card-row-price">{tour.price.toLocaleString("vi-VN")} đ</div>
                                     <Link to={`/tours/${tour.id}`} className="tour-card-row-btn">
                                         Xem Tour <i className="fa-solid fa-chevron-right"></i>
                                     </Link>
