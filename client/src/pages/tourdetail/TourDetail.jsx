@@ -15,17 +15,16 @@ import daNang from "../../assets/da_nang.webp";
 import ninhThuan from "../../assets/ninh_thuan.webp";
 import mienTay from "../../assets/mien_tay.webp";
 import TourCategory from "../../components/tourCategory/TourCategory";
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {getRatingLabel} from "../../utils/ratingUtils";
 import Calendar from "../../components/calendar/Calendar";
 
 const tour = {
-    id: 1,
     title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
     price: 3380000,
     oldPrice: 3980000,
     duration: "3 ngày 2 đêm",
-    location: "Hồ Chí Minh",
+    location: "Khởi hành: Hồ Chí Minh",
     schedule: "Lịch khởi hành: Thứ 6 hàng tuần",
     rating: "9.2",
     ratingCount: 124,
@@ -908,23 +907,7 @@ export default function TourDetail() {
                                 </div>
                             </div>
                             {/* Nút đặt */}
-                            <Link
-                                to={`/booking/${tour.id}`}
-                                state={{
-                                    title: tour.title,
-                                    image: tour.images[0],
-                                    duration: tour.duration,
-                                    departurePlace: tour.location,
-                                    price: totalPrice,
-                                    rating: tour.rating,
-                                    ratingCount: tour.ratingCount,
-                                    departureDate: selectedDate,
-                                    guestCounts: guestCounts,
-                                }}
-                                className="tour-book-btn custom-tour-book-btn"
-                            >
-                                Yêu cầu đặt
-                            </Link>
+                            <button className="tour-book-btn custom-tour-book-btn">Yêu cầu đặt</button>
                         </div>
                     </div>
                 </div>

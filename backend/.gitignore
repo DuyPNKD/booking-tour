@@ -1,0 +1,24 @@
+# Thư mục chứa thư viện đã cài
+node_modules/
+
+# File cấu hình môi trường (chứa mật khẩu, token...)
+.env
+
+# File log, cache
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# VSCode hoặc IDE
+.vscode/
+.idea/
+
+# Hệ điều hành
+.DS_Store
+Thumbs.db
+
+# File build nếu có
+dist/
+build/
