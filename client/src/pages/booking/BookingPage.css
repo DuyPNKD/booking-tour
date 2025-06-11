@@ -1,6 +1,5 @@
 .booking-bg {
     background: #f2f7fa;
-    margin-top: 90px;
     min-height: 100vh;
     padding: 0;
 }
@@ -121,6 +120,7 @@
     font-size: 18px;
     margin-bottom: 6px;
     text-align: left;
+    line-height: 1.2;
 }
 .booking-room-info-group {
     margin-bottom: 10px;
@@ -151,6 +151,15 @@
     background: #f7f7f7;
     margin-bottom: 0;
     font-family: "__Inter_d65c78", "__Inter_Fallback_d65c78", sans-serif;
+}
+
+.booking-room-people-confirm {
+    text-align: left;
+}
+
+.booking-room-people-row {
+    display: flex;
+    justify-content: space-between;
 }
 .booking-room-people-group {
     display: flex;
@@ -188,13 +197,13 @@
     display: flex;
     justify-content: space-between;
     margin: 10px 0;
-    font-size: 15px;
+    font-size: 16px;
 }
 .booking-room-price-row-custom {
     display: flex;
     justify-content: space-between;
     margin: 10px 0 0 0;
-    font-size: 15px;
+    font-size: 16px;
 }
 .booking-room-hr {
     margin: 12px 0;

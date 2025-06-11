@@ -1,0 +1,5 @@
+/* custom calendar highlight */
+.departure-day {
+    border: 1px solid #ff6600 !important;
+    border-radius: 8px;
+}

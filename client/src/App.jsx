@@ -42,7 +42,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
 
                 {/* Trang đặt tour */}
-                <Route path="/booking" element={<BookingPage />} />
+                <Route path="/booking/:id" element={<BookingPage />} />
 
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />
