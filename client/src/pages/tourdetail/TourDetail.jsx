@@ -1,4 +1,5 @@
 import React, {useState, useRef, useEffect} from "react";
+import {useParams} from "react-router-dom"; // để lấy id từ URL
 import "./TourDetail.css";
 import detail1 from "../../assets/detail1.webp";
 import detail2 from "../../assets/detail2.webp";
@@ -7,7 +8,6 @@ import detail4 from "../../assets/detail4.webp";
 import detail5 from "../../assets/detail5.webp";
 import detail6 from "../../assets/detail6.webp";
 import detail7 from "../../assets/detail7.webp";
-import VietnamGrid from "../../components/vietNam/VietnamGrid";
 import haGiang from "../../assets/ha_giang.webp";
 import haLong from "../../assets/ha_long.webp";
 import hoBaBe from "../../assets/ho_ba_be.webp";
@@ -15,105 +15,106 @@ import daNang from "../../assets/da_nang.webp";
 import ninhThuan from "../../assets/ninh_thuan.webp";
 import mienTay from "../../assets/mien_tay.webp";
 import TourCategory from "../../components/tourCategory/TourCategory";
+import VietnamGrid from "../../components/vietNam/VietnamGrid";
 import {useNavigate} from "react-router-dom";
 import {getRatingLabel} from "../../utils/ratingUtils";
 import Calendar from "../../components/calendar/Calendar";
+import axios from "axios";
 
-const tour = {
-    title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-    price: 3380000,
-    oldPrice: 3980000,
-    duration: "3 ngày 2 đêm",
-    location: "Khởi hành: Hồ Chí Minh",
-    schedule: "Lịch khởi hành: Thứ 6 hàng tuần",
-    rating: "9.2",
-    ratingCount: 124,
-    images: [ninhThuan, detail1, detail2, detail3, detail4, detail5, detail6, detail7],
-    highlights: ["Khuyến mãi ĐẶC BIỆT", "Khám phá vịnh Vĩnh Hy", "Tham quan tháp Chàm", "Trải nghiệm vườn nho Ninh Thuận", "Ưu đãi cho khách hàng cao tuổi"],
-    itinerary: [
-        {
-            day: "NGÀY 1",
-            title: "Hà Nội - Cảng Ao Tiên - Cô Tô (Ăn Trưa, Tối)",
-        },
-        {
-            day: "NGÀY 2",
-            title: "Bãi Đá Móng Rồng - Hải Đăng - Cô Tô Con/ Tour 3 Đảo (Ăn Sáng, Trưa, Tối)",
-        },
-        {
-            day: "NGÀY 3",
-            title: "Cô Tô - Cảng Ao Tiên - Hà Nội (Ăn Sáng, Trưa)",
-        },
-    ],
-    includes: [
-        "Thuế VAT",
-        "Xe tham quan theo chương trình",
-        "Khách sạn theo tiêu chuẩn 3 sao : 2 khách/1 phòng, lẻ nam nữ ghép 3",
-        "Vé tham quan các điểm theo chương trình",
-        "Tàu đáy kính ngắm san hô theo chương trình tham quan Vịnh Vĩnh Hy",
-        "Các bữa ăn theo chương trình (4 bữa chính: tiêu chuẩn 150.000 VNĐ/ khách + 1 bữa hải sản trên bè 200.000 VNĐ/khách + 01 bữa sáng 60.000 VNĐ/ khách/ bữa + 02 bữa sáng tại khách sạn)",
-        "Hướng dẫn viên tiếng Việt kinh nghiệm, nhiệt tình",
-        "Bảo hiểm du lịch với mức bồi thường 30.000.000 VNĐ/vụ",
-        "Nước suối 1 chai 500ml/khách/ngày",
-    ],
-    excludes: ["Chi phí cá nhân, giặt ủi, điện thoại, minibar, phụ phí phòng đơn, đồ uống trong các bữa ăn….", "Các chi phí khác ngoài chương trình tour.", "Tiền tip cho lái xe và HDV địa phương", "Phụ Thu phòng đơn: 800.000 VNĐ/khách"],
-    childrenPolicy: ["Trẻ em dưới 5 tuổi miễn phí (ăn uống và ngủ cùng với bố mẹ, bố mẹ tự túc lo cho bé). Hai người lớn chỉ kèm 1 trẻ em, trẻ em thứ 2 trở đi tính giá 50% giá tour người lớn.", "Trẻ em từ 5- dưới 11 tuổi giá tour là 75% giá tour người lớn. (Tiêu chuẩn: 01 suất ăn + 01 ghế ngồi và ngủ ghép cùng giường với bố mẹ). Hai người lớn chỉ kèm 1 trẻ em , trẻ em thứ 2 trở đi tính giá tour như người lớn.", "Trẻ từ 11 tuổi trở lên, tính bằng chi phí người lớn."],
-    notes: [
-        "Giá và hành trình có thể thay đổi theo từng thời điểm cụ thể, Quý khách vui lòng liên hệ để cập nhật giá và hành trình trước khi đặt tour.",
-        "Giờ bay có thể thay đổi theo giờ bay của Hãng hàng không.",
-        "Về tính chất đoàn ghép, tour không đủ khách khởi hành sẽ hủy. Đơn vị lữ hành sẽ có nhiệm vụ báo trước tới khách",
-        "15ngày và thỏa thuận với khách về ngày khởi hành mới. Mọi chi phí phát sinh hai bên cùng thỏa thuận",
-        "Đối với các khách hàng đi riêng lẻ (lẻ 01 người) thì sẽ chịu phí phòng đơn. Khi có khách lẻ khác cùng đăng",
-        "kýghép vào thì chúng tôi sẽ trả lại phụ phí phòng đơn cho quý khách",
-        "Trẻ em từ 0-5 tuổi: Miễn phí tour, ăn ngủ chung với bố mẹ. (Hai người lớn chỉ được kèm 01 trẻ em. Từ trẻ em thứ",
-        "2phụ thu 50% người lớn). Trẻ em từ 1 tuổi trở lên đóng 700.000 VNĐ vé tàu cao tốc",
-        "Trẻ em từ 5-11 tuổi: Phụ thu 75% tour. Hai người lớn chỉ được kèm 01 suất trẻ em từ 5-11 tuổi. Từ bé thứ 2, ba mẹ nên mua thêm 01 suất giường đơn.",
-        "Trẻ trên 11 tuổi: Tính như người lớn.",
-        "Khách nước ngoài phụ thu 10USD/người/ngày, khi đi mang theo 2 bản photo hộ chiếu và bản gốc để đối chiếu.",
-    ],
-    cancelPolicy: ["Nếu quý khách hủy tour sau khi đăng ký và trước 20 ngày khởi hành: mất phí cọc tour", "Nếu quý khách hủy tour trước 15 ngày khởi hành: phí hủy 50% tiền tour + 100% tiền Vé máy bay.", "Nếu quý khách hủy tour trước 07 ngày khởi hành: phí hủy 70% tiền tour + 100% tiền vé máy bay", "Nếu quý khách hủy tour trong vòng 07 ngày trước ngày khởi hành: phí hủy 100% tiền tour + 100% tiền vé máy bay ( 100% giá trị tour trọn gói)"],
-    reviews: [
-        {
-            name: "Lan Hương Trương",
-            rating: 5,
-            comment: "Xe mới, sạch sẽ, hướng dẫn viên nhiệt tình, lịch trình hợp lý. Sẽ quay lại!",
-        },
-        {
-            name: "Minh Châu",
-            rating: 5,
-            comment: "Chuyến đi rất vui, dịch vụ tốt, giá hợp lý. Cảm ơn DTravel!",
-        },
-    ],
-    relatedTours: [
-        {
-            title: "Tour Phú Quốc 3 ngày 2 đêm từ TP.HCM",
-            price: 4960000,
-            image: "/images/related1.jpg",
-        },
-        {
-            title: "Tour Ninh Thuận - Vĩnh Hy 4 ngày 3 đêm từ Hà Nội",
-            price: 7230000,
-            image: "/images/related2.jpg",
-        },
-        {
-            title: "Tour Cô Tô 3 ngày 2 đêm từ Hà Nội",
-            price: 2960000,
-            image: "/images/related3.jpg",
-        },
-        {
-            title: "Tour Cam Ranh - Nha Trang 4 ngày",
-            price: 4980000,
-            image: "/images/related4.jpg",
-        },
-    ],
-    suggestions: [
-        {title: "Hà Giang", image: haGiang, className: "ha-giang"},
-        {title: "Hạ Long", image: haLong, className: "ha-long"},
-        {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be"},
-        {title: "Đà Nẵng", image: daNang, className: "da-nang"},
-        {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan"},
-        {title: "Miền Tây", image: mienTay, className: "mien-tay"},
-    ],
-};
+// const tour = {
+//     title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//     price: 3380000,
+//     oldPrice: 3980000,
+//     duration: "3 ngày 2 đêm",
+//     location: "Khởi hành: Hồ Chí Minh",
+//     rating: "9.2",
+//     ratingCount: 124,
+//     images: [ninhThuan, detail1, detail2, detail3, detail4, detail5, detail6, detail7],
+//     highlights: ["Khuyến mãi ĐẶC BIỆT", "Khám phá vịnh Vĩnh Hy", "Tham quan tháp Chàm", "Trải nghiệm vườn nho Ninh Thuận", "Ưu đãi cho khách hàng cao tuổi"],
+//     itinerary: [
+//         {
+//             day: "NGÀY 1",
+//             title: "Hà Nội - Cảng Ao Tiên - Cô Tô (Ăn Trưa, Tối)",
+//         },
+//         {
+//             day: "NGÀY 2",
+//             title: "Bãi Đá Móng Rồng - Hải Đăng - Cô Tô Con/ Tour 3 Đảo (Ăn Sáng, Trưa, Tối)",
+//         },
+//         {
+//             day: "NGÀY 3",
+//             title: "Cô Tô - Cảng Ao Tiên - Hà Nội (Ăn Sáng, Trưa)",
+//         },
+//     ],
+//     includes: [
+//         "Thuế VAT",
+//         "Xe tham quan theo chương trình",
+//         "Khách sạn theo tiêu chuẩn 3 sao : 2 khách/1 phòng, lẻ nam nữ ghép 3",
+//         "Vé tham quan các điểm theo chương trình",
+//         "Tàu đáy kính ngắm san hô theo chương trình tham quan Vịnh Vĩnh Hy",
+//         "Các bữa ăn theo chương trình (4 bữa chính: tiêu chuẩn 150.000 VNĐ/ khách + 1 bữa hải sản trên bè 200.000 VNĐ/khách + 01 bữa sáng 60.000 VNĐ/ khách/ bữa + 02 bữa sáng tại khách sạn)",
+//         "Hướng dẫn viên tiếng Việt kinh nghiệm, nhiệt tình",
+//         "Bảo hiểm du lịch với mức bồi thường 30.000.000 VNĐ/vụ",
+//         "Nước suối 1 chai 500ml/khách/ngày",
+//     ],
+//     excludes: ["Chi phí cá nhân, giặt ủi, điện thoại, minibar, phụ phí phòng đơn, đồ uống trong các bữa ăn….", "Các chi phí khác ngoài chương trình tour.", "Tiền tip cho lái xe và HDV địa phương", "Phụ Thu phòng đơn: 800.000 VNĐ/khách"],
+//     childrenPolicy: ["Trẻ em dưới 5 tuổi miễn phí (ăn uống và ngủ cùng với bố mẹ, bố mẹ tự túc lo cho bé). Hai người lớn chỉ kèm 1 trẻ em, trẻ em thứ 2 trở đi tính giá 50% giá tour người lớn.", "Trẻ em từ 5- dưới 11 tuổi giá tour là 75% giá tour người lớn. (Tiêu chuẩn: 01 suất ăn + 01 ghế ngồi và ngủ ghép cùng giường với bố mẹ). Hai người lớn chỉ kèm 1 trẻ em , trẻ em thứ 2 trở đi tính giá tour như người lớn.", "Trẻ từ 11 tuổi trở lên, tính bằng chi phí người lớn."],
+//     notes: [
+//         "Giá và hành trình có thể thay đổi theo từng thời điểm cụ thể, Quý khách vui lòng liên hệ để cập nhật giá và hành trình trước khi đặt tour.",
+//         "Giờ bay có thể thay đổi theo giờ bay của Hãng hàng không.",
+//         "Về tính chất đoàn ghép, tour không đủ khách khởi hành sẽ hủy. Đơn vị lữ hành sẽ có nhiệm vụ báo trước tới khách",
+//         "15ngày và thỏa thuận với khách về ngày khởi hành mới. Mọi chi phí phát sinh hai bên cùng thỏa thuận",
+//         "Đối với các khách hàng đi riêng lẻ (lẻ 01 người) thì sẽ chịu phí phòng đơn. Khi có khách lẻ khác cùng đăng",
+//         "kýghép vào thì chúng tôi sẽ trả lại phụ phí phòng đơn cho quý khách",
+//         "Trẻ em từ 0-5 tuổi: Miễn phí tour, ăn ngủ chung với bố mẹ. (Hai người lớn chỉ được kèm 01 trẻ em. Từ trẻ em thứ",
+//         "2phụ thu 50% người lớn). Trẻ em từ 1 tuổi trở lên đóng 700.000 VNĐ vé tàu cao tốc",
+//         "Trẻ em từ 5-11 tuổi: Phụ thu 75% tour. Hai người lớn chỉ được kèm 01 suất trẻ em từ 5-11 tuổi. Từ bé thứ 2, ba mẹ nên mua thêm 01 suất giường đơn.",
+//         "Trẻ trên 11 tuổi: Tính như người lớn.",
+//         "Khách nước ngoài phụ thu 10USD/người/ngày, khi đi mang theo 2 bản photo hộ chiếu và bản gốc để đối chiếu.",
+//     ],
+//     cancelPolicy: ["Nếu quý khách hủy tour sau khi đăng ký và trước 20 ngày khởi hành: mất phí cọc tour", "Nếu quý khách hủy tour trước 15 ngày khởi hành: phí hủy 50% tiền tour + 100% tiền Vé máy bay.", "Nếu quý khách hủy tour trước 07 ngày khởi hành: phí hủy 70% tiền tour + 100% tiền vé máy bay", "Nếu quý khách hủy tour trong vòng 07 ngày trước ngày khởi hành: phí hủy 100% tiền tour + 100% tiền vé máy bay ( 100% giá trị tour trọn gói)"],
+//     reviews: [
+//         {
+//             name: "Lan Hương Trương",
+//             rating: 5,
+//             comment: "Xe mới, sạch sẽ, hướng dẫn viên nhiệt tình, lịch trình hợp lý. Sẽ quay lại!",
+//         },
+//         {
+//             name: "Minh Châu",
+//             rating: 5,
+//             comment: "Chuyến đi rất vui, dịch vụ tốt, giá hợp lý. Cảm ơn DTravel!",
+//         },
+//     ],
+//     relatedTours: [
+//         {
+//             title: "Tour Phú Quốc 3 ngày 2 đêm từ TP.HCM",
+//             price: 4960000,
+//             image: "/images/related1.jpg",
+//         },
+//         {
+//             title: "Tour Ninh Thuận - Vĩnh Hy 4 ngày 3 đêm từ Hà Nội",
+//             price: 7230000,
+//             image: "/images/related2.jpg",
+//         },
+//         {
+//             title: "Tour Cô Tô 3 ngày 2 đêm từ Hà Nội",
+//             price: 2960000,
+//             image: "/images/related3.jpg",
+//         },
+//         {
+//             title: "Tour Cam Ranh - Nha Trang 4 ngày",
+//             price: 4980000,
+//             image: "/images/related4.jpg",
+//         },
+//     ],
+//     suggestions: [
+//         {title: "Hà Giang", image: haGiang, className: "ha-giang"},
+//         {title: "Hạ Long", image: haLong, className: "ha-long"},
+//         {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be"},
+//         {title: "Đà Nẵng", image: daNang, className: "da-nang"},
+//         {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan"},
+//         {title: "Miền Tây", image: mienTay, className: "mien-tay"},
+//     ],
+// };
 
 const domesticTours = [
     {
@@ -399,6 +400,33 @@ export default function TourDetail() {
     const tourMainRightRef = useRef(null);
     const reviewsSectionRef = useRef(null);
     const [isStickyStopped, setIsStickyStopped] = useState(false);
+    // state cho dữ liệu tour, lịch khởi hành, giá, overview và schedules, reviews
+    const [tour, setTour] = useState({});
+    const [departures, setDepartures] = useState([]);
+    const [prices, setPrices] = useState([]);
+    const [overview, setOverview] = useState([]);
+    const [schedules, setSchedules] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const {id} = useParams(); // giả sử route là /tour/:id
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const [tourRes, depRes, priceRes, overviewRes, scheduleRes, reviewRes] = await Promise.all([axios.get(`http://localhost:3000/api/tours/${id}`), axios.get(`http://localhost:3000/api/tours/${id}/departures`), axios.get(`http://localhost:3000/api/tours/${id}/prices`), axios.get(`http://localhost:3000/api/tours/${id}/overview`), axios.get(`http://localhost:3000/api/tours/${id}/schedules`), axios.get(`http://localhost:3000/api/tours/${id}/reviews`)]);
+
+                setTour(tourRes.data);
+                setDepartures(depRes.data);
+                setPrices(priceRes.data);
+                setOverview(overviewRes.data);
+                setSchedules(scheduleRes.data);
+                setReviews(reviewRes.data);
+            } catch (error) {
+                console.error("Lỗi khi fetch tour details:", error);
+            }
+        };
+
+        fetchData();
+    }, [id]);
 
     useEffect(() => {
         if (introRef.current && introRef.current.scrollHeight > 300) {
@@ -452,6 +480,7 @@ export default function TourDetail() {
     const nextImg = () => setMainImgIdx((prev) => (prev === tour.images.length - 1 ? 0 : prev + 1));
 
     const getVisibleThumbnails = () => {
+        if (!tour.images || !Array.isArray(tour.images) || tour.images.length === 0) return [];
         const total = tour.images.length;
         const thumbnails = [];
         for (let i = 0; i < 4; i++) {
@@ -491,6 +520,20 @@ export default function TourDetail() {
         }, 100);
     };
 
+    // Lấy giá và độ tuổi từng loại khách từ prices
+    const getPriceByType = (type) => {
+        const found = prices.find((p) => p.target_type === type);
+        return found ? found.price : 0;
+    };
+    const getAgeRange = (type) => {
+        const found = prices.find((p) => p.target_type === type);
+        if (!found) return "";
+        if (type === "adult") {
+            return `> ${found.min_age} tuổi`;
+        }
+        return `${found.min_age} - ${found.max_age} tuổi`;
+    };
+
     // State cho số lượng khách từng loại
     const [guestCounts, setGuestCounts] = useState({
         adult: 1,
@@ -516,7 +559,11 @@ export default function TourDetail() {
     const PRICE_INFANT = 0;
 
     // Tính tổng tiền
-    const totalPrice = guestCounts.adult * PRICE_ADULT + guestCounts.child58 * PRICE_CHILD_58 + guestCounts.child24 * PRICE_CHILD_24 + guestCounts.infant * PRICE_INFANT;
+    const totalPrice =
+        guestCounts.adult * getPriceByType("adult") +
+        guestCounts.child58 * getPriceByType("child") +
+        guestCounts.child24 * getPriceByType("child") + // Nếu có loại child24 riêng thì sửa lại
+        guestCounts.infant * getPriceByType("infant");
 
     return (
         <div className="tour-detail-container">
@@ -550,7 +597,7 @@ export default function TourDetail() {
                         <div className="img-nav-btn left" onClick={prevImg}>
                             <i className="fa-solid fa-chevron-left"></i>
                         </div>
-                        <img src={tour.images[mainImgIdx]} alt="main" />
+                        {tour.images && tour.images.length > 0 ? <img src={tour.images[mainImgIdx].image_url} alt="main" /> : <div style={{width: 400, height: 250, background: "#eee", display: "flex", alignItems: "center", justifyContent: "center"}}>Không có ảnh</div>}
                         <div className="img-nav-btn right" onClick={nextImg}>
                             <i className="fa-solid fa-chevron-right"></i>
                         </div>
@@ -559,11 +606,7 @@ export default function TourDetail() {
                     <div className="tour-main-thumbs">
                         {getVisibleThumbnails().map((img, i) => {
                             const realIdx = (mainImgIdx + i) % tour.images.length;
-                            return (
-                                <div key={img} className={"thumb-wrapper" + (mainImgIdx === realIdx ? " active" : "")} onClick={() => setMainImgIdx(realIdx)}>
-                                    <img src={img} alt={`thumb${realIdx}`} />
-                                </div>
-                            );
+                            return <img key={img.image_url || realIdx} src={img.image_url} alt={`thumb-${realIdx}`} className={mainImgIdx === realIdx ? "active" : ""} onClick={() => setMainImgIdx(realIdx)} />;
                         })}
                     </div>
 
@@ -633,15 +676,8 @@ export default function TourDetail() {
                                     position: "relative",
                                     transition: "max-height 0.3s",
                                 }}
-                            >
-                                <ul style={{listStyle: "none", paddingLeft: 0}}>
-                                    <li>- Tắm biển Hồng Vàn & Vàn Chảy: Nước trong xanh, cát mịn, nhiều trò chơi biển hấp dẫn.</li>
-                                    <li>- Ngắm bình minh Bãi đá Móng Rồng: Sóng vỗ trên những khối đá sắc màu, cảnh đẹp thơ mộng.</li>
-                                    <li>- Chinh phục Hải đăng Cô Tô: Ngắm toàn cảnh đảo từ độ cao lý tưởng.</li>
-                                    <li>- Khám phá Cô Tô Con: Bãi biển hoang sơ, nước biển trong vắt, không gian yên bình.</li>
-                                    <li>- Dạo Con đường tình yêu & chợ đảo: Đi dạo lãng mạn, mua sắm hải sản tươi ngon.</li>
-                                </ul>
-                            </div>
+                                dangerouslySetInnerHTML={overview && overview.content ? {__html: overview.content} : undefined}
+                            ></div>
                         </div>
                         <div id="tour-itinerary-section" style={{scrollMarginTop: 120, marginTop: 40}}>
                             <div className="tour-program-header">
@@ -649,42 +685,22 @@ export default function TourDetail() {
                                 <span className="tour-program-seeall">Xem tất cả</span>
                             </div>
                             <div className="tour-program-list">
-                                <div className="tour-program-item">
-                                    <div className="tour-program-item-header">
-                                        <img src={detail1} alt="Ngày 1" className="tour-program-img" />
-                                        <div className="tour-program-info">
-                                            <div className="tour-program-day">Ngày 1</div>
-                                            <div className="tour-program-title">Hà Nội - Cảng Ao Tiên - Cô Tô (Ăn Trưa, Tối)</div>
+                                {schedules && schedules.length > 0 ? (
+                                    schedules.map((item, idx) => (
+                                        <div className="tour-program-item" key={idx}>
+                                            <div className="tour-program-item-header">
+                                                <div className="tour-program-info">
+                                                    <div className="tour-program-day">{item.day_text}</div>
+                                                    <div className="tour-program-title">{item.title}</div>
+                                                </div>
+                                                {/* Nếu muốn có nút toggle chi tiết từng ngày, có thể thêm ở đây */}
+                                            </div>
+                                            <div className="tour-program-content" dangerouslySetInnerHTML={{__html: item.content}} />
                                         </div>
-                                        <button className="tour-program-toggle">
-                                            <i className="fa-solid fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="tour-program-item">
-                                    <div className="tour-program-item-header">
-                                        <img src={detail2} alt="Ngày 2" className="tour-program-img" />
-                                        <div className="tour-program-info">
-                                            <div className="tour-program-day">Ngày 2</div>
-                                            <div className="tour-program-title">Bãi Đá Móng Rồng - Hải Đăng - Cô Tô Con/ Tour 3 Đảo (Ăn Sáng, Trưa, Tối)</div>
-                                        </div>
-                                        <button className="tour-program-toggle">
-                                            <i className="fa-solid fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="tour-program-item">
-                                    <div className="tour-program-item-header">
-                                        <img src={detail3} alt="Ngày 3" className="tour-program-img" />
-                                        <div className="tour-program-info">
-                                            <div className="tour-program-day">Ngày 3</div>
-                                            <div className="tour-program-title">Cô Tô - Cảng Ao Tiên - Hà Nội (Ăn Sáng, Trưa)</div>
-                                        </div>
-                                        <button className="tour-program-toggle">
-                                            <i className="fa-solid fa-chevron-down"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                                    ))
+                                ) : (
+                                    <div>Không có dữ liệu lịch trình</div>
+                                )}
                             </div>
                         </div>
 
@@ -719,16 +735,24 @@ export default function TourDetail() {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {departureSchedule.map((item, idx) => (
-                                            <tr key={idx} style={{borderBottom: "1px solid #eee"}}>
-                                                <td style={{padding: 8}}>{item.start}</td>
-                                                <td style={{padding: 8}}>{item.end}</td>
-                                                <td style={{padding: 8, color: "#219653", fontWeight: 500}}>{item.status}</td>
-                                                <td style={{padding: 8, color: "#1f50ea", fontWeight: 600}}>
-                                                    {item.price.toLocaleString()} <span style={{color: "#333", fontWeight: 400}}>đ</span>
+                                        {departures && departures.length > 0 ? (
+                                            departures.map((item) => (
+                                                <tr key={item.id} style={{borderBottom: "1px solid #eee"}}>
+                                                    <td style={{padding: 8}}>{new Date(item.departure_date).toLocaleDateString("vi-VN")}</td>
+                                                    <td style={{padding: 8}}>{new Date(item.return_date).toLocaleDateString("vi-VN")}</td>
+                                                    <td style={{padding: 8, color: "#219653", fontWeight: 500}}>{item.seat_status}</td>
+                                                    <td style={{padding: 8, color: "#1f50ea", fontWeight: 600}}>
+                                                        {item.price.toLocaleString()} <span style={{color: "#333", fontWeight: 400}}>đ</span>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={4} style={{textAlign: "center", padding: 16}}>
+                                                    Không có dữ liệu lịch khởi hành
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                                 <div style={{textAlign: "center", padding: 12}}>
@@ -767,12 +791,12 @@ export default function TourDetail() {
                         <div id="tour-reviews-section" ref={reviewsSectionRef} style={{scrollMarginTop: 120, marginTop: 40}}>
                             <h2>Đánh giá tour</h2>
                             <div className="tour-review-list">
-                                {tour.reviews.map((r, idx) => (
+                                {reviews.map((r, idx) => (
                                     <div key={idx} className="tour-review-item">
                                         <div className="tour-review-name">{r.name}</div>
                                         <div className="tour-review-rating">
                                             {"★".repeat(r.rating)}
-                                            <span>5/5</span>
+                                            <span>{r.rating}/5</span>
                                         </div>
                                         <div className="tour-review-comment">{r.comment}</div>
                                     </div>
@@ -824,10 +848,10 @@ export default function TourDetail() {
                                 <div className="tour-guest-row guest-adult">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Người lớn</span>
-                                        <span className="tour-guest-desc">&gt; 8 tuổi</span>
+                                        <span className="tour-guest-desc">{getAgeRange("adult")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {PRICE_ADULT.toLocaleString()}</span>
+                                        <span className="tour-guest-price">x {getPriceByType("adult").toLocaleString()}</span>
                                         <button className="qty-btn" onClick={() => handleGuestChange("adult", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
@@ -837,14 +861,14 @@ export default function TourDetail() {
                                         </button>
                                     </div>
                                 </div>
-                                {/* Trẻ em 5-8 */}
+                                {/* Trẻ em */}
                                 <div className="tour-guest-row">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Trẻ em</span>
-                                        <span className="tour-guest-desc">5 - 8 tuổi</span>
+                                        <span className="tour-guest-desc">{getAgeRange("child")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {PRICE_CHILD_58.toLocaleString()}</span>
+                                        <span className="tour-guest-price">x {getPriceByType("child").toLocaleString()}</span>
                                         <button className="qty-btn" onClick={() => handleGuestChange("child58", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
@@ -854,31 +878,14 @@ export default function TourDetail() {
                                         </button>
                                     </div>
                                 </div>
-                                {/* Trẻ em 2-4 */}
-                                <div className="tour-guest-row">
-                                    <div className="tour-guest-info">
-                                        <span className="tour-guest-label">Trẻ em</span>
-                                        <span className="tour-guest-desc">2 - 4 tuổi</span>
-                                    </div>
-                                    <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {PRICE_CHILD_24.toLocaleString()}</span>
-                                        <button className="qty-btn" onClick={() => handleGuestChange("child24", -1)}>
-                                            <i className="fa-solid fa-minus"></i>
-                                        </button>
-                                        <span className="tour-guest-count">{guestCounts.child24}</span>
-                                        <button className="qty-btn" onClick={() => handleGuestChange("child24", 1)}>
-                                            <i className="fa-solid fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                {/* Trẻ nhỏ dưới 2 */}
+                                {/* Trẻ nhỏ */}
                                 <div className="tour-guest-row last">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Trẻ nhỏ</span>
-                                        <span className="tour-guest-desc">&lt; 2 tuổi</span>
+                                        <span className="tour-guest-desc">{getAgeRange("infant")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {PRICE_INFANT.toLocaleString()}</span>
+                                        <span className="tour-guest-price">x {getPriceByType("infant").toLocaleString()}</span>
                                         <button className="qty-btn" onClick={() => handleGuestChange("infant", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
@@ -926,24 +933,3 @@ export default function TourDetail() {
         </div>
     );
 }
-
-/*
-    // Để một phần tử luôn nằm ở bên phải khi cuộn (sticky sidebar):
-    // 1. Đặt phần tử đó trong một container cha có display: flex (ví dụ .tour-main).
-    // 2. Đặt style cho phần tử cần sticky: position: sticky; top: [khoảng cách từ trên xuống].
-    // 3. Đảm bảo cha của nó đủ cao để sticky hoạt động (thường là chiều cao của cột trái).
-    // 4. Không dùng position: absolute trừ khi bạn kiểm soát được chiều cao cha.
-    // 5. Nếu muốn dừng sticky khi chạm section nào đó, cần tính toán vị trí bằng JS hoặc dùng thư viện hỗ trợ sticky nâng cao.
-
-    // Ví dụ với React:
-    // <div className="tour-main" style={{display: "flex", position: "relative"}}>
-    //   <div className="tour-main-left">...</div>
-    //   <div className="tour-main-right" style={{position: "sticky", top: 100}}>...</div>
-    // </div>
-    // Và CSS:
-    // .tour-main { display: flex; align-items: flex-start; }
-    // .tour-main-right { position: sticky; top: 100px; }
-
-    // Khi cuộn, .tour-main-right sẽ luôn nằm ở bên phải và dừng lại khi hết vùng cha.
-    // Nếu muốn dừng sticky khi chạm section đánh giá, cần xử lý thêm bằng JS như ví dụ trước.
-    */

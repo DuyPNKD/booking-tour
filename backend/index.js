@@ -12,6 +12,7 @@ db.query("SELECT 1")
 
 // Route chính
 app.use("/api/tours", require("./routes/tourRoutes"));
+app.use("/api/bookings", require("./routes/bookingRoutes"));
 
 const PORT = process.env.PORT || 3000;
 

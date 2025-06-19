@@ -7,8 +7,8 @@ import "./VietNamGrid.css";
 
 const VietnamGrid = ({destinations}) => {
     return (
-        <div className={`vietnam-grid`}>
-            {destinations.map((item, idx) => (
+        <div className="vietnam-grid">
+            {(Array.isArray(destinations) ? destinations : []).map((item, idx) => (
                 <div key={item.title + idx} className={`vietnam-card${item.className ? " " + item.className : ""}`}>
                     <img src={item.image} alt={item.title} className="vietnam-image" />
                     <div className="vietnam-title">{item.title}</div>
