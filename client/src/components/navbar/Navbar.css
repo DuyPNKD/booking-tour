@@ -153,6 +153,10 @@
     transition: background 0.2s, color 0.2s;
 }
 
+.mega-menu-region:hover {
+    text-decoration: underline;
+}
+
 .mega-menu-region:first-child {
     border-top-left-radius: 16px;
 }
@@ -192,6 +196,11 @@
     font-weight: bold;
     width: 11rem;
     text-align: left;
+}
+
+.mega-menu-group:hover {
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .mega-menu-places {

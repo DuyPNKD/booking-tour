@@ -611,10 +611,11 @@
 .tour-program-item-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 15px;
     gap: 16px;
-    align-items: stretch;
     border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
 }
 
 .tour-program-img {
@@ -655,6 +656,20 @@
 }
 
 .tour-program-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.4s ease;
+    opacity: 0;
+}
+
+/* Khi mở */
+.tour-program-content.open {
+    max-height: 2000px; /* đặt lớn để đảm bảo nội dung có thể hiện hết */
+    opacity: 1;
+}
+
+/* Chỉ phần inner có padding */
+.tour-program-inner {
     padding: 15px;
 }
 

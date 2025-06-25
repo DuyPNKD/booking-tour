@@ -1,166 +1,185 @@
 import React, {useState, useEffect} from "react";
-import {Link} from "react-router-dom";
+import {Link, useSearchParams} from "react-router-dom";
 import "./Tours.css"; // Tạo file css này để style
 import ninhThuan from "../../assets/ninh_thuan.webp";
 import {getRatingLabel} from "../../utils/ratingUtils";
-const mockTours = [
-    {
-        id: 1,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 2,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 3,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 4,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 5,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 6,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 7,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 8,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 9,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 10,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 11,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    {
-        id: 12,
-        image: ninhThuan,
-        title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
-        location: "Hồ Chí Minh",
-        duration: "3 ngày 2 đêm",
-        schedule: "13-06-2025",
-        price: 3380000,
-        oldPrice: 4056000,
-        rating: "9.2",
-        ratingCount: 124,
-    },
-    // Thêm các tour khác tương tự...
-];
+import axios from "axios";
+// const mockTours = [
+//     {
+//         id: 1,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 2,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 3,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 4,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 5,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 6,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 7,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 8,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 9,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 10,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 11,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     {
+//         id: 12,
+//         image: ninhThuan,
+//         title: "Tour Vĩnh Hy - Ninh Thuận 3 ngày 2 đêm từ TP.HCM",
+//         location: "Hồ Chí Minh",
+//         duration: "3 ngày 2 đêm",
+//         schedule: "13-06-2025",
+//         price: 3380000,
+//         oldPrice: 4056000,
+//         rating: "9.2",
+//         ratingCount: 124,
+//     },
+//     // Thêm các tour khác tương tự...
+// ];
 
 const Tours = () => {
     const [tours, setTours] = useState([]);
     const [visibleCount, setVisibleCount] = useState(6); // Hiển thị 6 tour đầu tiên
 
+    const [searchParams] = useSearchParams(); // Lấy các tham số tìm kiếm từ URL
+    const locationId = searchParams.get("location_id"); // Ví dụ: lấy location_id từ URL
+    const subregionId = searchParams.get("subregion_id"); // Ví dụ: lấy subregion_id từ URL
+    const regionId = searchParams.get("region_id"); // Ví dụ: lấy region_id từ URL
     useEffect(() => {
         // Scroll to top when component mounts
         window.scrollTo(0, 0);
 
+        const fetchTours = async () => {
+            // Giả lập gọi API để lấy danh sách tour
+            try {
+                const response = await axios.get("http://localhost:3000/api/tours", {
+                    params: {regionId, subregionId, locationId},
+                });
+
+                setTours(response.data);
+                console.log("Danh sách tour:", response.data);
+            } catch (error) {
+                console.error("Lỗi khi lấy danh sách tour:", error);
+            }
+        };
+        fetchTours();
         // Gọi API thực tế ở đây, tạm thời dùng mock data
-        setTours(mockTours);
+        // setTours(mockTours);
     }, []);
 
     const handleShowMore = () => {
@@ -188,8 +207,8 @@ const Tours = () => {
                 <div className="tour-list-content">
                     <div className="tour-list-main">
                         {tours.slice(0, visibleCount).map((tour) => (
-                            <div className="tour-card-row" key={tour.id}>
-                                <img src={tour.image} alt={tour.title} className="tour-card-row-img" />
+                            <Link to={`/danh-muc-tour?regionId=${regionId}`} className="tour-card-row" key={tour.id}>
+                                <img src={tour.image_url} alt={tour.title} className="tour-card-row-img" />
                                 <div className="tour-card-row-content">
                                     <div className="tour-card-row-header">
                                         <span className="tour-card-row-title">{tour.title}</span>
@@ -198,13 +217,13 @@ const Tours = () => {
                                     <div className="tour-card-row-rating">
                                         <span className="tour-card-row-rating-badge">{tour.rating}</span>
                                         <span className="tour-card-row-rating-text">{getRatingLabel(tour.rating)}</span>
-                                        <span className="tour-card-row-rating-count">| {tour.ratingCount} đánh giá</span>
+                                        <span className="tour-card-row-rating-count">| {tour.rating_count} đánh giá</span>
                                     </div>
 
                                     <div className="tour-card-row-info">
                                         <div>
                                             <i className="fa-solid fa-house"></i>
-                                            <span>Điểm khởi hành: {tour.location}</span>
+                                            <span>Điểm khởi hành: {tour.location_name}</span>
                                         </div>
                                         <div>
                                             <i className="fa-regular fa-clock"></i>
@@ -218,13 +237,13 @@ const Tours = () => {
                                         <i className="fa-regular fa-calendar"></i>
                                         {tour.schedule}
                                     </span>
-                                    <div className="tour-card-row-oldprice">{tour.oldPrice.toLocaleString("vi-VN")} đ</div>
-                                    <div className="tour-card-row-price">{tour.price.toLocaleString("vi-VN")} đ</div>
+                                    <div className="tour-card-row-oldprice">{tour.old_price} đ</div>
+                                    <div className="tour-card-row-price">{tour.price} đ</div>
                                     <Link to={`/tours/${tour.id}`} className="tour-card-row-btn">
                                         Xem Tour <i className="fa-solid fa-chevron-right"></i>
                                     </Link>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
 
                         {visibleCount < tours.length && (

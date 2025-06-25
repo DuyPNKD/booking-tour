@@ -11,6 +11,7 @@ db.query("SELECT 1")
     .catch((err) => console.error("❌ Kết nối MySQL thất bại:", err));
 
 // Route chính
+app.use("/navbar-menu", require("./routes/navbarRoutes"));
 app.use("/api/tours", require("./routes/tourRoutes"));
 app.use("/api/bookings", require("./routes/bookingRoutes"));
 
