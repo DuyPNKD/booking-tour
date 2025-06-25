@@ -1,11 +1,48 @@
 const db = require("../config/db");
 
 exports.getAllTours = async (req, res) => {
+    const {regionId, subregionId, locationId} = req.query;
+
+    let query = `
+        SELECT t.*, l.name AS location_name,  
+        (
+            SELECT ti.image_url 
+            FROM tours_images ti 
+            WHERE ti.tour_id = t.id 
+            ORDER BY ti.is_featured DESC, ti.id ASC 
+            LIMIT 1
+        ) AS image_url
+        FROM tours t
+        LEFT JOIN locations l ON t.location_id = l.id
+        LEFT JOIN subregions sr ON l.subregion_id = sr.id
+        LEFT JOIN regions r ON sr.region_id = r.id
+    `;
+
+    const conditions = [];
+    const values = [];
+
+    if (regionId) {
+        conditions.push("r.id = ?");
+        values.push(regionId);
+    }
+    if (subregionId) {
+        conditions.push("sr.id = ?");
+        values.push(subregionId);
+    }
+    if (locationId) {
+        conditions.push("l.id = ?");
+        values.push(locationId);
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+
     try {
-        const [rows] = await db.query("SELECT * FROM tours");
+        const [rows] = await db.query(query, values);
         res.json(rows);
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi lấy dữ liệu tour:", error);
         res.status(500).json({message: "Lỗi server"});
     }
 };
@@ -14,7 +51,17 @@ exports.getTourById = async (req, res) => {
     const {id} = req.params;
     try {
         // Lấy thông tin tour
-        const [tourRows] = await db.query("SELECT * FROM tours WHERE id = ?", [id]);
+        const [tourRows] = await db.query(
+            `
+            SELECT 
+                t.*, 
+                l.name AS location_name
+            FROM tours t
+            JOIN locations l ON t.location_id = l.id
+            WHERE t.id = ?
+        `,
+            [id]
+        );
         if (tourRows.length === 0) return res.status(404).json({message: "Không tìm thấy tour"});
 
         const tour = tourRows[0];
@@ -115,5 +162,22 @@ exports.getTourReviews = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({message: "Lỗi khi lấy đánh giá"});
+    }
+};
+
+exports.getTourTerms = async (req, res) => {
+    const {id} = req.params;
+
+    try {
+        const [rows] = await db.query("SELECT included, excluded, surcharge, cancel_policy AS cancelPolicy, notes, guide_info AS guideInfo FROM tour_terms WHERE tour_id = ?", [id]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({message: "Không tìm thấy thông tin điều khoản cho tour này"});
+        }
+
+        res.json(rows[0]);
+    } catch (err) {
+        console.error("Lỗi khi lấy terms:", err);
+        res.status(500).json({message: "Lỗi khi lấy thông tin điều khoản"});
     }
 };

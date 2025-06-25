@@ -9,5 +9,6 @@ router.get("/:id/overview", tourController.getTourOverview);
 router.get("/:id/schedules", tourController.getTourSchedules);
 router.get("/:id/prices", tourController.getTourPrices);
 router.get("/:id/reviews", tourController.getTourReviews);
+router.get("/:id/terms", tourController.getTourTerms);
 
 module.exports = router;
