@@ -1,24 +1,131 @@
-import React, {useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Calendar from "react-calendar";
+import axios from "axios";
 import "react-calendar/dist/Calendar.css";
-import "./Calendar.css"; // Import custom styles for the calendar
+import "./Calendar.css";
 
-// giả lập danh sách ngày có tour (YYYY-MM-DD)
-const departureDates = ["2025-06-15", "2025-06-17", "2025-06-22", "2025-07-01"];
+const CustomCalendarInput = ({tourId, onChange, value}) => {
+    const [departureDates, setDepartureDates] = useState([]);
+    const [showCalendar, setShowCalendar] = useState(false);
 
-const CustomCalendar = () => {
-    const [value, setValue] = useState(new Date());
+    const calendarRef = useRef();
 
-    const isDepartureDate = (date) => {
-        const formatted = date.toISOString().split("T")[0];
-        return departureDates.includes(formatted);
+    // Lấy danh sách ngày khởi hành từ API
+    useEffect(() => {
+        const fetchDates = async () => {
+            try {
+                const res = await axios.get(`http://localhost:3000/api/tours/${tourId}/departure-dates`);
+                setDepartureDates(res.data || []);
+                console.log("Ngày khởi hành:", res.data);
+                if (res.data.length > 0) {
+                    onChange(res.data[0]); // ✅ Gọi callback để update selectedDate ở component cha
+                    console.log("Gọi onChange với ngày đầu tiên:", res.data[0]);
+                }
+            } catch (err) {
+                console.error("Lỗi khi lấy ngày khởi hành:", err);
+            }
+        };
+        fetchDates();
+    }, [tourId]);
+
+    // Đóng lịch khi click ngoài
+    useEffect(() => {
+        const handleClickOutside = (e) => {
+            if (calendarRef.current && !calendarRef.current.contains(e.target)) {
+                setShowCalendar(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    const formatDate = (date) => {
+        console.log("👉 formatDate:", date);
+        const [year, month, day] = date.split("-");
+        return `${day}/${month}/${year}`;
+    };
+
+    const handleSelect = (date) => {
+        const isoDate = date.toISOString().split("T")[0];
+        if (departureDates.includes(isoDate)) {
+            setShowCalendar(false);
+            if (onChange) onChange(isoDate); // 💥 Thêm dòng này để truyền ra ngoài
+        }
+    };
+
+    const parseDateFromISO = (input) => {
+        if (!input) return null;
+
+        // Nếu là Date object rồi thì trả lại luôn
+        if (input instanceof Date) return input;
+
+        // Nếu là string "yyyy-mm-dd"
+        if (typeof input === "string") {
+            const [y, m, d] = input.split("-").map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        return null;
     };
 
     return (
-        <div className="calendar-wrapper">
-            <Calendar onChange={setValue} value={value} tileClassName={({date, view}) => (view === "month" && isDepartureDate(date) ? "departure-day" : null)} />
+        <div ref={calendarRef} style={{position: "relative"}}>
+            {/* Input lịch */}
+            <div
+                onClick={() => setShowCalendar((prev) => !prev)}
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #ddd",
+                    borderRadius: 6,
+                    padding: "4px 10px",
+                    background: "#fff",
+                    cursor: "pointer",
+                    minWidth: 130,
+                }}
+            >
+                <i className="fa-regular fa-calendar" style={{marginRight: 6, color: "#1f50ea"}}></i>
+                {value ? formatDate(value) : "Chọn ngày"}
+            </div>
+
+            {/* Bảng lịch hiển thị dưới input */}
+            {showCalendar && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: "110%",
+                        right: 0,
+                        zIndex: 10,
+                        background: "#fff",
+                        border: "1px solid #ccc",
+                        borderRadius: 8,
+                        boxShadow: "0 0 6px rgba(0,0,0,0.1)",
+                    }}
+                >
+                    <Calendar
+                        value={value ? parseDateFromISO(value) : null}
+                        tileClassName={({date, view}) => {
+                            if (view !== "month") return null;
+
+                            const isoDate = date.toISOString().split("T")[0];
+
+                            const isValid = departureDates.includes(isoDate);
+                            const isSelected = value && new Date(value).toISOString().split("T")[0] === isoDate;
+
+                            if (!isValid) return "disabled-day";
+                            if (isSelected) return "departure-day selected-day";
+                            return "departure-day";
+                        }}
+                        tileDisabled={({date}) => {
+                            const isoDate = date.toISOString().split("T")[0];
+                            return !departureDates.includes(isoDate);
+                        }}
+                        onClickDay={handleSelect}
+                    />
+                </div>
+            )}
         </div>
     );
 };
 
-export default CustomCalendar;
+export default CustomCalendarInput;

@@ -1,17 +1,15 @@
 const db = require("../config/db");
 
 exports.getAllTours = async (req, res) => {
-    const {regionId, subregionId, locationId} = req.query;
+    const {regionId, subregionId, locationId, page = 1, limit = 10, orderBy = "t.id", orderDir = "ASC"} = req.query;
 
-    let query = `
-        SELECT t.*, l.name AS location_name,  
-        (
-            SELECT ti.image_url 
-            FROM tours_images ti 
-            WHERE ti.tour_id = t.id 
-            ORDER BY ti.is_featured DESC, ti.id ASC 
-            LIMIT 1
-        ) AS image_url
+    //Tính offset
+    // page: trang hiện tại, limit: số lượng tour mỗi trang
+    const parsedPage = parseInt(page);
+    const parsedLimit = parseInt(limit);
+    const offset = (parsedPage - 1) * parsedLimit;
+
+    let baseQuery = `
         FROM tours t
         LEFT JOIN locations l ON t.location_id = l.id
         LEFT JOIN subregions sr ON l.subregion_id = sr.id
@@ -34,13 +32,57 @@ exports.getAllTours = async (req, res) => {
         values.push(locationId);
     }
 
-    if (conditions.length > 0) {
-        query += " WHERE " + conditions.join(" AND ");
-    }
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     try {
-        const [rows] = await db.query(query, values);
-        res.json(rows);
+        // 1. Lấy tổng số tour phù hợp
+        const [[{totalItems}]] = await db.query(`SELECT COUNT(*) as totalItems ${baseQuery} ${whereClause}`, values);
+
+        // 2. Lấy dữ liệu tour phân trang
+        const [data] = await db.query(
+            `
+            SELECT 
+                t.id,
+                t.title,
+                t.price,
+                t.old_price,
+                t.rating,
+                t.rating_count,
+                t.num_day,
+                t.num_night,
+                l.name AS location_name,
+                (
+                    SELECT ti.image_url 
+                    FROM tours_images ti 
+                    WHERE ti.tour_id = t.id 
+                    ORDER BY ti.id ASC 
+                    LIMIT 1
+                ) AS image_url,
+                (
+                    SELECT DATE_FORMAT(MIN(td.departure_date), '%d-%m-%Y')
+                    FROM tour_departures td
+                    WHERE td.tour_id = t.id
+                ) AS departure_date
+            ${baseQuery}
+            ${whereClause}
+            ORDER BY ${orderBy} ${orderDir.toUpperCase() === "DESC" ? "DESC" : "ASC"}
+            LIMIT ? OFFSET ?
+            `,
+            [...values, parsedLimit, offset]
+        );
+
+        // 3. Tính totalPages
+        const totalPages = Math.ceil(totalItems / parsedLimit);
+        // 4. Trả về kết quả
+        res.json({
+            result: data,
+            pagination: {
+                totalItems,
+                totalItemsPerPage: parsedLimit,
+                currentPage: parsedPage,
+                totalPages,
+            },
+        });
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu tour:", error);
         res.status(500).json({message: "Lỗi server"});
@@ -67,7 +109,7 @@ exports.getTourById = async (req, res) => {
         const tour = tourRows[0];
 
         // Lấy danh sách hình ảnh tour
-        const [imageRows] = await db.query("SELECT image_url, is_featured FROM tours_images WHERE tour_id = ?", [id]);
+        const [imageRows] = await db.query("SELECT image_url FROM tours_images WHERE tour_id = ?", [id]);
 
         // Gắn danh sách ảnh vào tour
         tour.images = imageRows;
@@ -84,12 +126,19 @@ exports.getTourDepartures = async (req, res) => {
     try {
         const [rows] = await db.query(
             `SELECT id, departure_date, return_date, available_seats, price
-       FROM tour_departures 
-       WHERE tour_id = ? 
-       ORDER BY departure_date`,
+            FROM tour_departures 
+            WHERE tour_id = ? 
+            ORDER BY departure_date`,
             [tourId]
         );
 
+        const formatDate = (date) => {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
         // 👉 Xử lý định dạng tình trạng chỗ
         const data = rows.map((row) => {
             let seat_status;
@@ -103,6 +152,8 @@ exports.getTourDepartures = async (req, res) => {
 
             return {
                 ...row,
+                departure_date: formatDate(new Date(row.departure_date)),
+                return_date: formatDate(new Date(row.return_date)),
                 seat_status,
             };
         });
@@ -111,6 +162,28 @@ exports.getTourDepartures = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({error: "Lỗi server khi lấy lịch khởi hành"});
+    }
+};
+
+exports.getDepartureDates = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const [rows] = await db.query(`SELECT departure_date FROM tour_departures WHERE tour_id = ? ORDER BY departure_date ASC`, [id]);
+
+        const formatDate = (date) => {
+            const d = new Date(date);
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${year}-${month}-${day}`;
+        };
+
+        const dates = rows.map((row) => formatDate(row.departure_date));
+
+        res.json(dates);
+    } catch (error) {
+        console.error("Lỗi khi lấy departure_date:", error);
+        res.status(500).json({message: "Lỗi server"});
     }
 };
 
@@ -133,7 +206,7 @@ exports.getTourOverview = async (req, res) => {
 exports.getTourSchedules = async (req, res) => {
     const tourId = req.params.id;
     try {
-        const [schedules] = await db.query("SELECT day_text, title, content FROM tour_schedules WHERE tour_id = ? ORDER BY id ASC", [tourId]);
+        const [schedules] = await db.query("SELECT day_text, content FROM tour_schedules WHERE tour_id = ? ORDER BY id ASC", [tourId]);
 
         res.json(schedules);
     } catch (err) {
@@ -169,13 +242,13 @@ exports.getTourTerms = async (req, res) => {
     const {id} = req.params;
 
     try {
-        const [rows] = await db.query("SELECT included, excluded, surcharge, cancel_policy AS cancelPolicy, notes, guide_info AS guideInfo FROM tour_terms WHERE tour_id = ?", [id]);
+        const [rows] = await db.query("SELECT section_title, content FROM tour_terms WHERE tour_id = ?", [id]);
 
         if (rows.length === 0) {
             return res.status(404).json({message: "Không tìm thấy thông tin điều khoản cho tour này"});
         }
 
-        res.json(rows[0]);
+        res.json(rows);
     } catch (err) {
         console.error("Lỗi khi lấy terms:", err);
         res.status(500).json({message: "Lỗi khi lấy thông tin điều khoản"});

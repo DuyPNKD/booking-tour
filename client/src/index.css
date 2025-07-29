@@ -23,6 +23,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
+    background-color: #ffffff;
 }
 
 :root {
@@ -47,6 +48,14 @@ a {
 a:hover {
 }
 
+input {
+    background-color: #fff;
+}
+
+select {
+    background-color: #fff;
+    color: #242424;
+}
 body {
     margin: 0;
     display: flex;

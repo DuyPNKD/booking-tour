@@ -1,5 +1,61 @@
 /* custom calendar highlight */
+
+/* Reset toàn bộ ngày thường */
+.react-calendar__tile {
+    color: #222 !important;
+    background: none !important;
+    border: none !important;
+}
+
+/* Ngày khởi hành: có viền, chữ xanh */
 .departure-day {
-    border: 1px solid #ff6600 !important;
-    border-radius: 8px;
+    border: 1px solid #9fc43a !important;
+    color: #9fc43a !important;
+    border-radius: 6px;
+    background: white !important;
+    transition: background-color 0.2s;
+}
+
+/* Hover vào ngày khởi hành: đổi nền nhạt */
+.departure-day:hover {
+    background-color: #26bed6 !important;
+    color: #fff !important;
+    border: 1px solid #fff !important;
+    cursor: pointer;
+}
+
+/* Ngày đang chọn: nền xanh, chữ trắng */
+.selected-day {
+    background-color: #26bed6 !important;
+    color: white !important;
+    border: none !important;
+}
+
+.disabled-day {
+    color: #8689b3 !important;
+    pointer-events: none;
+}
+
+.react-calendar__navigation button {
+    /* all: unset; xóa toàn bộ mặc định trình duyệt */
+    padding: 16px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #000 !important; /* 👈 Màu đen rõ ràng */
+    cursor: pointer;
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.react-calendar__navigation button:hover {
+    background-color: #f0f0f0; /* 👈 Màu nền sáng khi hover */
+}
+
+/* Đổi màu chữ đỏ cho thứ Bảy (thứ 6 trong mảng JS) và Chủ nhật (chủ nhật là 0) */
+.react-calendar__month-view__weekdays__weekday:nth-child(6),
+.react-calendar__month-view__weekdays__weekday:nth-child(7) {
+    color: red;
+    font-weight: bold;
 }
