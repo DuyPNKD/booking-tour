@@ -1,13 +1,7 @@
 import React, {useState, useRef, useEffect} from "react";
-import {useParams} from "react-router-dom"; // để lấy id từ URL
+import {useParams, useNavigate} from "react-router-dom"; // để lấy id từ URL
 import "./TourDetail.css";
-import detail1 from "../../assets/detail1.webp";
-import detail2 from "../../assets/detail2.webp";
-import detail3 from "../../assets/detail3.webp";
-import detail4 from "../../assets/detail4.webp";
-import detail5 from "../../assets/detail5.webp";
-import detail6 from "../../assets/detail6.webp";
-import detail7 from "../../assets/detail7.webp";
+
 import haGiang from "../../assets/ha_giang.webp";
 import haLong from "../../assets/ha_long.webp";
 import hoBaBe from "../../assets/ho_ba_be.webp";
@@ -16,9 +10,9 @@ import ninhThuan from "../../assets/ninh_thuan.webp";
 import mienTay from "../../assets/mien_tay.webp";
 import TourCategory from "../../components/tourCategory/TourCategory";
 import VietnamGrid from "../../components/vietNam/VietnamGrid";
-import {useNavigate} from "react-router-dom";
 import {getRatingLabel} from "../../utils/ratingUtils";
-import Calendar from "../../components/calendar/Calendar";
+import CustomCalendarInput from "../../components/calendar/Calendar";
+
 import axios from "axios";
 
 // Dữ liệu cho Khám phá Việt Nam
@@ -145,20 +139,59 @@ const domesticTours = [
 ];
 
 const tabSections = [
-    {label: "Tổng quan", key: "intro", id: "tour-intro-section"},
+    {label: "Giới thiệu", key: "intro", id: "tour-intro-section"},
     {label: "Chương trình tour", key: "itinerary", id: "tour-itinerary-section"},
     {label: "Lịch khởi hành", key: "departure", id: "tour-departure-section"},
     {label: "Thông tin cần lưu ý", key: "terms", id: "tour-terms-section"},
     {label: "Đánh giá tour", key: "reviews", id: "tour-reviews-section"},
 ];
 
+const fixImageUrl = (html) => {
+    if (!html) return html;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    doc.querySelectorAll("img").forEach((img) => {
+        const src = img.getAttribute("src");
+        const srcset = img.getAttribute("srcset");
+
+        if (src && src.startsWith("/")) {
+            img.setAttribute("src", "https://pystravel.vn" + src);
+        }
+
+        if (srcset) {
+            const fixedSrcset = srcset
+                .split(",")
+                .map((part) => {
+                    const trimmed = part.trim();
+                    const urlMatch = trimmed.match(/^(\/[^ ]+)/);
+                    return urlMatch ? `https://pystravel.vn${trimmed}` : trimmed;
+                })
+                .join(", ");
+            img.setAttribute("srcset", fixedSrcset);
+        }
+    });
+
+    return doc.body.innerHTML;
+};
+
+const formatDateToDDMM = (dateStr) => {
+    console.log("👉 typeof:", typeof dateStr, "| value:", dateStr);
+    if (typeof dateStr !== "string") {
+        throw new Error("dateStr không phải string");
+    }
+    const [year, month, day] = dateStr.split("-");
+    return `${day}/${month}`;
+};
+
 export default function TourDetail() {
     const [mainImgIdx, setMainImgIdx] = useState(0);
     const [activeTab, setActiveTab] = useState(tabSections[0].key);
     const [showFullIntro, setShowFullIntro] = useState(false); // Trạng thái hiển thị nội dung đầy đủ
     const [showSeeMore, setShowSeeMore] = useState(false); // Trạng thái hiển thị nút "Xem thêm"
-    const [infoTab, setInfoTab] = useState("included");
-    const [selectedDate, setSelectedDate] = useState("13/06"); // State cho ngày đang chọn
+
+    const [selectedDate, setSelectedDate] = useState(null); // State cho ngày đang chọn
     const introRef = useRef(null); // Ref cho phần nội dung
     const seeMoreRef = useRef(null); // Ref cho nút "Xem thêm"
     const seeMorePositionRef = useRef(null); // Ref lưu vị trí của nút
@@ -169,12 +202,15 @@ export default function TourDetail() {
     const tourMainRightRef = useRef(null);
     const reviewsSectionRef = useRef(null);
     const [isStickyStopped, setIsStickyStopped] = useState(false);
-    const [activeIndex, setActiveIndex] = useState(null);
+    const [activeIndexes, setActiveIndexes] = useState([]);
     const [showAll, setShowAll] = useState(false);
+    const [infoTabs, setInfoTabs] = useState([]); // Danh sách các tab
+    const [infoTab, setInfoTab] = useState(""); // Tab hiện tại được chọn
 
     // state cho dữ liệu tour, lịch khởi hành, giá, overview và schedules, reviews
     const [tour, setTour] = useState({});
     const [departures, setDepartures] = useState([]);
+    const [shortDepartures, setShortDepartures] = useState([]);
     const [prices, setPrices] = useState([]);
     const [overview, setOverview] = useState([]);
     const [schedules, setSchedules] = useState([]);
@@ -183,28 +219,44 @@ export default function TourDetail() {
 
     const {id} = useParams(); // giả sử route là /tour/:id
 
-    const infoTabs = [
-        {label: "Giá bao gồm", key: "included", content: terms?.included},
-        {label: "Giá không bao gồm", key: "excluded", content: terms?.excluded},
-        {label: "Phụ thu", key: "surcharge", content: terms?.surcharge},
-        {label: "Hủy đổi", key: "cancel", content: terms?.cancelPolicy},
-        {label: "Lưu ý", key: "note", content: terms?.notes},
-        {label: "Hướng dẫn viên", key: "guide", content: terms?.guideInfo},
-    ];
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const responses = await axios.all([axios.get(`http://localhost:3000/api/tours/${id}`), axios.get(`http://localhost:3000/api/tours/${id}/departures`), axios.get(`http://localhost:3000/api/tours/${id}/prices`), axios.get(`http://localhost:3000/api/tours/${id}/overview`), axios.get(`http://localhost:3000/api/tours/${id}/schedules`), axios.get(`http://localhost:3000/api/tours/${id}/reviews`), axios.get(`http://localhost:3000/api/tours/${id}/terms`)]);
+                const responses = await axios.all([
+                    axios.get(`http://localhost:3000/api/tours/${id}`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/departures`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/prices`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/overview`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/schedules`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/reviews`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/terms`),
+                    axios.get(`http://localhost:3000/api/tours/${id}/departure-dates`),
+                ]);
 
-                const [tourRes, depRes, priceRes, overviewRes, scheduleRes, reviewRes, termsRes] = responses;
+                const [tourRes, depRes, priceRes, overviewRes, scheduleRes, reviewRes, termsRes, departureDatesRes] = responses;
+                setTour(tourRes.data || {});
+                setDepartures(depRes.data || []);
+                const allDates = (departureDatesRes.data || []).sort((a, b) => new Date(a) - new Date(b));
+                setShortDepartures(allDates.slice(0, 3));
+                setSelectedDate(allDates[0]);
 
-                setTour(tourRes.data);
-                setDepartures(depRes.data);
-                setPrices(priceRes.data);
-                setOverview(overviewRes.data);
-                setSchedules(scheduleRes.data);
-                setReviews(reviewRes.data);
-                setTerms(termsRes.data);
+                // console.log("Ngày khởi hành trang detail:", departureDatesRes.data);
+
+                setPrices(priceRes.data) || []; // Đảm bảo prices là mảng
+                setOverview({
+                    ...overviewRes.data,
+                    content: fixImageUrl(overviewRes.data?.content),
+                }); // Đảm bảo overview là mảng
+
+                setSchedules(
+                    (scheduleRes.data || []).map((schedule) => ({
+                        ...schedule,
+                        content: fixImageUrl(schedule.content),
+                    }))
+                );
+
+                setReviews(reviewRes.data || []); // Đảm bảo reviews là mảng
+                setTerms(termsRes.data || []); // ✅ Là mảng
             } catch (error) {
                 console.error("Lỗi khi fetch tour details:", error);
             }
@@ -213,11 +265,32 @@ export default function TourDetail() {
         fetchData();
     }, [id]);
 
+    // Set giá trị mặc định cho selectedDate sau khi departures được fetch xong
+    useEffect(() => {
+        if (departures.length > 0 && !selectedDate) {
+            setSelectedDate(departures[0].departure_date);
+        }
+    }, [departures]);
+
+    useEffect(() => {
+        if (terms.length > 0) {
+            const mappedTabs = terms.map((term, index) => ({
+                key: `term-${index}`,
+                label: term.section_title,
+                content: term.content,
+            }));
+            setInfoTabs(mappedTabs);
+            setInfoTab(`term-0`); // chọn tab đầu tiên mặc định
+        }
+    }, [terms]);
+
     useEffect(() => {
         if (introRef.current && introRef.current.scrollHeight > 300) {
             setShowSeeMore(true);
+        } else {
+            setShowSeeMore(false);
         }
-    }, []);
+    }, [overview, showFullIntro]);
 
     useEffect(() => {
         if (!showFullIntro && seeMoreRef.current) {
@@ -306,8 +379,15 @@ export default function TourDetail() {
     };
 
     const toggleContent = (index) => {
-        if (showAll) return; // Nếu đang "xem tất cả", thì bỏ qua toggle từng item
-        setActiveIndex(activeIndex === index ? null : index);
+        if (showAll) return;
+
+        if (activeIndexes.includes(index)) {
+            // Nếu đang mở → đóng lại
+            setActiveIndexes(activeIndexes.filter((i) => i !== index));
+        } else {
+            // Nếu đang đóng → mở thêm
+            setActiveIndexes([...activeIndexes, index]);
+        }
     };
 
     const handleToggleAll = () => {
@@ -347,18 +427,53 @@ export default function TourDetail() {
         });
     };
 
-    // Giá từng loại khách
-    const PRICE_ADULT = 3110000;
-    const PRICE_CHILD_58 = 3110000;
-    const PRICE_CHILD_24 = 3110000;
-    const PRICE_INFANT = 0;
-
     // Tính tổng tiền
     const totalPrice =
         guestCounts.adult * getPriceByType("adult") +
         guestCounts.child58 * getPriceByType("child") +
         guestCounts.child24 * getPriceByType("child") + // Nếu có loại child24 riêng thì sửa lại
         guestCounts.infant * getPriceByType("infant");
+
+    // ------Xử lý hiển thị active của ngày khởi hành------
+    const selectedIndex = shortDepartures.findIndex((d) => d === selectedDate);
+
+    let visibleDates = [];
+    if (selectedIndex === 0) {
+        // Chọn phần tử đầu tiên, active nằm bên trái
+        visibleDates = shortDepartures.slice(0, 3);
+    } else if (selectedIndex === shortDepartures.length - 1) {
+        // Chọn phần tử cuối cùng, active nằm bên phải
+        visibleDates = shortDepartures.slice(-3);
+    } else if (selectedIndex > 0) {
+        // Các phần tử ở giữa, active nằm giữa
+        visibleDates = shortDepartures.slice(selectedIndex - 1, selectedIndex + 2);
+    } else {
+        // fallback nếu chưa chọn ngày → hiển thị 3 ngày đầu
+        visibleDates = shortDepartures.slice(0, 3);
+    }
+
+    const handleCalendarChange = (isoDate) => {
+        // Nếu ngày chưa có trong danh sách thì thêm vào
+        if (!shortDepartures.find((d) => d === isoDate)) {
+            const updated = [...shortDepartures, isoDate].sort((a, b) => new Date(a) - new Date(b));
+            console.log("Cập nhật ngày khởi hành mới:", updated);
+            setShortDepartures(updated);
+        }
+
+        setSelectedDate(isoDate);
+    };
+
+    const handleBooking = () => {
+        const query = new URLSearchParams({
+            date: selectedDate,
+            adult: guestCounts.adult,
+            child58: guestCounts.child58,
+            child24: guestCounts.child24,
+            infant: guestCounts.infant,
+        }).toString();
+
+        navigate(`/booking/${tour.id}?${query}`);
+    };
 
     return (
         <div className="tour-detail-container">
@@ -461,7 +576,7 @@ export default function TourDetail() {
                     </div>
                     <div className="tour-main-tab-content">
                         <div id="tour-intro-section" style={{scrollMarginTop: 120, position: "relative"}}>
-                            <h2>Trải nghiệm thú vị trong tour</h2>
+                            <h2>Giới thiệu chung</h2>
                             <div
                                 ref={introRef}
                                 className={`tour-intro-content${showFullIntro ? " expanded" : ""}`}
@@ -473,6 +588,45 @@ export default function TourDetail() {
                                 }}
                                 dangerouslySetInnerHTML={overview && overview.content ? {__html: overview.content} : undefined}
                             ></div>
+
+                            {showSeeMore && (
+                                <div style={{textAlign: "center", marginTop: 12}}>
+                                    {!showFullIntro ? (
+                                        <button
+                                            ref={seeMoreRef}
+                                            className="see-more-btn"
+                                            style={{
+                                                background: "#eaf2ff",
+                                                color: "#1f50ea",
+                                                border: "none",
+                                                borderRadius: 6,
+                                                padding: "8px 18px",
+                                                cursor: "pointer",
+                                                fontWeight: 500,
+                                            }}
+                                            onClick={handleExpand}
+                                        >
+                                            Xem thêm <i className="fa-solid fa-chevron-down" style={{fontSize: 12}}></i>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            className="see-more-btn"
+                                            style={{
+                                                background: "#f7f7f7",
+                                                color: "#1f50ea",
+                                                border: "none",
+                                                borderRadius: 6,
+                                                padding: "8px 18px",
+                                                cursor: "pointer",
+                                                fontWeight: 500,
+                                            }}
+                                            onClick={handleCollapse}
+                                        >
+                                            Thu gọn <i className="fa-solid fa-chevron-up" style={{fontSize: 12}}></i>
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <div id="tour-itinerary-section" style={{scrollMarginTop: 120, marginTop: 40}}>
                             <div className="tour-program-header">
@@ -487,16 +641,16 @@ export default function TourDetail() {
                                         <div className="tour-program-item" key={idx}>
                                             <div
                                                 className="tour-program-item-header"
-                                                onClick={() => toggleContent(idx)}
+                                                onClick={showAll ? undefined : () => toggleContent(idx)}
                                                 style={{cursor: showAll ? "default" : "pointer"}} // Vô hiệu hóa click nếu đang "xem tất cả"
                                             >
                                                 <div className="tour-program-info">
                                                     <div className="tour-program-day">{item.day_text}</div>
                                                     <div className="tour-program-title">{item.title}</div>
                                                 </div>
-                                                <i className={`fa-solid ${showAll || activeIndex === idx ? "fa-angle-up" : "fa-angle-down"}`}></i>
+                                                <i className={`fa-solid ${showAll || activeIndexes.includes(idx) ? "fa-angle-up" : "fa-angle-down"}`}></i>
                                             </div>
-                                            <div className={`tour-program-content ${showAll || activeIndex === idx ? "open" : ""}`}>
+                                            <div className={`tour-program-content ${showAll || activeIndexes.includes(idx) ? "open" : ""}`}>
                                                 <div className="tour-program-inner" dangerouslySetInnerHTML={{__html: item.content}} />
                                             </div>
                                         </div>
@@ -511,21 +665,7 @@ export default function TourDetail() {
                         <div id="tour-departure-section" style={{scrollMarginTop: 120, marginTop: 40}}>
                             <div style={{display: "flex", alignItems: "center", gap: 16, marginBottom: 16, justifyContent: "space-between"}}>
                                 <h2 style={{margin: 0}}>Lịch khởi hành & giá tour</h2>
-                                <div style={{display: "flex", alignItems: "center", border: "1px solid #ddd", borderRadius: 6, padding: "4px 10px", background: "#fff"}}>
-                                    <i className="fa-regular fa-calendar" style={{marginRight: 6, color: "#1f50ea"}}></i>
-                                    <input
-                                        type="date"
-                                        style={{
-                                            border: "none",
-                                            outline: "none",
-                                            fontSize: 15,
-                                            background: "transparent",
-                                            color: "#222",
-                                            minWidth: 120,
-                                            cursor: "pointer",
-                                        }}
-                                    />
-                                </div>
+                                <CustomCalendarInput tourId={tour.id} />
                             </div>
                             <div className="departure-table-wrapper" style={{background: "#fff", borderRadius: 8, border: "1px solid #eee", marginBottom: 32}}>
                                 <table className="departure-table" style={{width: "100%", borderCollapse: "collapse"}}>
@@ -567,8 +707,8 @@ export default function TourDetail() {
                         </div>
 
                         <div id="tour-terms-section" style={{scrollMarginTop: 120, marginTop: 40}}>
-                            <h2>Thông tin cần lưu ý</h2>
-                            <div style={{borderBottom: "1px solid #eee", marginBottom: 16, display: "flex", gap: 8}}>
+                            <h2>Bao gồm và điều khoản</h2>
+                            <div style={{borderBottom: "1px solid #eee", marginBottom: 12, display: "flex", gap: 8}}>
                                 {infoTabs.map((tab) => (
                                     <button
                                         key={tab.key}
@@ -591,6 +731,7 @@ export default function TourDetail() {
                             </div>
                             <div
                                 style={{padding: 8, background: "#fff", borderRadius: 8, minHeight: 120}}
+                                className="custom-content"
                                 dangerouslySetInnerHTML={{
                                     __html: infoTabs.find((tab) => tab.key === infoTab)?.content || "<p>Đang tải...</p>",
                                 }}
@@ -619,37 +760,18 @@ export default function TourDetail() {
                         <div className="tour-price-box-inner">
                             <div className="tour-price-box-title">Lịch Trình và Giá Tour</div>
                             <div className="tour-price-box-desc">Chọn Lịch Trình và Xem Giá:</div>
-                            <div className="tour-date-btn-group" style={{position: "relative"}}>
-                                <button className={"tour-date-btn" + (selectedDate === "13/06" ? " active" : "")} onClick={() => setSelectedDate("13/06")}>
-                                    13/06
-                                </button>
-                                <button className={"tour-date-btn" + (selectedDate === "20/06" ? " active" : "")} onClick={() => setSelectedDate("20/06")}>
-                                    20/06
-                                </button>
-                                <button className={"tour-date-btn" + (selectedDate === "27/06" ? " active" : "")} onClick={() => setSelectedDate("27/06")}>
-                                    27/06
-                                </button>
-                                <button
-                                    ref={buttonRef} // ⬅️ quan trọng
-                                    className={"tour-date-btn-all tour-date-btn" + (selectedDate === "all" ? " active" : "")}
-                                    onClick={() => {
-                                        if (selectedDate === "all") {
-                                            setShowCalendar((prev) => !prev); // toggle lịch
-                                        } else {
-                                            setSelectedDate("all");
-                                            setShowCalendar(true);
-                                        }
-                                    }}
-                                    style={{position: "relative", zIndex: 2}}
-                                >
-                                    <i className="fa-regular fa-calendar"></i>Tất cả
-                                </button>
-                                {showCalendar && selectedDate === "all" && (
-                                    <div ref={calendarRef} className="tour-calendar-dropdown">
-                                        <Calendar />
-                                    </div>
-                                )}
+                            <div className="tour-date-btn-group" style={{position: "relative", display: "flex", flexDirection: "column", gap: 8}}>
+                                <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
+                                    {visibleDates.map((d) => (
+                                        <button key={d} className={"tour-date-btn" + (selectedDate === d ? " active" : "")} onClick={() => setSelectedDate(d)}>
+                                            {formatDateToDDMM(d)}
+                                        </button>
+                                    ))}
+
+                                    <CustomCalendarInput tourId={tour.id} value={selectedDate} onChange={handleCalendarChange} />
+                                </div>
                             </div>
+
                             {/* Chọn số lượng khách */}
                             <div className="tour-guest-select-box">
                                 {/* Người lớn */}
@@ -722,7 +844,9 @@ export default function TourDetail() {
                                 </div>
                             </div>
                             {/* Nút đặt */}
-                            <button className="tour-book-btn custom-tour-book-btn">Yêu cầu đặt</button>
+                            <button className="tour-book-btn custom-tour-book-btn" onClick={handleBooking}>
+                                Yêu cầu đặt
+                            </button>
                         </div>
                     </div>
                 </div>

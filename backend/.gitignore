@@ -22,3 +22,6 @@ Thumbs.db
 # File build nếu có
 dist/
 build/
+
+# Hình ảnh tải lên
+public/uploads/images/

@@ -1,35 +1,50 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import "./BookingPage.css";
 import ninhThuan from "../../assets/ninh_thuan.webp";
-import {useLocation, useParams} from "react-router-dom";
+import {useSearchParams, useParams} from "react-router-dom";
+import axios from "axios";
 
 const BookingPage = () => {
+    const {id} = useParams();
+    const [searchParams] = useSearchParams();
+
     const [gender, setGender] = useState("male");
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [note, setNote] = useState("");
     const [invoice, setInvoice] = useState(false);
+    const [tour, setTour] = useState(null);
 
-    const [adults, setAdults] = useState(2);
-    const [children, setChildren] = useState(0);
-    const [babies, setBabies] = useState(0);
+    console.log("Tour ID:", id);
+    useEffect(() => {
+        const fetchTour = async () => {
+            try {
+                const res = await axios.get(`http://localhost:3000/api/tours/${id}`);
+                console.log("Tour data fetched:", res.data);
+                setTour(res.data || {});
+            } catch (error) {
+                console.error("Lỗi khi gọi API:", error);
+            }
+        };
+        fetchTour();
+    }, [id]);
 
-    const {id} = useParams();
-    const location = useLocation();
+    console.log("Tour data:", tour);
+    const departureDate = searchParams.get("date") || "";
+    const guestCounts = {
+        adult: parseInt(searchParams.get("adult") || "1"),
+        child58: parseInt(searchParams.get("child58") || "0"),
+        child24: parseInt(searchParams.get("child24") || "0"),
+        infant: parseInt(searchParams.get("infant") || "0"),
+    };
 
-    const {title, image, duration, departurePlace, price, rating, ratingCount, departureDate, guestCounts} = location.state || {};
+    // // Tính tổng tiền
+    const totalPrice = guestCounts.adult * tour?.price + guestCounts.child58 * tour?.price + guestCounts.child24 * tour?.price || 0;
 
-    const [departureDateState, setDepartureDateState] = useState(departureDate || "");
-    const [guestCountState, setGuestCountState] = useState(
-        guestCounts || {
-            adult: 1,
-            child58: 0,
-            child24: 0,
-            infant: 0,
-        }
-    );
-
+    if (!tour) {
+        return <div style={{padding: 40, fontSize: 18}}>Đang tải thông tin tour...</div>;
+    }
     return (
         <div className="booking-bg">
             <div className="booking-container">
@@ -62,20 +77,20 @@ const BookingPage = () => {
                 </div>
                 {/* Right: Room Info */}
                 <div className="booking-room-info">
-                    <div className="booking-room-tour-title custom-room-title">{title}</div>
-                    <img src={image} alt={title} className="booking-room-img" />
+                    <div className="booking-room-tour-title custom-room-title">{tour?.title}</div>
+                    <img src={tour?.image} alt={tour?.title} className="booking-room-img" />
                     <div className="booking-room-info-group">
                         <div className="booking-room-info-row">
                             <span className="booking-room-info-icon">
                                 <i className="fa-regular fa-clock tour-price-icon"></i>
                             </span>
-                            <span>Thời gian: {duration}</span>
+                            <span>Thời gian: {tour?.duration}</span>
                         </div>
                         <div className="booking-room-info-row">
                             <span className="booking-room-info-icon">
                                 <i className="fa-solid fa-location-dot tour-price-icon"></i>
                             </span>
-                            <span>Điểm khởi hành: {departurePlace}</span>
+                            <span>Điểm khởi hành: {tour?.location_name}</span>
                         </div>
                         <div className="booking-room-info-row">
                             <span className="booking-room-info-icon">
@@ -88,19 +103,19 @@ const BookingPage = () => {
                         <div className="booking-room-people-row">
                             <span>Người lớn({">"}8 tuổi):</span>
                             <span>
-                                {guestCounts.adult} x {price.toLocaleString("vi-VN")} đ
+                                {guestCounts.adult} x {tour?.price.toLocaleString("vi-VN")} đ
                             </span>
                         </div>
                         <div className="booking-room-people-row">
                             <span>Trẻ em (5-8):</span>
                             <span>
-                                {guestCounts.child58} x {price.toLocaleString("vi-VN")} đ
+                                {guestCounts.child58} x {tour?.price.toLocaleString("vi-VN")} đ
                             </span>
                         </div>
                         <div className="booking-room-people-row">
                             <span>Trẻ em (2-4):</span>
                             <span>
-                                {guestCounts.child24} x {price.toLocaleString("vi-VN")} đ
+                                {guestCounts.child24} x {tour?.price.toLocaleString("vi-VN")} đ
                             </span>
                         </div>
                         <div className="booking-room-people-row">
@@ -119,13 +134,13 @@ const BookingPage = () => {
                     </div> */}
                     <div className="booking-room-price-row booking-room-price-row-custom">
                         <span>Giá tour</span>
-                        <span>{price?.toLocaleString()} đ</span>
+                        <span>{tour.price?.toLocaleString()} đ</span>
                     </div>
                     <hr className="booking-room-hr" />
                     <div className="booking-room-total-row booking-room-total-row-custom">
                         <span>Tổng tiền</span>
 
-                        <span className="booking-room-total-amount">{price?.toLocaleString()} đ</span>
+                        <span className="booking-room-total-amount">{totalPrice} đ</span>
                     </div>
                     <button className="booking-submit-btn booking-submit-btn-custom">Thanh toán</button>
                 </div>
