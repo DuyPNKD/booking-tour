@@ -76,7 +76,7 @@ const Tours = () => {
                                     <div className="tour-card-row-info">
                                         <div>
                                             <i className="fa-solid fa-house"></i>
-                                            <span>Điểm khởi hành: {tour.location_name}</span>
+                                            <span>Địa điểm: {tour.location_name}</span>
                                         </div>
                                         <div>
                                             <i className="fa-regular fa-clock"></i>

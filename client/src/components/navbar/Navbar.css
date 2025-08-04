@@ -221,6 +221,50 @@
     text-decoration: underline;
 }
 
+.booking-steps {
+    display: flex;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #555;
+    flex-wrap: nowrap;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+}
+
+.step-number {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    background-color: #999;
+    color: white;
+    justify-content: center;
+    align-items: center;
+    margin-right: 4px;
+    font-weight: bold;
+}
+
+.step-label {
+    white-space: nowrap;
+}
+
+/* Bước đang active */
+.step.active .step-number {
+    background-color: #007bff; /* Màu xanh */
+}
+
+/* Dấu gạch ngang giữa các bước */
+.step:not(:last-child)::after {
+    content: "—";
+    color: #999;
+    margin: 0 12px;
+}
+
 @media (max-width: 768px) {
     .navbar-menu {
         display: none;
