@@ -97,7 +97,12 @@ exports.getTourById = async (req, res) => {
             `
             SELECT 
                 t.*, 
-                l.name AS location_name
+                l.name AS location_name, 
+                (
+                    SELECT DATE_FORMAT(MIN(td.departure_date), '%d-%m-%Y')
+                    FROM tour_departures td
+                    WHERE td.tour_id = t.id
+                ) AS departure_date
             FROM tours t
             JOIN locations l ON t.location_id = l.id
             WHERE t.id = ?

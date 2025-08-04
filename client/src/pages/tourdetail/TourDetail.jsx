@@ -404,7 +404,7 @@ export default function TourDetail() {
         const found = prices.find((p) => p.target_type === type);
         if (!found) return "";
         if (type === "adult") {
-            return `> ${found.min_age} tuổi`;
+            return `${found.min_age} tuổi trở lên`;
         }
         return `${found.min_age} - ${found.max_age} tuổi`;
     };
@@ -661,53 +661,8 @@ export default function TourDetail() {
                             </div>
                         </div>
 
-                        {/* Lịch khởi hành & giá tour */}
-                        <div id="tour-departure-section" style={{scrollMarginTop: 120, marginTop: 40}}>
-                            <div style={{display: "flex", alignItems: "center", gap: 16, marginBottom: 16, justifyContent: "space-between"}}>
-                                <h2 style={{margin: 0}}>Lịch khởi hành & giá tour</h2>
-                                <CustomCalendarInput tourId={tour.id} />
-                            </div>
-                            <div className="departure-table-wrapper" style={{background: "#fff", borderRadius: 8, border: "1px solid #eee", marginBottom: 32}}>
-                                <table className="departure-table" style={{width: "100%", borderCollapse: "collapse"}}>
-                                    <thead>
-                                        <tr style={{background: "#f7f7f7"}}>
-                                            <th style={{padding: 8, fontWeight: 600}}>Ngày khởi hành</th>
-                                            <th style={{padding: 8, fontWeight: 600}}>Ngày về</th>
-                                            <th style={{padding: 8, fontWeight: 600}}>Tình trạng chỗ</th>
-                                            <th style={{padding: 8, fontWeight: 600}}>Giá</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {departures && departures.length > 0 ? (
-                                            departures.map((item) => (
-                                                <tr key={item.id} style={{borderBottom: "1px solid #eee"}}>
-                                                    <td style={{padding: 8}}>{new Date(item.departure_date).toLocaleDateString("vi-VN")}</td>
-                                                    <td style={{padding: 8}}>{new Date(item.return_date).toLocaleDateString("vi-VN")}</td>
-                                                    <td style={{padding: 8, color: "#219653", fontWeight: 500}}>{item.seat_status}</td>
-                                                    <td style={{padding: 8, color: "#1f50ea", fontWeight: 600}}>
-                                                        {item.price.toLocaleString()} <span style={{color: "#333", fontWeight: 400}}>đ</span>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>
-                                                <td colSpan={4} style={{textAlign: "center", padding: 16}}>
-                                                    Không có dữ liệu lịch khởi hành
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                                <div style={{textAlign: "center", padding: 12}}>
-                                    <span style={{color: "#1f50ea", cursor: "pointer", fontWeight: 500}}>
-                                        Xem thêm <i className="fa-solid fa-chevron-down" style={{fontSize: 12}}></i>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div id="tour-terms-section" style={{scrollMarginTop: 120, marginTop: 40}}>
-                            <h2>Bao gồm và điều khoản</h2>
+                            <h2>Thông tin cần lưu ý</h2>
                             <div style={{borderBottom: "1px solid #eee", marginBottom: 12, display: "flex", gap: 8}}>
                                 {infoTabs.map((tab) => (
                                     <button
@@ -770,6 +725,29 @@ export default function TourDetail() {
 
                                     <CustomCalendarInput tourId={tour.id} value={selectedDate} onChange={handleCalendarChange} />
                                 </div>
+                                {/* Hiển thị ngày tham quan đã chọn */}
+                                {selectedDate && (
+                                    <div
+                                        style={{
+                                            marginTop: 8,
+                                            background: "#eaf6fd",
+                                            borderRadius: 8,
+                                            padding: "12px 0",
+                                            textAlign: "center",
+                                            color: "#183153",
+                                        }}
+                                    >
+                                        <div style={{fontSize: 15, marginBottom: 2, opacity: 0.7}}>Ngày tham quan đã chọn</div>
+                                        <div style={{fontWeight: 700, fontSize: 20}}>
+                                            {(() => {
+                                                const date = new Date(selectedDate);
+                                                console.log("Selected date:", selectedDate, "Parsed date:", date);
+                                                const days = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+                                                return `${days[date.getDay()]}, ${date.getDate()} thg ${date.getMonth() + 1} ${date.getFullYear()}`;
+                                            })()}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Chọn số lượng khách */}
@@ -778,10 +756,10 @@ export default function TourDetail() {
                                 <div className="tour-guest-row guest-adult">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Người lớn</span>
+                                        <span className="tour-guest-price">{getPriceByType("adult").toLocaleString()} VND</span>
                                         <span className="tour-guest-desc">{getAgeRange("adult")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {getPriceByType("adult").toLocaleString()}</span>
                                         <button className="qty-btn" onClick={() => handleGuestChange("adult", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
@@ -795,10 +773,11 @@ export default function TourDetail() {
                                 <div className="tour-guest-row">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Trẻ em</span>
+                                        <span className="tour-guest-price">{getPriceByType("child").toLocaleString()} VND</span>
+
                                         <span className="tour-guest-desc">{getAgeRange("child")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {getPriceByType("child").toLocaleString()}</span>
                                         <button className="qty-btn" onClick={() => handleGuestChange("child58", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
@@ -808,44 +787,17 @@ export default function TourDetail() {
                                         </button>
                                     </div>
                                 </div>
-                                {/* Trẻ nhỏ */}
-                                <div className="tour-guest-row last">
-                                    <div className="tour-guest-info">
-                                        <span className="tour-guest-label">Trẻ nhỏ</span>
-                                        <span className="tour-guest-desc">{getAgeRange("infant")}</span>
-                                    </div>
-                                    <div className="tour-guest-qty">
-                                        <span className="tour-guest-price">x {getPriceByType("infant").toLocaleString()}</span>
-                                        <button className="qty-btn" onClick={() => handleGuestChange("infant", -1)}>
-                                            <i className="fa-solid fa-minus"></i>
-                                        </button>
-                                        <span className="tour-guest-count">{guestCounts.infant}</span>
-                                        <button className="qty-btn" onClick={() => handleGuestChange("infant", 1)}>
-                                            <i className="fa-solid fa-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            {/* Liên hệ xác nhận chỗ */}
-                            <div className="tour-contact-confirm">
-                                <i className="fa-regular fa-circle-question"></i>
-                                <span>Liên hệ để xác nhận chỗ</span>
                             </div>
                             {/* Giá gốc và tổng giá */}
                             <div className="tour-price-summary">
                                 <div className="tour-price-summary-item">
-                                    <div className="tour-price-summary-label">Giá gốc</div>
-                                    <div className="tour-price-summary-old">6.300.000 đ</div>
-                                </div>
-
-                                <div className="tour-price-summary-item">
-                                    <div className="tour-price-summary-label-total">Tổng Giá Tour</div>
+                                    <div className="tour-price-summary-label-total">Tổng giá tiền</div>
                                     <div className="tour-price-summary-total">{totalPrice.toLocaleString()} đ</div>
                                 </div>
                             </div>
                             {/* Nút đặt */}
                             <button className="tour-book-btn custom-tour-book-btn" onClick={handleBooking}>
-                                Yêu cầu đặt
+                                Đặt ngay
                             </button>
                         </div>
                     </div>

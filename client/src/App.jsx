@@ -10,6 +10,8 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Blog from "./pages/blog/Blog";
 import BookingPage from "./pages/booking/BookingPage";
+import PaymentPage from "./pages/payment/PaymentPage";
+import ConfirmationPage from "./pages/confirmation/ConfirmationPage";
 import "./App.css";
 
 function App() {
@@ -43,6 +45,12 @@ function App() {
 
                 {/* Trang đặt tour */}
                 <Route path="/booking/:id" element={<BookingPage />} />
+
+                {/* Trang thanh toán */}
+                <Route path="/payment/:id" element={<PaymentPage />} />
+
+                {/* Trang xác nhận đặt tour */}
+                <Route path="/confirmation/:id" element={<ConfirmationPage />} />
 
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />

@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import "./Navbar.css";
 import AuthPopup from "../authPopup/AuthPopup";
 import Search from "../Search/Search";
@@ -14,6 +14,10 @@ const Navbar = () => {
     const [hoveredInternational, setHoveredInternational] = useState([]);
     const [showAuthPopup, setShowAuthPopup] = useState(false);
     const navigate = useNavigate();
+
+    // Sử dụng useLocation để lấy thông tin đường dẫn
+    const location = useLocation();
+    const isBookingPage = location.pathname.startsWith("/booking");
 
     const menuItems = [
         {text: "Tour trong nước", path: "/danh-muc-tour?type=domestic"},
@@ -30,7 +34,6 @@ const Navbar = () => {
                 setDomesticRegions(response.data.domestic);
                 setInternationalRegions(response.data.international);
 
-                console.log("domesticRegions: ", domesticRegions);
                 if (response.data.domestic.length > 0) setHoveredDomestic(response.data.domestic[0].displayName);
                 if (response.data.international.length > 0) setHoveredInternational(response.data.international[0].displayName);
             } catch (error) {
@@ -48,102 +51,127 @@ const Navbar = () => {
                     <img src="/logo.png" alt="DTravel Logo" className="navbar-logo-image" />
                 </Link>
 
-                {/* Search Component */}
-                <div className="search-wrapper">
-                    <Search />
-                </div>
-
                 <ul className="navbar-menu">
-                    {/* Tour trong nước */}
-                    <li className="navbar-menu-dropdown">
-                        <Link to="/danh-muc-tour?type=domestic" className="navbar-menu-item">
-                            Tour trong nước
-                        </Link>
-                        <div className="mega-menu">
-                            <div className="mega-menu-left">
-                                {domesticRegions.map((region) => (
-                                    <div key={region.displayName} className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredDomestic(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
-                                        {region.displayName}
-                                    </div>
-                                ))}
+                    {/* Logic có điều kiện để render navbar */}
+                    {isBookingPage ? (
+                        // Navbar cho trang booking
+                        <div className="booking-steps">
+                            {/* Các bước thanh toán */}
+                            <div className="step active">
+                                <span className="step-number">1</span>
+                                <span className="step-text">Đặt</span>
                             </div>
-                            <div className="mega-menu-right">
-                                <div className="mega-menu-content">
-                                    <p className="mega-menu-title">Khám phá các điểm đến</p>
-                                    {(() => {
-                                        const currentDomestic = domesticRegions.find((region) => region.displayName === hoveredDomestic);
-                                        return (
-                                            currentDomestic &&
-                                            currentDomestic.destinations.map((dest) => (
-                                                <div className="mega-menu-group-container" key={dest.group}>
-                                                    <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
-                                                        {dest.group}
-                                                    </div>
-                                                    <div className="mega-menu-places">
-                                                        {dest.places.map((place) => (
-                                                            <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
-                                                                {place.name}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))
-                                        );
-                                    })()}
-                                </div>
+                            <div className="step">
+                                <span className="step-number">2</span>
+                                <span className="step-text">Xem lại</span>
+                            </div>
+                            <div className="step">
+                                <span className="step-number">3</span>
+                                <span className="step-text">Thanh toán</span>
+                            </div>
+                            <div className="step">
+                                <span className="step-number">4</span>
+                                <span className="step-text">Vé điện tử</span>
                             </div>
                         </div>
-                    </li>
+                    ) : (
+                        <>
+                            {/* Search Component */}
+                            <div className="search-wrapper">
+                                <Search />
+                            </div>
+                            {/* Tour trong nước */}
+                            <li className="navbar-menu-dropdown">
+                                <Link to="/danh-muc-tour?type=domestic" className="navbar-menu-item">
+                                    Tour trong nước
+                                </Link>
 
-                    {/* Tour nước ngoài */}
-                    <li className="navbar-menu-dropdown">
-                        <Link to="/tours?type=international" className="navbar-menu-item">
-                            Tour nước ngoài
-                        </Link>
-                        <div className="mega-menu">
-                            <div className="mega-menu-left">
-                                {internationalRegions.map((region) => (
-                                    <div key={region.displayName} className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredInternational(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
-                                        {region.displayName}
+                                <div className="mega-menu">
+                                    <div className="mega-menu-left">
+                                        {domesticRegions.map((region) => (
+                                            <div key={region.displayName} className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredDomestic(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                                {region.displayName}
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                            <div className="mega-menu-right">
-                                <div className="mega-menu-content">
-                                    <p className="mega-menu-title">Khám phá các điểm đến</p>
-                                    {(() => {
-                                        const currentDomestic = internationalRegions.find((region) => region.displayName === hoveredInternational);
-                                        return (
-                                            currentDomestic &&
-                                            currentDomestic.destinations.map((dest) => (
-                                                <div className="mega-menu-group-container" key={dest.group}>
-                                                    <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
-                                                        {dest.group}
-                                                    </div>
-                                                    <div className="mega-menu-places">
-                                                        {dest.places.map((place) => (
-                                                            <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
-                                                                {place.name}
-                                                            </span>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            ))
-                                        );
-                                    })()}
+                                    <div className="mega-menu-right">
+                                        <div className="mega-menu-content">
+                                            <p className="mega-menu-title">Khám phá các điểm đến</p>
+                                            {(() => {
+                                                const currentDomestic = domesticRegions.find((region) => region.displayName === hoveredDomestic);
+                                                return (
+                                                    currentDomestic &&
+                                                    currentDomestic.destinations.map((dest) => (
+                                                        <div className="mega-menu-group-container" key={dest.group}>
+                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                                {dest.group}
+                                                            </div>
+                                                            <div className="mega-menu-places">
+                                                                {dest.places.map((place) => (
+                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                        {place.name}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li>
-                        <span className="navbar-menu-item">Cẩm nang du lịch</span>
-                    </li>
-                    <li style={{position: "relative"}}>
-                        <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
-                            Tài khoản
-                        </span>
-                        {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
-                    </li>
+                            </li>
+                            {/* Tour nước ngoài */}
+                            <li className="navbar-menu-dropdown">
+                                <Link to="/tours?type=international" className="navbar-menu-item">
+                                    Tour nước ngoài
+                                </Link>
+                                <div className="mega-menu">
+                                    <div className="mega-menu-left">
+                                        {internationalRegions.map((region) => (
+                                            <div key={region.displayName} className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredInternational(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                                {region.displayName}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="mega-menu-right">
+                                        <div className="mega-menu-content">
+                                            <p className="mega-menu-title">Khám phá các điểm đến</p>
+                                            {(() => {
+                                                const currentDomestic = internationalRegions.find((region) => region.displayName === hoveredInternational);
+                                                return (
+                                                    currentDomestic &&
+                                                    currentDomestic.destinations.map((dest) => (
+                                                        <div className="mega-menu-group-container" key={dest.group}>
+                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                                {dest.group}
+                                                            </div>
+                                                            <div className="mega-menu-places">
+                                                                {dest.places.map((place) => (
+                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                        {place.name}
+                                                                    </span>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                );
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <span className="navbar-menu-item">Cẩm nang du lịch</span>
+                            </li>
+                            <li style={{position: "relative"}}>
+                                <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
+                                    Tài khoản
+                                </span>
+                                {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
+                            </li>
+                        </>
+                    )}
                 </ul>
 
                 <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>

@@ -16,10 +16,8 @@ const CustomCalendarInput = ({tourId, onChange, value}) => {
             try {
                 const res = await axios.get(`http://localhost:3000/api/tours/${tourId}/departure-dates`);
                 setDepartureDates(res.data || []);
-                console.log("Ngày khởi hành:", res.data);
                 if (res.data.length > 0) {
                     onChange(res.data[0]); // ✅ Gọi callback để update selectedDate ở component cha
-                    console.log("Gọi onChange với ngày đầu tiên:", res.data[0]);
                 }
             } catch (err) {
                 console.error("Lỗi khi lấy ngày khởi hành:", err);
@@ -82,10 +80,12 @@ const CustomCalendarInput = ({tourId, onChange, value}) => {
                     background: "#fff",
                     cursor: "pointer",
                     minWidth: 130,
+                    minHeight: 50,
+                    justifyContent: "center",
                 }}
             >
                 <i className="fa-regular fa-calendar" style={{marginRight: 6, color: "#1f50ea"}}></i>
-                {value ? formatDate(value) : "Chọn ngày"}
+                <span>Xem lịch</span>
             </div>
 
             {/* Bảng lịch hiển thị dưới input */}
