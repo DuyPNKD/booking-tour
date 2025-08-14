@@ -199,7 +199,7 @@ label {
     font-size: 16px;
 }
 .booking-room-info-icon {
-    margin-right: 4px;
+    margin-right: 10px;
 }
 .booking-room-label {
     font-size: 16px;
@@ -286,6 +286,11 @@ label {
     font-weight: 700;
     font-size: 16px;
     padding: 16px 12px;
+}
+.booking-room-total-amount-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .booking-room-total-amount {
@@ -665,4 +670,24 @@ label {
 
 .btn-filled:hover {
     background-color: #006be0;
+}
+.booking-room-price-detail {
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    border: 1px solid #f1f3f6;
+    padding: 16px 12px;
+    margin-bottom: 8px;
+}
+
+.booking-room-price-detail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    color: #111827;
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.price-toggle-btn:focus {
+    outline: none;
 }

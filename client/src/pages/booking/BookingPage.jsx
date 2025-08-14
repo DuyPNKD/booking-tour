@@ -14,6 +14,7 @@ const BookingPage = () => {
     const navigate = useNavigate();
 
     const [tour, setTour] = useState(null);
+    const [prices, setPrices] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
@@ -23,11 +24,18 @@ const BookingPage = () => {
         gender: "",
         note: "",
     });
+    const [showPriceDetail, setShowPriceDetail] = useState(true);
 
     useEffect(() => {
         const fetchTour = async () => {
-            const res = await axios.get(`http://localhost:3000/api/tours/${id}`);
-            setTour(res.data || {});
+            const res = await axios.all([axios.get(`http://localhost:3000/api/tours/${id}`), axios.get(`http://localhost:3000/api/tours/${id}/prices`)]);
+            const [tourRes, priceRes] = res;
+
+            setTour(tourRes.data || {});
+            setPrices(priceRes.data || {});
+
+            console.log("Tour data:", tourRes.data);
+            console.log("Prices data:", priceRes.data);
         };
         fetchTour();
     }, [id]);
@@ -40,8 +48,16 @@ const BookingPage = () => {
         infant: parseInt(searchParams.get("infant") || "0"),
     };
 
+    const getPriceByType = (type) => {
+        const found = prices.find((p) => p.target_type === type);
+        return found ? found.price : 0;
+    };
     // // Tính tổng tiền
-    const totalPrice = guestCounts.adult * tour?.price + guestCounts.child58 * tour?.price + guestCounts.child24 * tour?.price || 0;
+    const totalPrice = guestCounts.adult * getPriceByType("adult") + guestCounts.child58 * getPriceByType("child") || 0;
+
+    // Tính giá từng loại khách
+    const adultTotal = guestCounts.adult * getPriceByType("adult") || 0;
+    const childTotal = (guestCounts.child58 + guestCounts.child24) * getPriceByType("child") || 0;
 
     // Giả lập trạng thái đăng nhập, thay bằng logic thực tế của bạn
     const isLoggedIn = false;
@@ -121,7 +137,6 @@ const BookingPage = () => {
     const handleContinue = () => {
         if (validateForm()) {
             // Nếu hợp lệ → chuyển trang hoặc gọi API, v.v...
-            console.log("Dữ liệu hợp lệ, chuyển sang bước tiếp theo...");
             setShowModal(true); // Hiển thị modal xác nhận
         } else {
             setToastMessage("Vui lòng điền đầy đủ thông tin!");
@@ -130,8 +145,6 @@ const BookingPage = () => {
 
     const handleChange = (e) => {
         const {name, value} = e.target;
-        console.log(`e.target: ${e.target.name}`);
-        console.log(`Thay đổi trường: ${name}, Giá trị: ${value}`);
 
         // Cập nhật formData
         setFormData((prev) => ({
@@ -162,16 +175,42 @@ const BookingPage = () => {
         }
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         setShowModal(false);
-        // chuyển sang bước tiếp theo
-        const bookingData = {
-            tourId: id,
-            date: searchParams.get("date"),
-            guests: guestCounts,
-            customerInfo: formData, // tên, email, sđt, địa chỉ...
+
+        // Tạo payload gửi lên backend
+        const payload = {
+            tour_id: tour.id,
+            gender: formData.gender,
+            full_name: formData.name,
+            phone_number: formData.phone,
+            email: formData.email,
+            address: formData.address,
+            note: formData.note,
+            departure_date: departureDate,
+            total_price: totalPrice,
+            details: [
+                {target_type: "adult", quantity: guestCounts.adult},
+                // Giả sử child58 + child24 là loại child, gộp lại
+                {target_type: "child", quantity: guestCounts.child58 + guestCounts.child24},
+                {target_type: "infant", quantity: guestCounts.infant},
+            ].filter((item) => item.quantity > 0), // loại bỏ loại 0 khách
         };
-        navigate(`/payment/${id}`, {state: bookingData});
+
+        try {
+            const res = await axios.post("http://localhost:3000/api/booking", payload);
+            if (res.data.success) {
+                const bookingId = res.data.bookingId;
+
+                // Chuyển trang sang Payment, truyền bookingId
+                navigate(`/payment/${bookingId}`);
+            } else {
+                showToast("Đặt chỗ thất bại, vui lòng thử lại.");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("Lỗi mạng hoặc server, vui lòng thử lại.");
+        }
     };
 
     const showToast = (message) => {
@@ -281,12 +320,10 @@ const BookingPage = () => {
                             <img src="https://d1785e74lyxkqq.cloudfront.net/_next/static/v4.6.0/a/a1499965ef30506d8df751cd6e62b0ff.svg" alt="" />
                             <h3>Tóm tắt đặt chỗ</h3>
                         </div>
-
                         <div className="booking-room-info-group">
                             <div className="booking-room-tour-title custom-room-title">{tour?.title}</div>
                             <img src={tour?.images[0].image_url} alt={tour?.title} className="booking-room-img" />
                         </div>
-
                         <div className="booking-room-info-group" style={{background: "#ecf8ff", padding: "8px 4px"}}>
                             <table style={{width: "fit-content", borderSpacing: "8px"}}>
                                 <tbody>
@@ -327,24 +364,56 @@ const BookingPage = () => {
                                             {tour?.num_day} ngày {tour?.num_night} đêm
                                         </td>
                                     </tr>
+
+                                    <tr>
+                                        <td className="booking-room-info-group-title">
+                                            <span className="booking-room-info-icon">
+                                                <i class="fa-solid fa-user-group tour-price-icon"></i>
+                                            </span>
+                                            Áp dụng cho
+                                        </td>
+                                        <td className="booking-room-info-group-value">
+                                            Người lớn: {guestCounts.adult}, Trẻ em: {guestCounts.child58 + guestCounts.child24}, Em bé: {guestCounts.infant}
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <div className="booking-room-info-group" style={{borderBottom: "1px solid #e5e7eb"}}>
-                            <div className="booking-room-people-row">
-                                <span style={{color: "rgba(104, 113, 118, 1)"}}>Người lớn ({guestCounts.adult}x):</span>
-                                <span>{tour?.price.toLocaleString("vi-VN")} VND</span>
-                            </div>
-                            <div className="booking-room-people-row">
-                                <span style={{color: "rgba(104, 113, 118, 1)"}}>Trẻ em ({guestCounts.child58}x):</span>
-                                <span>{tour?.price.toLocaleString("vi-VN")} VND</span>
-                            </div>
-                        </div>
-
                         <div className="booking-room-total-row booking-room-total-row-custom">
                             <span>Giá bạn trả</span>
-                            <span className="booking-room-total-amount">{totalPrice.toLocaleString("vi-VN")} VND</span>
+                            <span className="booking-room-total-amount-wrapper">
+                                <span className="booking-room-total-amount">{totalPrice.toLocaleString("vi-VN")} VND </span>
+                                <button
+                                    className="price-toggle-btn"
+                                    onClick={() => setShowPriceDetail((prev) => !prev)}
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        marginLeft: 8,
+                                        verticalAlign: "middle",
+                                        padding: 0,
+                                    }}
+                                    aria-label={showPriceDetail ? "Ẩn chi tiết" : "Xem chi tiết"}
+                                >
+                                    {showPriceDetail ? <i className="fa-solid fa-chevron-up" style={{color: "#007aff", fontSize: 18}}></i> : <i className="fa-solid fa-chevron-down" style={{color: "#007aff", fontSize: 18}}></i>}
+                                </button>
+                            </span>
                         </div>
+                        {showPriceDetail && (
+                            <div className="booking-room-price-detail">
+                                <div className="booking-room-price-detail-row">
+                                    <span>Người lớn ({guestCounts.adult}x)</span>
+                                    <span>{(getPriceByType("adult") * guestCounts.adult).toLocaleString()} VND</span>
+                                </div>
+                                {guestCounts.child58 + guestCounts.child24 > 0 && (
+                                    <div className="booking-room-price-detail-row">
+                                        <span>Trẻ em ({guestCounts.child58 + guestCounts.child24}x)</span>
+                                        <span>{(getPriceByType("child") * guestCounts.child58).toLocaleString()} VND</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="booking-room-info-group">
                             <button className="booking-submit-btn" onClick={handleContinue}>
                                 Tiếp tục
@@ -360,7 +429,6 @@ const BookingPage = () => {
                                 </div>
                             </div>
                         )}
-
                         {showModal && (
                             <div className="modal-overlay">
                                 <div className="modal-confirm">

@@ -11,7 +11,7 @@ import Register from "./pages/register/Register";
 import Blog from "./pages/blog/Blog";
 import BookingPage from "./pages/booking/BookingPage";
 import PaymentPage from "./pages/payment/PaymentPage";
-import ConfirmationPage from "./pages/confirmation/ConfirmationPage";
+import PaymentResult from "./pages/paymentResult/PaymentResultPage";
 import "./App.css";
 
 function App() {
@@ -49,8 +49,8 @@ function App() {
                 {/* Trang thanh toán */}
                 <Route path="/payment/:id" element={<PaymentPage />} />
 
-                {/* Trang xác nhận đặt tour */}
-                <Route path="/confirmation/:id" element={<ConfirmationPage />} />
+                {/* Trang kết quả thanh toán */}
+                <Route path="/payment-result" element={<PaymentResult />} />
 
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />

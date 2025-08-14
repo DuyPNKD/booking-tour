@@ -177,7 +177,7 @@ const fixImageUrl = (html) => {
 };
 
 const formatDateToDDMM = (dateStr) => {
-    console.log("👉 typeof:", typeof dateStr, "| value:", dateStr);
+    // console.log("👉 typeof:", typeof dateStr, "| value:", dateStr);
     if (typeof dateStr !== "string") {
         throw new Error("dateStr không phải string");
     }
@@ -456,7 +456,7 @@ export default function TourDetail() {
         // Nếu ngày chưa có trong danh sách thì thêm vào
         if (!shortDepartures.find((d) => d === isoDate)) {
             const updated = [...shortDepartures, isoDate].sort((a, b) => new Date(a) - new Date(b));
-            console.log("Cập nhật ngày khởi hành mới:", updated);
+            // console.log("Cập nhật ngày khởi hành mới:", updated);
             setShortDepartures(updated);
         }
 
@@ -741,7 +741,7 @@ export default function TourDetail() {
                                         <div style={{fontWeight: 700, fontSize: 20}}>
                                             {(() => {
                                                 const date = new Date(selectedDate);
-                                                console.log("Selected date:", selectedDate, "Parsed date:", date);
+                                                // console.log("Selected date:", selectedDate, "Parsed date:", date);
                                                 const days = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
                                                 return `${days[date.getDay()]}, ${date.getDate()} thg ${date.getMonth() + 1} ${date.getFullYear()}`;
                                             })()}

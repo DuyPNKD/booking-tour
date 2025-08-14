@@ -18,12 +18,23 @@ const Navbar = () => {
     // Sử dụng useLocation để lấy thông tin đường dẫn
     const location = useLocation();
     const isBookingPage = location.pathname.startsWith("/booking");
+    const isPaymentPage = location.pathname.startsWith("/payment");
+    const isPaymentResultPage = location.pathname.startsWith("/payment-result");
+
+    const isBookingFlow = isBookingPage || isPaymentPage || isPaymentResultPage;
+    const currentStep = isPaymentResultPage ? 3 : isPaymentPage ? 2 : 1;
 
     const menuItems = [
         {text: "Tour trong nước", path: "/danh-muc-tour?type=domestic"},
         {text: "Tour nước ngoài", path: "/danh-muc-tour?type=international"},
         {text: "Cẩm nang du lịch", path: "/travel-guide"},
         {text: "Liên hệ", path: "/contact"},
+    ];
+
+    const steps = [
+        {number: 1, text: "Đặt"},
+        {number: 2, text: "Thanh toán"},
+        {number: 3, text: "Kết quả"},
     ];
 
     useEffect(() => {
@@ -47,39 +58,16 @@ const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <Link to="/" className="navbar-logo">
-                    <img src="/logo.png" alt="DTravel Logo" className="navbar-logo-image" />
-                </Link>
+                <div className="navbar-left">
+                    <Link to="/" className="navbar-logo">
+                        <img src="/logo.png" alt="DTravel Logo" className="navbar-logo-image" />
+                    </Link>
 
-                <ul className="navbar-menu">
-                    {/* Logic có điều kiện để render navbar */}
-                    {isBookingPage ? (
+                    {isBookingFlow ? (
                         // Navbar cho trang booking
-                        <div className="booking-steps">
-                            {/* Các bước thanh toán */}
-                            <div className="step active">
-                                <span className="step-number">1</span>
-                                <span className="step-text">Đặt</span>
-                            </div>
-                            <div className="step">
-                                <span className="step-number">2</span>
-                                <span className="step-text">Xem lại</span>
-                            </div>
-                            <div className="step">
-                                <span className="step-number">3</span>
-                                <span className="step-text">Thanh toán</span>
-                            </div>
-                            <div className="step">
-                                <span className="step-number">4</span>
-                                <span className="step-text">Vé điện tử</span>
-                            </div>
-                        </div>
+                        <div></div>
                     ) : (
-                        <>
-                            {/* Search Component */}
-                            <div className="search-wrapper">
-                                <Search />
-                            </div>
+                        <ul className="navbar-menu">
                             {/* Tour trong nước */}
                             <li className="navbar-menu-dropdown">
                                 <Link to="/danh-muc-tour?type=domestic" className="navbar-menu-item">
@@ -164,15 +152,39 @@ const Navbar = () => {
                             <li>
                                 <span className="navbar-menu-item">Cẩm nang du lịch</span>
                             </li>
-                            <li style={{position: "relative"}}>
-                                <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
-                                    Tài khoản
-                                </span>
-                                {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
-                            </li>
-                        </>
+                        </ul>
                     )}
-                </ul>
+                </div>
+
+                {isBookingFlow ? (
+                    // Navbar cho trang booking
+                    <div className="booking-steps">
+                        <div className={`step ${currentStep >= 1 ? "active" : ""} ${currentStep > 1 ? "completed" : ""}`}>
+                            <span className="step-number">1</span>
+                            <span className="step-text">Đặt</span>
+                        </div>
+                        <div className={`step ${currentStep >= 2 ? "active" : ""} ${currentStep > 2 ? "completed" : ""}`}>
+                            <span className="step-number">2</span>
+                            <span className="step-text">Thanh toán</span>
+                        </div>
+                        <div className={`step ${currentStep === 3 ? "active" : ""}`}>
+                            <span className="step-number">3</span>
+                            <span className="step-text">Kết quả</span>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="navbar-right">
+                        {/* Search Component */}
+                        <div className="search-wrapper">
+                            <Search />
+                        </div>
+
+                        <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
+                            Tài khoản
+                        </span>
+                        {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
+                    </div>
+                )}
 
                 <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                     ☰
