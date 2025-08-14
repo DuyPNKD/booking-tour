@@ -1,23 +1,112 @@
 const db = require("../config/db");
+const pool = require("../config/db"); // file kết nối MySQL của bạn
 
 exports.createBooking = async (req, res) => {
-    const {user_id, tour_id, departure_date, guests} = req.body;
+    const conn = await pool.getConnection();
+    await conn.beginTransaction();
+
     try {
-        // Lấy giá để tính total
-        const [[tour]] = await db.query("SELECT price FROM tours WHERE id = ?", [tour_id]);
-        if (!tour) return res.status(404).json({message: "Tour không tồn tại"});
+        const {tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price, details} = req.body;
 
-        const total_price = tour.price * guests;
-
-        await db.query(
-            `INSERT INTO bookings (user_id, tour_id, booking_date, departure_date, guests, total_price)
-       VALUES (?, ?, NOW(), ?, ?, ?)`,
-            [user_id, tour_id, departure_date, guests, total_price]
+        // 1. Insert vào bảng bookings
+        const [result] = await conn.query(
+            `INSERT INTO bookings 
+            (tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price]
         );
 
-        res.status(201).json({message: "Đặt tour thành công"});
+        const bookingId = result.insertId;
+
+        // 2. Insert vào bảng booking_details (nếu có dữ liệu details)
+        if (details && details.length > 0) {
+            const values = details.map((d) => [bookingId, d.target_type, d.quantity]);
+            await conn.query(`INSERT INTO booking_details (booking_id, target_type, quantity) VALUES ?`, [values]);
+        }
+
+        await conn.commit();
+
+        res.status(201).json({
+            success: true,
+            bookingId,
+            message: "Booking created successfully",
+        });
     } catch (error) {
+        await conn.rollback();
         console.error(error);
-        res.status(500).json({message: "Lỗi khi đặt tour"});
+        res.status(500).json({success: false, error: error.message});
+    } finally {
+        conn.release();
+    }
+};
+
+exports.getBookingById = async (req, res) => {
+    try {
+        const bookingId = req.params.id;
+
+        // 1. Lấy thông tin booking + tour
+        const [bookings] = await pool.query(
+            `SELECT b.*, 
+                t.title AS tour_name, 
+                t.num_day, 
+                t.num_night, 
+                l.name AS location_name
+            FROM bookings b
+            JOIN tours t ON b.tour_id = t.id
+            JOIN locations l ON t.location_id = l.id
+            WHERE b.id = ?`,
+            [bookingId]
+        );
+
+        if (bookings.length === 0) {
+            return res.status(404).json({success: false, error: "Booking not found"});
+        }
+
+        const booking = bookings[0];
+
+        // 2. Lấy giá tour theo từng loại (adult, child, infant)
+        const [prices] = await pool.query(
+            `SELECT target_type, price 
+             FROM tour_prices 
+             WHERE tour_id = ?`,
+            [booking.tour_id]
+        );
+
+        const priceMap = {};
+        prices.forEach((p) => {
+            priceMap[p.target_type] = p.price;
+        });
+
+        booking.price_adult = priceMap.adult || 0;
+        booking.price_child = priceMap.child || 0;
+        booking.price_infant = priceMap.infant || 0;
+
+        // 3. Lấy booking details
+        const [details] = await pool.query(
+            `SELECT target_type, quantity 
+             FROM booking_details 
+             WHERE booking_id = ?`,
+            [bookingId]
+        );
+
+        // 4. Tính tổng tiền
+        let totalPrice = 0;
+        details.forEach((detail) => {
+            const unitPrice = priceMap[detail.target_type] || 0;
+            totalPrice += unitPrice * detail.quantity;
+        });
+
+        // 5. Trả dữ liệu về
+        res.json({
+            success: true,
+            booking: {
+                ...booking,
+                total_price: totalPrice,
+            },
+            details,
+        });
+    } catch (error) {
+        console.error("Error in getBookingById:", error);
+        res.status(500).json({success: false, error: error.message});
     }
 };

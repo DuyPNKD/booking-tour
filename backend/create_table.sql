@@ -100,16 +100,49 @@ CREATE TABLE IF NOT EXISTS tour_reviews (
 -- Bảng bookings
 CREATE TABLE IF NOT EXISTS bookings (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  tour_id INT,
-  full_name VARCHAR(100),
-  phone_number VARCHAR(20),
-  email VARCHAR(100),
-  departure_date DATE,
-  total_price INT,
+  tour_id INT NOT NULL,
+  gender ENUM('male', 'female', 'other'),
+  full_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL,
+  email VARCHAR(100) NOT NULL,
+  address VARCHAR(255),
+  note TEXT,
+  departure_date DATE NOT NULL,
+  total_price INT NOT NULL,
   status ENUM('pending', 'confirmed', 'cancelled') DEFAULT 'pending',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE bookings;
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+-- 1. Đảm bảo tour_id không được null
+ALTER TABLE bookings
+MODIFY tour_id INT NOT NULL;
+
+-- 2. Thêm cột gender
+ALTER TABLE bookings
+ADD gender ENUM('male', 'female', 'other') DEFAULT 'other';
+
+
+-- 3. Thêm ràng buộc NOT NULL cho full_name, phone_number, email, departure_date, total_price
+ALTER TABLE bookings
+MODIFY full_name VARCHAR(100) NOT NULL,
+MODIFY phone_number VARCHAR(20) NOT NULL,
+MODIFY email VARCHAR(100) NOT NULL,
+MODIFY departure_date DATE NOT NULL,
+MODIFY total_price INT NOT NULL;
+
+-- 4. Thêm cột address
+ALTER TABLE bookings
+ADD address VARCHAR(255);
+
+-- 5. Thêm cột note
+ALTER TABLE bookings
+ADD note TEXT;
 
 -- Bảng booking_details
 CREATE TABLE IF NOT EXISTS booking_details (
@@ -128,8 +161,12 @@ CREATE TABLE IF NOT EXISTS payments (
   payment_method VARCHAR(50),
   status ENUM('unpaid', 'paid', 'failed') DEFAULT 'unpaid',
   paid_at DATETIME,
+  order_id VARCHAR(50),
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
+
+
+
 
 -- Navbar
 -- Bảng Miền/Châu lục
@@ -198,6 +235,10 @@ UPDATE tours SET location_id = 3 WHERE id = 3;
 INSERT INTO tours (title, price, old_price, rating, rating_count, num_day, num_night, location_id) VALUES ('Tour Na Hang 2 ngày 1 đêm từ Hà Nội: Khám phá mùa hoa lê', 1980000, 2376000, 0, 0, 2, 1, 1);
 INSERT INTO tours (title, price, old_price, rating, rating_count, num_day, num_night, location_id) VALUES ('Tour Na Hang mùa hoa lê  3 ngày 3 đêm từ TP.HCM', 6280000, 7536000, 0, 0, 3, 3, 1);
 
+UPDATE tours
+SET price = 10000,
+    old_price = 20000
+WHERE title = 'Tour Na Hang 2 ngày 1 đêm từ Hà Nội: Khám phá mùa hoa lê';
 -- Phú Thọ
 INSERT INTO tours (title, price, old_price, rating, rating_count, num_day, num_night, location_id) VALUES ('Tour Teambuilding tại Vườn Vua Resort 1 ngày từ Hà Nội', 980000, 1176000, 0, 0, 1, 0, 2);
 INSERT INTO tours (title, price, old_price, rating, rating_count, num_day, num_night, location_id) VALUES ('Tour Ohayo Onsen Wyndham Thanh Thủy Phú Thọ 1 ngày từ Hà Nội', 0, 0, 0, 0, 1, 0, 2);
@@ -8663,13 +8704,24 @@ INSERT INTO tour_terms (tour_id, section_title, content) VALUES (307, 'Quy đị
 INSERT INTO tour_terms (tour_id, section_title, content) VALUES (307, 'Chính sách hoàn hủy', '<ul class="list-disc pl-4 space-y-2"><li class="text-secondary-v2 text-base">Hủy tour ngay sau khi đăng ký đến 10 ngày trước ngày khởi hành, phạt 30% trên giá tour.</li><li class="text-secondary-v2 text-base">Hủy tour trong vòng từ 5 – 10 ngày trước ngày khởi hành, phạt 50% trên giá tour.</li><li class="text-secondary-v2 text-base">Hủy tour trong vòng từ 3 – 5 ngày trước ngày khởi hành, phạt 75% trên giá tour.</li><li class="text-secondary-v2 text-base">Hủy tour trong vòng từ 0 – 3 ngày trước ngày khởi hành, phạt 100% giá trị tour.</li><li class="text-secondary-v2 text-base">Ngày lễ tết không hoàn, không hủy, không đổi, không áp dụng chính sách hủy trên.</li></ul>');
 
 -- 6. Tour Prices
-truncate table tour_prices
-
+truncate table tour_prices;
+--
 INSERT INTO tour_prices (tour_id, target_type, min_age, max_age, price)
 VALUES
 (1, 'adult', 10, 99, 1980000),
 (1, 'child', 5, 9, 1485000),
 (1, 'infant', 0, 4, 0);
+
+-- Cập nhật giá người lớn
+UPDATE tour_prices
+SET price = 10000
+WHERE tour_id = 1 AND target_type = 'adult';
+
+-- Cập nhật giá trẻ em
+UPDATE tour_prices
+SET price = 3000
+WHERE tour_id = 1 AND target_type = 'child';
+
 INSERT INTO tour_prices (tour_id, target_type, min_age, max_age, price)
 VALUES
 (2, 'adult', 10, 99, 6280000),
@@ -10281,9 +10333,7 @@ VALUES
 
 -- 7. Bookings
 INSERT INTO bookings (tour_id, full_name, phone_number, email, departure_date, total_price, status)
-VALUES
-(1, 'Nguyễn Văn A', '0123456789', 'a@gmail.com', '2025-07-01', 8000000, 'confirmed'),
-(2, 'Lê Thị B', '0987654321', 'b@gmail.com', '2025-07-05', 2500000, 'pending');
+VALUES (1, 'Test User', '0123456789', 'test@example.com', '2025-08-12', 13000, 'pending');
 
 -- 8. Booking details
 INSERT INTO booking_details (booking_id, target_type, quantity)

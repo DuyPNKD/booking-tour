@@ -237,10 +237,10 @@
 
 .step-number {
     display: inline-flex;
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    font-size: 12px;
+    font-size: 14px;
     background-color: #999;
     color: white;
     justify-content: center;
@@ -253,9 +253,20 @@
     white-space: nowrap;
 }
 
+.step-text {
+    color: #282828;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.step.active .step-text {
+    color: #007bff;
+}
+
 /* Bước đang active */
 .step.active .step-number {
     background-color: #007bff; /* Màu xanh */
+    color: white;
 }
 
 /* Dấu gạch ngang giữa các bước */
@@ -263,6 +274,30 @@
     content: "—";
     color: #999;
     margin: 0 12px;
+    font-size: 28px;
+}
+
+/* Gạch xanh giữa bước 1 và 2 nếu bước 1 đã completed */
+.step.completed:nth-child(1)::after {
+    color: #007bff;
+}
+
+/* Gạch xanh giữa bước 2 và 3 nếu bước 2 đã completed */
+.step.completed:nth-child(2)::after {
+    color: #007bff;
+}
+
+/* Bước 1 active => vạch giữa bước 1 và 2 màu xanh */
+/* .step.active:not(:last-child)::after {
+    color: #007bff;
+} */
+
+.navbar-left,
+.navbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 @media (max-width: 768px) {
