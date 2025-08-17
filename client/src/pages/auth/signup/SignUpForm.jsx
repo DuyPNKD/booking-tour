@@ -69,13 +69,32 @@ function SignUpForm() {
     };
 
     // Xử lý submit
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const newErrors = validate();
         setErrors(newErrors);
+
         if (Object.keys(newErrors).length === 0) {
-            // Submit form ở đây
-            alert("Đăng ký thành công!");
+            try {
+                const res = await fetch("http://localhost:3000/api/auth/signup", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(form),
+                });
+
+                if (!res.ok) throw new Error("Đăng ký thất bại");
+
+                const data = await res.json();
+                localStorage.setItem("token", data.token);
+                // setUser(data.user) => lưu vào context/global state
+                // Sau khi đăng ký xong thì chuyển sang trang login hoặc home
+                // navigate("/login") hoặc navigate("/")
+                navigate("/");
+                alert("Đăng ký & đăng nhập thành công!");
+            } catch (err) {
+                console.error(err);
+                alert("Có lỗi xảy ra!");
+            }
         }
     };
 

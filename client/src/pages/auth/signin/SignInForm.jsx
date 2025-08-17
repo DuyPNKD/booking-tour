@@ -56,13 +56,25 @@ function SignInForm() {
     };
 
     // handle submit
-    const handleSubmit = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        const newErrors = validate();
-        setErrors(newErrors);
-        if (Object.keys(newErrors).length === 0) {
-            // Xử lý đăng nhập ở đây
+
+        try {
+            const res = await fetch("http://localhost:3000/api/auth/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({emailOrPhone, password}),
+            });
+
+            if (!res.ok) throw new Error("Đăng nhập thất bại");
+
+            const data = await res.json();
+            localStorage.setItem("token", data.token);
+            // setUser(data.user); // lưu vào global state/context
             alert("Đăng nhập thành công!");
+        } catch (err) {
+            console.error(err);
+            alert("Sai email hoặc mật khẩu!");
         }
     };
 
@@ -74,7 +86,7 @@ function SignInForm() {
                     <h2>Đăng nhập</h2>
                 </div>
 
-                <form className="signin-auth-form" onSubmit={handleSubmit} noValidate>
+                <form className="signin-auth-form" onSubmit={handleLogin} noValidate>
                     <div className="signin-input-group">
                         <label>Email / Số điện thoại di động</label>
                         <input type="text" name="emailOrPhone" value={form.emailOrPhone} onChange={handleChange} className="signin-form-input" placeholder="0799097860" />

@@ -19,12 +19,13 @@ app.use("/navbar-menu", require("./routes/navbarRoutes"));
 app.use("/api/tours", require("./routes/tourRoutes"));
 app.use("/api/booking", require("./routes/bookingRoutes"));
 app.use("/api/momo", require("./routes/momoRoutes"));
-
 app.get("/payment-result", (req, res) => {
     // giữ nguyên query string và redirect sang frontend (port dev của bạn)
     const queryString = new URLSearchParams(req.query).toString();
     return res.redirect(`http://localhost:5173/payment-result?${queryString}`);
 });
+
+app.use("/api/auth", require("./routes/authRoutes"));
 
 /* ✅ Cho phép truy cập ảnh trong public/uploads */
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
