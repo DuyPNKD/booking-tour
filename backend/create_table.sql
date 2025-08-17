@@ -6,9 +6,15 @@ CREATE TABLE users (
   email VARCHAR(100) UNIQUE,
   password VARCHAR(255),
   phone VARCHAR(20),
+  gender ENUM('male', 'female', 'other'),
+  address VARCHAR(255),
   role ENUM('user', 'admin') DEFAULT 'user',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE users
+  ADD COLUMN gender ENUM('male', 'female', 'other') NULL AFTER phone,
+  ADD COLUMN address VARCHAR(255) NULL AFTER gender;
 
 CREATE TABLE IF NOT EXISTS tours (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -113,6 +119,18 @@ CREATE TABLE IF NOT EXISTS bookings (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
+
+ALTER TABLE bookings
+  ADD COLUMN user_id INT NULL AFTER id,
+  ADD CONSTRAINT fk_bookings_user
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL;
+
+ALTER TABLE bookings
+  DROP COLUMN full_name,
+  DROP COLUMN phone_number,
+  DROP COLUMN email,
+  DROP COLUMN address;
+
 
 SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE bookings;

@@ -1,0 +1,249 @@
+.signup-bg {
+    background: #f6f8fa; /* hoặc màu bạn muốn */
+    min-height: 100vh;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    margin-top: 90px;
+}
+
+.signup-form-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    overflow: hidden;
+    margin: 30px auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.signup-form-header {
+    display: flex;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    position: relative;
+}
+
+.signup-form-header h2 {
+    color: #1a365d;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+    text-align: center;
+    margin-left: -40px;
+}
+
+.signup-auth-form {
+    padding: 24px;
+}
+
+.signup-input-group {
+    margin-bottom: 16px;
+}
+
+.signup-input-group label {
+    display: block;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.signup-required {
+    color: #e53e3e;
+}
+
+.signup-form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #f8fafc;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    color: #333;
+}
+
+.signup-error {
+    color: red;
+    font-size: 13px;
+    margin-top: 4px;
+}
+
+.signup-form-input:focus {
+    outline: none;
+    border-color: #3182ce;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.signup-password-input {
+    position: relative;
+}
+
+.signup-password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-password-toggle:hover {
+    color: #333;
+}
+
+.signup-submit-button {
+    width: 100%;
+    background: linear-gradient(135deg, #ff8c00, #ff6b35);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.signup-submit-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+}
+
+.signup-divider {
+    text-align: center;
+    margin: 24px 0;
+    position: relative;
+}
+
+.signup-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.signup-divider span {
+    background: white;
+    color: #666;
+    padding: 0 16px;
+    font-size: 14px;
+}
+
+.signup-social-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.signup-social-button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.signup-social-button:hover {
+    background: #f8fafc;
+    border-color: #cbd5e0;
+}
+
+.signup-facebook {
+    color: #1877f2;
+}
+
+.signup-google {
+    color: #4285f4;
+}
+
+.signup-captcha {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin: 16px 0 24px 0;
+    background: #f8fafc;
+}
+
+.signup-captcha-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.signup-captcha-checkbox input {
+    width: 16px;
+    height: 16px;
+}
+
+.signup-captcha-checkbox label {
+    font-size: 14px;
+    color: #333;
+    margin: 0;
+}
+
+.signup-captcha-logo {
+    text-align: right;
+}
+
+.signup-captcha-logo span {
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+}
+
+.signup-captcha-links {
+    margin-top: 2px;
+}
+
+.signup-captcha-links small {
+    font-size: 10px;
+    color: #999;
+}
+
+.signup-terms {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.signup-terms p {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.signup-link {
+    color: #3182ce;
+    text-decoration: none;
+}
+
+.signup-link:hover {
+    text-decoration: underline;
+}

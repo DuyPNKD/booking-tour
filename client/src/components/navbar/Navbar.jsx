@@ -13,6 +13,9 @@ const Navbar = () => {
     const [hoveredDomestic, setHoveredDomestic] = useState([]);
     const [hoveredInternational, setHoveredInternational] = useState([]);
     const [showAuthPopup, setShowAuthPopup] = useState(false);
+    // Fake user: null = chưa login, object = đã login
+    const [user, setUser] = useState(null);
+
     const navigate = useNavigate();
 
     // Sử dụng useLocation để lấy thông tin đường dẫn
@@ -179,10 +182,27 @@ const Navbar = () => {
                             <Search />
                         </div>
 
-                        <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
-                            Tài khoản
-                        </span>
-                        {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
+                        {user ? (
+                            // Khi đã login -> hiện tên user hoặc avatar
+                            <div className="navbar-user">
+                                <span>Xin chào, {user.name}</span>
+                                <button
+                                    onClick={() => {
+                                        setUser(null); // Logout fake
+                                    }}
+                                >
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        ) : (
+                            // Khi chưa login -> hiện chữ "Tài khoản"
+                            <>
+                                <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
+                                    Tài khoản
+                                </span>
+                                {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
+                            </>
+                        )}
                     </div>
                 )}
 

@@ -1,8 +1,22 @@
 import React from "react";
 import "./Footer.css";
+import {useLocation} from "react-router-dom";
 
 // src/components/Footer.jsx
 function Footer() {
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const step = params.get("step");
+    // Các bước xác thực qua query param
+    const hiddenSteps = ["signin", "signup", "forgot-password", "verify"];
+
+    // Các route cần ẩn footer
+    const hiddenPaths = ["/booking", "/payment", "/payment-result"];
+    // Ẩn nếu step nằm trong hiddenSteps hoặc pathname chứa bất kỳ hiddenPaths nào
+    if (hiddenSteps.includes(step) || hiddenPaths.some((path) => location.pathname.startsWith(path))) {
+        return null;
+    }
+
     return (
         <footer className="footer">
             <div className="footer-container">

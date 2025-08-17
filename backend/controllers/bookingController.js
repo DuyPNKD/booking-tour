@@ -8,17 +8,36 @@ exports.createBooking = async (req, res) => {
     try {
         const {tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price, details} = req.body;
 
-        // 1. Insert vào bảng bookings
+        let userId = null;
+
+        // 1. Xác định user_id
+        if (req.user && req.user.id) {
+            // Người dùng đã đăng nhập
+            userId = req.user.id;
+        } else {
+            // Người dùng chưa đăng nhập → kiểm tra email đã tồn tại chưa
+            const [existingUser] = await conn.query(`SELECT id FROM users WHERE email = ? LIMIT 1`, [email]);
+
+            if (existingUser.length > 0) {
+                userId = existingUser[0].id;
+            } else {
+                // Tạo tài khoản mới (guest)
+                const [userResult] = await conn.query(`INSERT INTO users (name, email, phone, gender, address, role) VALUES (?, ?, ?, ?, ?, 'user')`, [full_name, email, phone_number, gender, address]);
+                userId = userResult.insertId;
+            }
+        }
+
+        // 2. Insert vào bookings
         const [result] = await conn.query(
             `INSERT INTO bookings 
-            (tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [tour_id, gender, full_name, phone_number, email, address, note, departure_date, total_price]
+            (user_id, tour_id, departure_date, total_price, note)
+            VALUES (?, ?, ?, ?, ?)`,
+            [userId, tour_id, departure_date, total_price, note]
         );
 
         const bookingId = result.insertId;
 
-        // 2. Insert vào bảng booking_details (nếu có dữ liệu details)
+        // 3. Insert booking_details nếu có
         if (details && details.length > 0) {
             const values = details.map((d) => [bookingId, d.target_type, d.quantity]);
             await conn.query(`INSERT INTO booking_details (booking_id, target_type, quantity) VALUES ?`, [values]);
@@ -44,16 +63,21 @@ exports.getBookingById = async (req, res) => {
     try {
         const bookingId = req.params.id;
 
-        // 1. Lấy thông tin booking + tour
+        // 1. Lấy thông tin booking + tour + user
         const [bookings] = await pool.query(
             `SELECT b.*, 
-                t.title AS tour_name, 
-                t.num_day, 
-                t.num_night, 
-                l.name AS location_name
+                    t.title AS tour_name, 
+                    t.num_day, 
+                    t.num_night, 
+                    l.name AS location_name,
+                    u.name AS customer_name,
+                    u.email AS customer_email,
+                    u.phone AS customer_phone,
+                    u.address AS customer_address
             FROM bookings b
             JOIN tours t ON b.tour_id = t.id
             JOIN locations l ON t.location_id = l.id
+            LEFT JOIN users u ON b.user_id = u.id
             WHERE b.id = ?`,
             [bookingId]
         );
@@ -64,7 +88,7 @@ exports.getBookingById = async (req, res) => {
 
         const booking = bookings[0];
 
-        // 2. Lấy giá tour theo từng loại (adult, child, infant)
+        // 2. Lấy giá tour theo từng loại
         const [prices] = await pool.query(
             `SELECT target_type, price 
              FROM tour_prices 
@@ -89,20 +113,19 @@ exports.getBookingById = async (req, res) => {
             [bookingId]
         );
 
-        // 4. Tính tổng tiền
+        // 4. Tính tổng tiền từ booking_details
         let totalPrice = 0;
         details.forEach((detail) => {
             const unitPrice = priceMap[detail.target_type] || 0;
             totalPrice += unitPrice * detail.quantity;
         });
 
-        // 5. Trả dữ liệu về
+        booking.total_price = totalPrice;
+
+        // 5. Trả dữ liệu
         res.json({
             success: true,
-            booking: {
-                ...booking,
-                total_price: totalPrice,
-            },
+            booking,
             details,
         });
     } catch (error) {

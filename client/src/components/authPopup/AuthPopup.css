@@ -10,7 +10,7 @@
 
 .auth-popup {
     position: absolute;
-    top: 50px;
+    top: calc(100% + 5px);
     right: 0;
     background: #fff;
     border-radius: 8px;
@@ -41,6 +41,8 @@
     cursor: pointer;
     font-size: 16px;
     transition: background 0.3s, filter 0.3s;
+    display: block;
+    text-align: center;
 }
 .auth-popup-register:hover {
     background: #38d6f6;

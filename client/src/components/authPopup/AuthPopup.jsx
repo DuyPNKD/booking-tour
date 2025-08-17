@@ -7,11 +7,13 @@ const AuthPopup = ({onClose}) => (
         <div className="auth-popup-overlay" onClick={onClose}></div>
         <div className="auth-popup">
             <div className="auth-popup-arrow" />
-            <button className="auth-popup-register">Đăng ký</button>
+            <Link to="/auth/login?step=signup" className="auth-popup-register">
+                Đăng ký
+            </Link>
             <div className="auth-popup-text">
                 Quý khách đã có tài khoản?
                 <br />
-                <Link to="/login" className="auth-popup-login-link">
+                <Link to="/auth/login?step=signin" className="auth-popup-login-link">
                     Đăng nhập ngay
                 </Link>
             </div>

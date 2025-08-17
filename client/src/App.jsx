@@ -6,12 +6,12 @@ import Tours from "./pages/tours/Tours";
 import TourDetail from "./pages/tourdetail/TourDetail";
 import About from "./pages/about/About";
 import Contact from "./pages/contact/Contact";
-import Login from "./pages/login/Login";
-import Register from "./pages/register/Register";
+import AuthPage from "./pages/auth/AuthPage";
 import Blog from "./pages/blog/Blog";
 import BookingPage from "./pages/booking/BookingPage";
 import PaymentPage from "./pages/payment/PaymentPage";
 import PaymentResult from "./pages/paymentResult/PaymentResultPage";
+
 import "./App.css";
 
 function App() {
@@ -38,10 +38,7 @@ function App() {
                 <Route path="/contact" element={<Contact />} />
 
                 {/* Trang đăng nhập */}
-                <Route path="/login" element={<Login />} />
-
-                {/* Trang đăng ký */}
-                <Route path="/register" element={<Register />} />
+                <Route path="/auth/login" element={<AuthPage />} />
 
                 {/* Trang đặt tour */}
                 <Route path="/booking/:id" element={<BookingPage />} />
