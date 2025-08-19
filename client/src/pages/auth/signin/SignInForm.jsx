@@ -3,10 +3,12 @@ import {Eye, EyeOff, ArrowLeft} from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import "./SignInForm.css";
 import BackButton from "../../../components/backButton/BackButton";
+import {useAuth} from "../../../context/AuthContext";
 
 function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const {login} = useAuth(); // Lấy hàm login từ context
 
     // State cho form và lỗi
     const [form, setForm] = useState({
@@ -69,8 +71,8 @@ function SignInForm() {
             if (!res.ok) throw new Error("Đăng nhập thất bại");
 
             const data = await res.json();
-            localStorage.setItem("token", data.token);
-            // setUser(data.user); // lưu vào global state/context
+            login(data.token, data.user); // Lưu token và user vào context
+            navigate("/"); // Chuyển sang trang chính sau khi đăng nhập thành công
             alert("Đăng nhập thành công!");
         } catch (err) {
             console.error(err);

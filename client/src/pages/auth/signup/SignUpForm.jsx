@@ -2,11 +2,14 @@ import React, {useState} from "react";
 import {Eye, EyeOff, ArrowLeft} from "lucide-react";
 import "./SignUpForm.css";
 import BackButton from "../../../components/backButton/BackButton";
+import {useNavigate} from "react-router-dom";
+import {useAuth} from "../../../context/AuthContext";
 
 function SignUpForm() {
+    const {login} = useAuth(); // Lấy hàm setUser từ context
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
+    const navigate = useNavigate();
     // Thêm state cho các trường nhập và lỗi
     const [form, setForm] = useState({
         name: "",
@@ -76,7 +79,7 @@ function SignUpForm() {
 
         if (Object.keys(newErrors).length === 0) {
             try {
-                const res = await fetch("http://localhost:3000/api/auth/signup", {
+                const res = await fetch("http://localhost:3000/api/auth/register", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(form),
@@ -85,12 +88,11 @@ function SignUpForm() {
                 if (!res.ok) throw new Error("Đăng ký thất bại");
 
                 const data = await res.json();
-                localStorage.setItem("token", data.token);
-                // setUser(data.user) => lưu vào context/global state
-                // Sau khi đăng ký xong thì chuyển sang trang login hoặc home
-                // navigate("/login") hoặc navigate("/")
-                navigate("/");
+
+                login(data.token, data.user); // Lưu token và user vào localStorage
+
                 alert("Đăng ký & đăng nhập thành công!");
+                navigate("/"); // Sau khi đăng ký xong thì chuyển sang trang login hoặc home
             } catch (err) {
                 console.error(err);
                 alert("Có lỗi xảy ra!");

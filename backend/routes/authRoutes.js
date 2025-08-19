@@ -5,6 +5,7 @@ const db = require("../config/db");
 require("dotenv").config();
 
 const router = express.Router();
+const authMiddleware = require("../middlewares/authMiddleware");
 
 router.get("/ping", (req, res) => {
     res.send("Auth route OK");
@@ -65,6 +66,17 @@ router.post("/login", async (req, res) => {
 
         // 4. Trả về token + thông tin user
         res.json({token, user: payload});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({message: "Lỗi server"});
+    }
+});
+
+// 📌 Lấy thông tin user từ token
+router.get("/me", authMiddleware, async (req, res) => {
+    try {
+        // req.user được gắn từ middleware (giải mã từ token)
+        res.json({user: req.user});
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "Lỗi server"});

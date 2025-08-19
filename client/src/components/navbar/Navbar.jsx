@@ -4,6 +4,7 @@ import "./Navbar.css";
 import AuthPopup from "../authPopup/AuthPopup";
 import Search from "../Search/Search";
 import axios from "axios";
+import {useAuth} from "../../context/AuthContext"; // 👉 lấy từ context
 
 const Navbar = () => {
     const [domesticRegions, setDomesticRegions] = useState([]);
@@ -13,8 +14,7 @@ const Navbar = () => {
     const [hoveredDomestic, setHoveredDomestic] = useState([]);
     const [hoveredInternational, setHoveredInternational] = useState([]);
     const [showAuthPopup, setShowAuthPopup] = useState(false);
-    // Fake user: null = chưa login, object = đã login
-    const [user, setUser] = useState(null);
+    const {user, logout} = useAuth(); // 👉 lấy từ context
 
     const navigate = useNavigate();
 
@@ -32,12 +32,6 @@ const Navbar = () => {
         {text: "Tour nước ngoài", path: "/danh-muc-tour?type=international"},
         {text: "Cẩm nang du lịch", path: "/travel-guide"},
         {text: "Liên hệ", path: "/contact"},
-    ];
-
-    const steps = [
-        {number: 1, text: "Đặt"},
-        {number: 2, text: "Thanh toán"},
-        {number: 3, text: "Kết quả"},
     ];
 
     useEffect(() => {
@@ -186,13 +180,7 @@ const Navbar = () => {
                             // Khi đã login -> hiện tên user hoặc avatar
                             <div className="navbar-user">
                                 <span>Xin chào, {user.name}</span>
-                                <button
-                                    onClick={() => {
-                                        setUser(null); // Logout fake
-                                    }}
-                                >
-                                    Đăng xuất
-                                </button>
+                                <button onClick={logout}>Đăng xuất</button>
                             </div>
                         ) : (
                             // Khi chưa login -> hiện chữ "Tài khoản"
