@@ -11,6 +11,10 @@ import Blog from "./pages/blog/Blog";
 import BookingPage from "./pages/booking/BookingPage";
 import PaymentPage from "./pages/payment/PaymentPage";
 import PaymentResult from "./pages/paymentResult/PaymentResultPage";
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
+import ProfilePage from "./pages/dashboard/ProfilePage";
+import TripsPage from "./pages/dashboard/TripsPage";
+import VoucherPage from "./pages/dashboard/VoucherPage";
 
 import "./App.css";
 
@@ -48,6 +52,13 @@ function App() {
 
                 {/* Trang kết quả thanh toán */}
                 <Route path="/payment-result" element={<PaymentResult />} />
+
+                {/* Dashboard */}
+                <Route path="/dashboard" element={<DashboardLayout />}>
+                    <Route path="profile" element={<ProfilePage />} />
+                    <Route path="trips" element={<TripsPage />} />
+                    <Route path="voucher" element={<VoucherPage />} />
+                </Route>
 
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Link, useNavigate, useLocation} from "react-router-dom";
 import "./Navbar.css";
-import AuthPopup from "../authPopup/AuthPopup";
+
 import Search from "../Search/Search";
 import axios from "axios";
 import {useAuth} from "../../context/AuthContext"; // 👉 lấy từ context
@@ -14,6 +14,7 @@ const Navbar = () => {
     const [hoveredDomestic, setHoveredDomestic] = useState([]);
     const [hoveredInternational, setHoveredInternational] = useState([]);
     const [showAuthPopup, setShowAuthPopup] = useState(false);
+    const [showUserDropdown, setShowUserDropdown] = useState(false);
     const {user, logout} = useAuth(); // 👉 lấy từ context
 
     const navigate = useNavigate();
@@ -178,17 +179,54 @@ const Navbar = () => {
 
                         {user ? (
                             // Khi đã login -> hiện tên user hoặc avatar
-                            <div className="navbar-user">
-                                <span>Xin chào, {user.name}</span>
-                                <button onClick={logout}>Đăng xuất</button>
+                            <div className="navbar-user-info" onClick={() => setShowUserDropdown(!showUserDropdown)}>
+                                <img src={user.avatar || "https://png.pngtree.com/png-vector/20190710/ourmid/pngtree-user-vector-avatar-png-image_1541962.jpg"} alt="avatar" className="navbar-user-avatar" />
+                                <span className="navbar-user-name">{user.name}</span>
+                                <i className={`fa-solid fa-chevron-down navbar-user-chevron${showUserDropdown ? " open" : ""}`}></i>
+                                {showUserDropdown && (
+                                    <div className="navbar-user-dropdown">
+                                        <div
+                                            className="navbar-user-dropdown-item"
+                                            onClick={() => {
+                                                navigate("/dashboard/trips");
+                                                setShowUserDropdown(false);
+                                            }}
+                                        >
+                                            Kỳ nghỉ của tôi
+                                        </div>
+                                        <div
+                                            className="navbar-user-dropdown-item"
+                                            onClick={() => {
+                                                navigate("/dashboard/voucher");
+                                                setShowUserDropdown(false);
+                                            }}
+                                        >
+                                            Ưu đãi của tôi
+                                        </div>
+                                        <div
+                                            className="navbar-user-dropdown-item"
+                                            onClick={() => {
+                                                navigate("/dashboard/profile");
+                                                setShowUserDropdown(false);
+                                            }}
+                                        >
+                                            Hồ sơ của tôi
+                                        </div>
+                                        <button className="navbar-user-logout-btn" onClick={logout}>
+                                            Đăng xuất
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         ) : (
-                            // Khi chưa login -> hiện chữ "Tài khoản"
+                            // Khi chưa login -> hiện nút Đăng Nhập và Đăng ký
                             <>
-                                <span className={`navbar-menu-item${showAuthPopup ? " active" : ""}`} onClick={() => setShowAuthPopup((v) => !v)} style={{cursor: "pointer"}}>
-                                    Tài khoản
-                                </span>
-                                {showAuthPopup && <AuthPopup onClose={() => setShowAuthPopup(false)} />}
+                                <button className="navbar-login-btn" onClick={() => navigate("/auth/login?step=signin")}>
+                                    <i class="fa-solid fa-user"></i> Đăng Nhập
+                                </button>
+                                <button className="navbar-register-btn" onClick={() => navigate("/auth/login?step=signup")}>
+                                    Đăng ký
+                                </button>
                             </>
                         )}
                     </div>

@@ -24,7 +24,8 @@ function SignUpForm() {
     // Hàm validate
     const validate = () => {
         const newErrors = {};
-        if (!form.name.trim()) newErrors.name = "Vui lòng nhập họ tên";
+        if (!form.name.trim()) newErrors.name = "Vui lòng nhập tên hiển thị";
+        else if (form.name.trim().length < 3 || form.name.trim().length > 16) newErrors.name = "Tên hiển thị phải từ 3 - 16 ký tự";
         if (!form.emailOrPhone.trim()) newErrors.emailOrPhone = "Vui lòng nhập email hoặc số điện thoại";
         // Đơn giản kiểm tra email hoặc số điện thoại
         if (form.emailOrPhone && !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)@([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,}|(\+?\d{9,13}))$/.test(form.emailOrPhone)) {
@@ -193,11 +194,10 @@ function SignUpForm() {
 
                     <div className="signup-terms">
                         <p>
-                            Bằng cách đăng ký, Quý khách đồng ý tất cả{" "}
-                            <a href="#" className="signup-link">
-                                điều kiện & điều khoản
-                            </a>{" "}
-                            của DTravel
+                            Nếu bạn đã có tài khoản,{" "}
+                            <button className="signup-link" onClick={() => navigate("/auth/login?step=signup")}>
+                                đăng nhập ngay
+                            </button>
                         </p>
                     </div>
                 </form>

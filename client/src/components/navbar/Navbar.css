@@ -4,7 +4,7 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-    background-color: white;
+    background-color: #003c71;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -40,18 +40,16 @@
     padding: 0.5rem 1rem;
     border-radius: 16px;
     transition: background-color 0.3s;
-    color: #242424;
+    color: white;
 }
 
 .navbar-menu-item:hover {
-    background-color: #ff5b00;
-    color: white;
+    color: #26bed6;
 }
 
 .navbar-menu-item.active,
 .navbar-menu-item:hover {
-    background-color: #ff5b00;
-    color: white;
+    color: #26bed6;
 }
 
 .navbar-menu-item:hover {
@@ -59,8 +57,7 @@
 }
 
 .navbar-menu-dropdown:hover .navbar-menu-item {
-    background-color: #ff5b00;
-    color: white;
+    color: #26bed6;
 }
 
 .search-wrapper {
@@ -167,7 +164,7 @@
 
 .mega-menu-region.active,
 .mega-menu-region:hover {
-    background: #ff6600;
+    background: #26bed6;
     color: #fff;
     cursor: pointer;
 }
@@ -297,7 +294,192 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
+    /* gap: 0.5rem; */
+}
+
+/* CSS cho các nút đăng nhập và đăng ký */
+.navbar-login-btn {
+    background-color: rgba(43, 49, 61, 0.3); /* Màu xám đậm với độ trong suốt */
+    color: white;
+    border: 1px solid white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    margin-right: 4px;
+}
+
+.navbar-login-btn:hover {
+    background-color: rgba(43, 49, 61, 0.7); /* Màu xám đậm hơn khi hover */
+}
+
+.navbar-login-btn.active {
+    background-color: #2d3748;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-register-btn {
+    background-color: #0194f3;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.navbar-register-btn:hover {
+    background-color: rgb(0, 124, 234); /* Màu xanh dương đậm hơn khi hover */
+}
+
+/* User info box */
+.navbar-user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 8px;
+    padding: 6px 14px;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    font-size: 15px;
+    min-width: 140px;
+    user-select: none;
+}
+
+.navbar-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #eee;
+    border: 1px solid #ddd;
+}
+
+.navbar-user-name {
+    font-weight: 500;
+    margin-right: 4px;
+}
+
+.navbar-user-point {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 13px;
+    color: #fff;
+    margin-left: 6px;
+}
+
+.navbar-point-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+}
+
+/* Chevron icon */
+.navbar-user-chevron {
+    margin-left: 6px;
+    font-size: 13px;
+    transition: transform 0.2s;
+    color: #fff;
+}
+.navbar-user-chevron.open {
+    transform: rotate(180deg);
+}
+
+/* Dropdown */
+.navbar-user-dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    min-width: 210px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.13);
+    z-index: 100;
+    padding: 10px 0 12px 0;
+    font-size: 15px;
+    color: #222;
+    border: 1px solid #e5e5e5;
+}
+
+.navbar-user-dropdown:before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    right: 24px;
+    border-width: 0 10px 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent #fff transparent;
+    display: block;
+}
+
+.navbar-user-dropdown-item {
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.navbar-user-dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+.navbar-user-dropdown-point {
+    float: right;
+    color: #1976d2;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Logout button */
+.navbar-user-logout-btn {
+    display: block;
+    width: 90%;
+    margin: 12px auto 0 auto;
+    padding: 7px 0;
+    border: 1px solid #bdbdbd;
+    border-radius: 4px;
+    background: #fff;
+    color: #222;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.navbar-user-logout-btn:hover {
+    background: #f5f5f5;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 768px) {
+    .navbar-login-btn,
+    .navbar-register-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+        margin-right: 4px;
+    }
+
+    .navbar-login-icon {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* Container cho các nút nếu cần */
+.navbar-auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 @media (max-width: 768px) {

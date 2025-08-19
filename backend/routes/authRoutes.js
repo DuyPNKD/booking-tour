@@ -45,7 +45,7 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const {emailOrPhone, password} = req.body;
-
+        console.log("Login attempt with:", {emailOrPhone, password});
         // 1. Tìm user theo email/phone
         const [users] = await db.query("SELECT * FROM users WHERE email = ?", [emailOrPhone]);
         if (users.length === 0) {

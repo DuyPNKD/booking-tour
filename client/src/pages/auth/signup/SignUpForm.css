@@ -108,7 +108,7 @@
 
 .signup-submit-button {
     width: 100%;
-    background: linear-gradient(135deg, #ff8c00, #ff6b35);
+    background: #0194f3;
     color: white;
     border: none;
     padding: 14px;
@@ -125,9 +125,13 @@
 }
 
 .signup-divider {
+    position: relative;
     text-align: center;
     margin: 24px 0;
-    position: relative;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .signup-divider::before {
@@ -138,13 +142,17 @@
     right: 0;
     height: 1px;
     background: #e2e8f0;
+    z-index: 0;
 }
 
 .signup-divider span {
+    position: relative;
     background: white;
     color: #666;
     padding: 0 16px;
     font-size: 14px;
+    z-index: 1;
+    margin-bottom: 4px;
 }
 
 .signup-social-buttons {
@@ -234,14 +242,21 @@
 }
 
 .signup-terms p {
-    font-size: 12px;
+    font-size: 14px;
     color: #666;
     line-height: 1.4;
+    font-weight: 600;
 }
 
 .signup-link {
     color: #3182ce;
     text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
 }
 
 .signup-link:hover {

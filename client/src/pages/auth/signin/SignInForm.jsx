@@ -65,7 +65,7 @@ function SignInForm() {
             const res = await fetch("http://localhost:3000/api/auth/login", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({emailOrPhone, password}),
+                body: JSON.stringify({emailOrPhone: form.emailOrPhone, password: form.password}),
             });
 
             if (!res.ok) throw new Error("Đăng nhập thất bại");
@@ -91,14 +91,14 @@ function SignInForm() {
                 <form className="signin-auth-form" onSubmit={handleLogin} noValidate>
                     <div className="signin-input-group">
                         <label>Email / Số điện thoại di động</label>
-                        <input type="text" name="emailOrPhone" value={form.emailOrPhone} onChange={handleChange} className="signin-form-input" placeholder="0799097860" />
+                        <input type="text" name="emailOrPhone" value={form.emailOrPhone} onChange={handleChange} className="signin-form-input" />
                         {errors.emailOrPhone && <div className="signin-error">{errors.emailOrPhone}</div>}
                     </div>
 
                     <div className="signin-input-group">
                         <label>Mật khẩu</label>
                         <div className="signin-password-input">
-                            <input type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} className="signin-form-input" placeholder="••••••••" />
+                            <input type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} className="signin-form-input" />
                             <button type="button" className="signin-password-toggle" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                             </button>
@@ -110,9 +110,6 @@ function SignInForm() {
                         <Link to="/auth/login?step=forgot-password" className="signin-link-button">
                             Quên mật khẩu?
                         </Link>
-                        <button type="button" className="signin-link-button">
-                            Đăng nhập bằng OTP
-                        </button>
                     </div>
 
                     <button type="submit" className="signin-submit-button">
@@ -139,6 +136,14 @@ function SignInForm() {
                             </svg>
                             Google
                         </button>
+                    </div>
+                    <div className="signin-terms">
+                        <p>
+                            Nếu bạn chưa có tài khoản,{" "}
+                            <button className="signin-link" onClick={() => navigate("/auth/login?step=signup")}>
+                                đăng ký ngay
+                            </button>
+                        </p>
                     </div>
                 </form>
             </div>

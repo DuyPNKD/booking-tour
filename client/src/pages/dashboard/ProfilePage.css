@@ -1,0 +1,122 @@
+.profile-card {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid rgba(205, 208, 209, 1);
+    padding: 24px 32px;
+    min-width: 600px;
+    position: relative;
+}
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+.profile-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: rgb(3, 18, 26);
+}
+.profile-desc {
+    font-size: 15px;
+    color: #666;
+    margin-top: 2px;
+}
+.profile-avatar {
+    font-size: 15px;
+    color: #1976d2;
+    font-weight: 500;
+}
+.profile-info-list {
+    margin-top: 10px;
+}
+.profile-info-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 0;
+    font-size: 15px;
+    gap: 6px;
+}
+.profile-info-row-inline {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 18px;
+    border-bottom: none;
+    padding: 14px 0 0 0;
+    background: #fff; /* Thêm dòng này để nền trắng */
+}
+.profile-info-col {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 120px;
+}
+.profile-info-label {
+    color: #6b7685;
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 0;
+}
+.profile-info-value {
+    flex: 1;
+    color: #444;
+}
+.profile-info-action {
+    color: #1976d2;
+    font-weight: 500;
+    cursor: pointer;
+    min-width: 70px;
+    text-align: right;
+}
+.profile-input {
+    border: 1px solid #bfcad6;
+    border-radius: 7px;
+    padding: 10px 8px;
+    font-size: 15px;
+    color: #222;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    margin-left: 0;
+}
+.profile-input:focus {
+    border-color: #1976d2;
+}
+.profile-select {
+    appearance: none;
+    background: #fff url("data:image/svg+xml,%3Csvg width='16' height='16' fill='blue' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23007aff' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 12px center/16px 16px;
+    padding-right: 32px;
+    cursor: pointer;
+}
+
+.profile-select:focus {
+    border-color: #1976d2;
+}
+.profile-save-row {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    box-sizing: border-box;
+    position: static;
+}
+.profile-save-btn {
+    background: #0099f7;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s;
+    display: flex;
+    align-self: flex-end;
+    position: static;
+}
+.profile-save-btn:hover {
+    background: #007ad9;
+}
