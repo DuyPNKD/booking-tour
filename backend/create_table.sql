@@ -9,12 +9,22 @@ CREATE TABLE users (
   gender ENUM('male', 'female', 'other'),
   address VARCHAR(255),
   role ENUM('user', 'admin') DEFAULT 'user',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  is_active TINYINT DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
 
-ALTER TABLE users
-  ADD COLUMN gender ENUM('male', 'female', 'other') NULL AFTER phone,
-  ADD COLUMN address VARCHAR(255) NULL AFTER gender;
+DELETE FROM user_verifications;
+DELETE FROM users;
+
+CREATE TABLE user_verifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  code VARCHAR(10) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
 
 CREATE TABLE IF NOT EXISTS tours (
   id INT PRIMARY KEY AUTO_INCREMENT,

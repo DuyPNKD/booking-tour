@@ -72,7 +72,7 @@ function SignUpForm() {
         }
     };
 
-    // Xử lý submit
+    // 📌 Submit đăng ký
     const handleSubmit = async (e) => {
         e.preventDefault();
         const newErrors = validate();
@@ -80,20 +80,26 @@ function SignUpForm() {
 
         if (Object.keys(newErrors).length === 0) {
             try {
+                // console.log("Form: ", form);
                 const res = await fetch("http://localhost:3000/api/auth/register", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(form),
+                    body: JSON.stringify({
+                        name: form.name,
+                        emailOrPhone: form.emailOrPhone,
+                        password: form.password,
+                    }),
                 });
 
                 if (!res.ok) throw new Error("Đăng ký thất bại");
 
                 const data = await res.json();
 
-                login(data.token, data.user); // Lưu token và user vào localStorage
+                alert(data.message); // "Đăng ký thành công, vui lòng kiểm tra email"
 
-                alert("Đăng ký & đăng nhập thành công!");
-                navigate("/"); // Sau khi đăng ký xong thì chuyển sang trang login hoặc home
+                // 👉 Chuyển sang trang nhập mã OTP, truyền theo email vừa đăng ký
+                // navigate("/auth/login?step=verify", {state: {email: form.emailOrPhone}});
+                navigate(`/auth/login?step=verify&email=${form.emailOrPhone}`);
             } catch (err) {
                 console.error(err);
                 alert("Có lỗi xảy ra!");

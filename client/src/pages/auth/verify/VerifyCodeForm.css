@@ -63,6 +63,7 @@
     border-radius: 8px;
     background: white;
     transition: all 0.2s;
+    color: #222;
 }
 
 .verify-code-input:focus {
