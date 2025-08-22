@@ -2,11 +2,12 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../config/db");
+const crypto = require("crypto");
 require("dotenv").config();
-
 const router = express.Router();
+
 const authMiddleware = require("../middlewares/authMiddleware");
-const {sendVerificationEmail} = require("../utils/mailer");
+const {sendVerificationEmail, sendResetPasswordEmail} = require("../utils/mailer");
 
 router.get("/ping", (req, res) => {
     res.send("Auth route OK");
@@ -51,10 +52,10 @@ router.post("/register", async (req, res) => {
 // 📌 Đăng nhập
 router.post("/login", async (req, res) => {
     try {
-        const {emailOrPhone, password} = req.body;
-        console.log("Login attempt with:", {emailOrPhone, password});
+        const {email, password} = req.body;
+        console.log("Login attempt with:", {email, password});
         // 1. Tìm user theo email/phone
-        const [users] = await db.query("SELECT * FROM users WHERE email = ?", [emailOrPhone]);
+        const [users] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
         if (users.length === 0) {
             return res.status(400).json({message: "Email không tồn tại"});
         }
@@ -174,6 +175,109 @@ router.post("/resend-otp", async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({message: "Lỗi server khi gửi lại mã"});
+    }
+});
+
+// 📌 Quên mật khẩu
+router.post("/forgot-password", async (req, res) => {
+    const {email} = req.body;
+
+    // 1. Kiểm tra email có trong DB không
+    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    const user = rows[0];
+
+    if (!user) {
+        return res.status(400).json({message: "Email không tồn tại"});
+    }
+
+    // 2. Tạo token có hạn (10-30 phút)
+    const token = crypto.randomBytes(32).toString("hex");
+    const expireTime = new Date(Date.now() + 30 * 60 * 1000); // 30 phút
+
+    // Lưu token vào bảng password_resets
+    await db.query("INSERT INTO password_resets (user_id, token, expire_at) VALUES (?, ?, ?)", [user.id, token, expireTime]);
+
+    // 3. Gửi email cho user
+    const resetLink = `http://localhost:5173/auth/login?step=reset-password&token=${token}`;
+
+    await sendResetPasswordEmail(email, resetLink);
+
+    res.json({message: "Link đặt lại mật khẩu đã gửi đến email"});
+});
+
+// 📌 Reset mật khẩu
+router.post("/reset-password", async (req, res) => {
+    try {
+        const {token, newPassword} = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({message: "Thiếu token hoặc mật khẩu mới"});
+        }
+
+        // 1. Kiểm tra token trong bảng password_resets
+        const [rows] = await db.query("SELECT * FROM password_resets WHERE token = ? AND expire_at > NOW() LIMIT 1", [token]);
+        const resetRecord = rows[0];
+
+        if (!resetRecord) {
+            return res.status(400).json({message: "Token không hợp lệ hoặc đã hết hạn"});
+        }
+
+        // 2. Hash mật khẩu mới
+        const bcrypt = require("bcryptjs");
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // 3. Update mật khẩu user
+        await db.query("UPDATE users SET password = ? WHERE id = ?", [hashedPassword, resetRecord.user_id]);
+
+        // 4. Xoá token để tránh dùng lại
+        await db.query("DELETE FROM password_resets WHERE user_id = ?", [resetRecord.user_id]);
+
+        res.json({message: "Đổi mật khẩu thành công, hãy đăng nhập lại"});
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({message: "Lỗi server"});
+    }
+});
+
+// 📌 Check Reset Token
+router.post("/check-reset-token", async (req, res) => {
+    const {token} = req.body;
+
+    if (!token) {
+        return res.status(400).json({message: "Thiếu token"});
+    }
+
+    try {
+        // 1. Tìm token trong DB
+        const [rows] = await db.query("SELECT * FROM password_resets WHERE token = ?", [token]);
+        const record = rows[0];
+
+        if (!record) {
+            return res.status(400).json({message: "Token không tồn tại"});
+        }
+
+        // 2. So sánh thời gian hết hạn (MySQL DATETIME -> JS Date object)
+        const expireTime = new Date(record.expire_at);
+        const now = new Date();
+
+        if (expireTime < now) {
+            return res.status(400).json({message: "Token đã hết hạn"});
+        }
+
+        // 3. Lấy email user theo user_id trong bảng password_resets
+        const [users] = await db.query("SELECT email FROM users WHERE id = ?", [record.user_id]);
+        if (!users || users.length === 0) {
+            return res.status(400).json({message: "Không tìm thấy user tương ứng"});
+        }
+
+        // 4. Nếu hợp lệ -> trả thêm email
+        return res.json({
+            message: "Token hợp lệ",
+            email: users[0].email,
+        });
+    } catch (err) {
+        console.error("❌ Lỗi check-reset-token:", err);
+        return res.status(500).json({message: "Lỗi server"});
     }
 });
 

@@ -1,30 +1,45 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Eye, EyeOff, ArrowLeft} from "lucide-react";
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import "./SignInForm.css";
 import BackButton from "../../../components/backButton/BackButton";
 import {useAuth} from "../../../context/AuthContext";
 
 function SignInForm() {
-    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
     const {login} = useAuth(); // Lấy hàm login từ context
+    const [showPassword, setShowPassword] = useState(false);
 
     // State cho form và lỗi
     const [form, setForm] = useState({
-        emailOrPhone: "",
+        email: "",
         password: "",
     });
     const [errors, setErrors] = useState({});
     const [errorTimeouts, setErrorTimeouts] = useState({});
 
+    // Khi mount, nếu có state, điền vào form và xóa state
+    useEffect(() => {
+        // Nếu có state truyền sang (từ reset password)
+        if (location.state?.email || location.state?.password) {
+            setForm((prev) => ({
+                ...prev,
+                email: location.state.email || "",
+                password: location.state.password || "",
+            }));
+            // Xóa state để tránh lộ khi back
+            navigate(location.pathname + location.search, {replace: true, state: {}});
+        }
+    }, [location, navigate]);
+
     // Validate
     const validate = () => {
         const newErrors = {};
-        if (!form.emailOrPhone.trim()) {
-            newErrors.emailOrPhone = "Vui lòng nhập email hoặc số điện thoại";
-        } else if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)@([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,}|(\+?\d{9,13}))$/.test(form.emailOrPhone)) {
-            newErrors.emailOrPhone = "Email hoặc số điện thoại không hợp lệ";
+        if (!form.email.trim()) {
+            newErrors.email = "Vui lòng nhập email hoặc số điện thoại";
+        } else if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)@([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,}|(\+?\d{9,13}))$/.test(form.email)) {
+            newErrors.email = "Email hoặc số điện thoại không hợp lệ";
         }
         if (!form.password) {
             newErrors.password = "Vui lòng nhập mật khẩu";
@@ -65,7 +80,7 @@ function SignInForm() {
             const res = await fetch("http://localhost:3000/api/auth/login", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({emailOrPhone: form.emailOrPhone, password: form.password}),
+                body: JSON.stringify({email: form.email, password: form.password}),
             });
 
             if (!res.ok) throw new Error("Đăng nhập thất bại");
@@ -91,8 +106,8 @@ function SignInForm() {
                 <form className="signin-auth-form" onSubmit={handleLogin} noValidate>
                     <div className="signin-input-group">
                         <label>Email / Số điện thoại di động</label>
-                        <input type="text" name="emailOrPhone" value={form.emailOrPhone} onChange={handleChange} className="signin-form-input" />
-                        {errors.emailOrPhone && <div className="signin-error">{errors.emailOrPhone}</div>}
+                        <input type="text" name="email" value={form.email} onChange={handleChange} className="signin-form-input" />
+                        {errors.email && <div className="signin-error">{errors.email}</div>}
                     </div>
 
                     <div className="signin-input-group">
@@ -137,15 +152,15 @@ function SignInForm() {
                             Google
                         </button>
                     </div>
-                    <div className="signin-terms">
-                        <p>
-                            Nếu bạn chưa có tài khoản,{" "}
-                            <button className="signin-link" onClick={() => navigate("/auth/login?step=signup")}>
-                                đăng ký ngay
-                            </button>
-                        </p>
-                    </div>
                 </form>
+                <div className="signin-terms">
+                    <p>
+                        Nếu bạn chưa có tài khoản,{" "}
+                        <button className="signin-link" onClick={() => navigate("/auth/login?step=signup")}>
+                            đăng ký ngay
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );

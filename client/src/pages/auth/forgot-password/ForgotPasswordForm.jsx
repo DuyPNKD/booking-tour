@@ -23,13 +23,27 @@ function ForgotPasswordForm() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const err = validate();
         setError(err);
         if (!err) {
-            // Xử lý gửi yêu cầu quên mật khẩu ở đây
-            alert("Yêu cầu thành công!");
+            try {
+                const res = await fetch("http://localhost:3000/api/auth/forgot-password", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({email}),
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    navigate("/auth/login?step=forgot-password-success"); // ✅ điều hướng sang trang success
+                } else {
+                    setError(data.message);
+                }
+            } catch (error) {
+                setError("Có lỗi xảy ra, vui lòng thử lại sau");
+            }
         }
     };
 
@@ -58,19 +72,6 @@ function ForgotPasswordForm() {
                         <label>Email</label>
                         <input type="email" placeholder="" className="forgot-form-input" value={email} onChange={handleChange} name="email" />
                         {error && <div className="forgot-error">{error}</div>}
-                    </div>
-
-                    <div className="forgot-captcha">
-                        <div className="forgot-captcha-checkbox">
-                            <input type="checkbox" id="forgot-captcha" />
-                            <label htmlFor="forgot-captcha">Tôi không phải là người máy</label>
-                        </div>
-                        <div className="forgot-captcha-logo">
-                            <span>reCAPTCHA</span>
-                            <div className="forgot-captcha-links">
-                                <small>Bảo mật - Điều khoản</small>
-                            </div>
-                        </div>
                     </div>
 
                     <button type="submit" className="forgot-submit-button">

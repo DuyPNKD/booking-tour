@@ -3,6 +3,8 @@ import SignInForm from "./signin/SignInForm";
 import SignUpForm from "./signup/SignUpForm";
 import VerifyCodeForm from "./verify/VerifyCodeForm";
 import ForgotPasswordForm from "./forgot-password/ForgotPasswordForm";
+import ForgotPasswordSuccess from "./forgot-password/ForgotPasswordSuccess";
+import ResetPassword from "./reset-password/ResetPassword";
 
 function AuthPage() {
     const {search} = useLocation();
@@ -18,6 +20,10 @@ function AuthPage() {
             return <VerifyCodeForm />;
         case "forgot-password":
             return <ForgotPasswordForm />;
+        case "forgot-password-success":
+            return <ForgotPasswordSuccess />;
+        case "reset-password":
+            return <ResetPassword />;
         default:
             return <SignInForm />;
     }

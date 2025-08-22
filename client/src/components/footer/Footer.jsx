@@ -8,7 +8,7 @@ function Footer() {
     const params = new URLSearchParams(location.search);
     const step = params.get("step");
     // Các bước xác thực qua query param
-    const hiddenSteps = ["signin", "signup", "forgot-password", "verify"];
+    const hiddenSteps = ["signin", "signup", "forgot-password", "verify", "reset-password", "forgot-password-success"];
 
     // Các route cần ẩn footer
     const hiddenPaths = ["/booking", "/payment", "/payment-result"];

@@ -197,16 +197,15 @@ function SignUpForm() {
                             Google
                         </button>
                     </div>
-
-                    <div className="signup-terms">
-                        <p>
-                            Nếu bạn đã có tài khoản,{" "}
-                            <button className="signup-link" onClick={() => navigate("/auth/login?step=signup")}>
-                                đăng nhập ngay
-                            </button>
-                        </p>
-                    </div>
                 </form>
+                <div className="signup-terms">
+                    <p>
+                        Nếu bạn đã có tài khoản,{" "}
+                        <button className="signup-link" onClick={() => navigate("/auth/login?step=signin")}>
+                            đăng nhập ngay
+                        </button>
+                    </p>
+                </div>
             </div>
         </div>
     );
