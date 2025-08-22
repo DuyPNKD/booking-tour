@@ -75,7 +75,12 @@ const Navbar = () => {
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
                                         {domesticRegions.map((region) => (
-                                            <div key={region.displayName} className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredDomestic(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                            <div
+                                                key={region.displayName}
+                                                className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredDomestic(region.displayName)}
+                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                            >
                                                 {region.displayName}
                                             </div>
                                         ))}
@@ -89,12 +94,19 @@ const Navbar = () => {
                                                     currentDomestic &&
                                                     currentDomestic.destinations.map((dest) => (
                                                         <div className="mega-menu-group-container" key={dest.group}>
-                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                            <div
+                                                                className="mega-menu-group"
+                                                                onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
+                                                            >
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
                                                                 {dest.places.map((place) => (
-                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                    <span
+                                                                        key={place.id}
+                                                                        className="mega-menu-place"
+                                                                        onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}
+                                                                    >
                                                                         {place.name}
                                                                     </span>
                                                                 ))}
@@ -115,7 +127,12 @@ const Navbar = () => {
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
                                         {internationalRegions.map((region) => (
-                                            <div key={region.displayName} className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredInternational(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                            <div
+                                                key={region.displayName}
+                                                className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredInternational(region.displayName)}
+                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                            >
                                                 {region.displayName}
                                             </div>
                                         ))}
@@ -124,17 +141,26 @@ const Navbar = () => {
                                         <div className="mega-menu-content">
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
-                                                const currentDomestic = internationalRegions.find((region) => region.displayName === hoveredInternational);
+                                                const currentDomestic = internationalRegions.find(
+                                                    (region) => region.displayName === hoveredInternational
+                                                );
                                                 return (
                                                     currentDomestic &&
                                                     currentDomestic.destinations.map((dest) => (
                                                         <div className="mega-menu-group-container" key={dest.group}>
-                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                            <div
+                                                                className="mega-menu-group"
+                                                                onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
+                                                            >
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
                                                                 {dest.places.map((place) => (
-                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                    <span
+                                                                        key={place.id}
+                                                                        className="mega-menu-place"
+                                                                        onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}
+                                                                    >
                                                                         {place.name}
                                                                     </span>
                                                                 ))}
@@ -180,7 +206,15 @@ const Navbar = () => {
                         {user ? (
                             // Khi đã login -> hiện tên user hoặc avatar
                             <div className="navbar-user-info" onClick={() => setShowUserDropdown(!showUserDropdown)}>
-                                <img src={user.avatar || "https://png.pngtree.com/png-vector/20190710/ourmid/pngtree-user-vector-avatar-png-image_1541962.jpg"} alt="avatar" className="navbar-user-avatar" />
+                                <img
+                                    src={user.picture || "/default-avatar.jpg"}
+                                    alt="avatar"
+                                    className="navbar-user-avatar"
+                                    onError={(e) => {
+                                        e.target.src = "/default-avatar.jpg";
+                                        console.log("Lỗi tải ảnh avatar");
+                                    }}
+                                />
                                 <span className="navbar-user-name">{user.name}</span>
                                 <i className={`fa-solid fa-chevron-down navbar-user-chevron${showUserDropdown ? " open" : ""}`}></i>
                                 {showUserDropdown && (

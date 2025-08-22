@@ -13,6 +13,8 @@ CREATE TABLE users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
 
+ALTER TABLE users ADD COLUMN avatar VARCHAR(255) DEFAULT NULL AFTER role;
+
 DELETE FROM user_verifications;
 DELETE FROM users;
 

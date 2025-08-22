@@ -5,6 +5,8 @@ const db = require("../config/db");
 const crypto = require("crypto");
 require("dotenv").config();
 const router = express.Router();
+const {OAuth2Client} = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authMiddleware = require("../middlewares/authMiddleware");
 const {sendVerificationEmail, sendResetPasswordEmail} = require("../utils/mailer");
@@ -70,7 +72,7 @@ router.post("/login", async (req, res) => {
 
         // 3. Tạo token
         const payload = {id: user.id, name: user.name, email: user.email};
-        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "7d"});
+        const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN});
 
         // 4. Trả về token + thông tin user
         res.json({token, user: payload});
@@ -121,11 +123,7 @@ router.post("/verify", async (req, res) => {
         await db.query("UPDATE users SET is_active = 1 WHERE id = ?", [user.id]);
 
         // 6. Sinh JWT token
-        const token = jwt.sign(
-            {id: user.id, email: user.email},
-            process.env.JWT_SECRET,
-            {expiresIn: "7d"} // token sống 7 ngày
-        );
+        const token = jwt.sign({id: user.id, email: user.email}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN});
 
         // 7. Trả về cho frontend
         res.json({
@@ -278,6 +276,65 @@ router.post("/check-reset-token", async (req, res) => {
     } catch (err) {
         console.error("❌ Lỗi check-reset-token:", err);
         return res.status(500).json({message: "Lỗi server"});
+    }
+});
+
+router.post("/google", async (req, res) => {
+    const {token} = req.body;
+
+    try {
+        // ✅ Verify token Google
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        const {email, name, picture} = payload;
+
+        // ✅ Kiểm tra user đã tồn tại chưa
+        const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+
+        let user;
+        if (rows.length === 0) {
+            // ✅ Nếu chưa có thì tạo user mới
+            const [result] = await db.query("INSERT INTO users (name, email, is_active, role, avatar) VALUES (?, ?, ?, ?, ?)", [
+                name,
+                email,
+                1,
+                "user",
+                picture,
+            ]);
+
+            user = {
+                id: result.insertId,
+                name,
+                email,
+                role: "user",
+                picture, // <- Google trả về, nhưng DB không lưu
+            };
+        } else {
+            user = {
+                id: rows[0].id,
+                name: rows[0].name,
+                email: rows[0].email,
+                role: rows[0].role,
+                picture, // <- Google trả về, nhưng DB không lưu
+            };
+        }
+
+        // ✅ Sinh JWT
+        const accessToken = jwt.sign({id: user.id, email: user.email, role: user.role}, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+
+        res.json({
+            accessToken,
+            user,
+        });
+    } catch (err) {
+        console.error("Google login error:", err);
+        res.status(401).json({message: "Token Google không hợp lệ"});
     }
 });
 

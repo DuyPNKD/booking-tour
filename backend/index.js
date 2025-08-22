@@ -6,7 +6,14 @@ const path = require("path");
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 // CORS middleware
-app.use(require("cors")());
+const cors = require("cors");
+
+app.use(
+    cors({
+        origin: "http://localhost:5173", // cho phép React app gọi
+        credentials: true,
+    })
+);
 
 const db = require("./config/db");
 
