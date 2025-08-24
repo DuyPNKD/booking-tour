@@ -164,7 +164,11 @@ router.post("/resend-otp", async (req, res) => {
         // 3. Lưu OTP và hạn sử dụng (5 phút)
         const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
-        await db.query("UPDATE users SET otp_code = ?, otp_expires = ? WHERE id = ?", [otp, expiresAt, user.id]);
+        // Xóa OTP cũ nếu có
+        await db.query("DELETE FROM user_verifications WHERE user_id = ?", [user.id]);
+
+        // Thêm OTP mới
+        await db.query("INSERT INTO user_verifications (user_id, code, expires_at) VALUES (?, ?, ?)", [user.id, otp, expiresAt]);
 
         // 4. Gửi email
         await sendVerificationEmail(email, otp);
@@ -175,7 +179,6 @@ router.post("/resend-otp", async (req, res) => {
         res.status(500).json({message: "Lỗi server khi gửi lại mã"});
     }
 });
-
 // 📌 Quên mật khẩu
 router.post("/forgot-password", async (req, res) => {
     const {email} = req.body;

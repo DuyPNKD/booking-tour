@@ -157,7 +157,7 @@ function SignInForm() {
 
                     <div className="signin-social-buttons">
                         {/* Facebook */}
-                        <SocialButton
+                        {/* <SocialButton
                             text="Facebook"
                             className="signin-facebook"
                             icon={
@@ -175,7 +175,7 @@ function SignInForm() {
                                 </svg>
                             }
                             onClick={() => alert("Facebook login chưa tích hợp")}
-                        />
+                        /> */}
 
                         {/* Google */}
                         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>

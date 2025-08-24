@@ -12,8 +12,6 @@ function VerifyCodeForm() {
     const email = searchParams.get("email") || "";
     const {login} = useAuth(); // Lấy hàm setUser từ context
 
-    console.log("email:", email);
-
     const handleCodeChange = (index, value) => {
         if (value.length <= 1) {
             const newCode = [...verificationCode];
@@ -91,7 +89,15 @@ function VerifyCodeForm() {
                 <form onSubmit={handleSubmit} className="verify-auth-form">
                     <div className="verify-verification-code">
                         {verificationCode.map((digit, index) => (
-                            <input key={index} data-index={index} type="text" maxLength="1" value={digit} onChange={(e) => handleCodeChange(index, e.target.value)} className="verify-code-input" />
+                            <input
+                                key={index}
+                                data-index={index}
+                                type="text"
+                                maxLength="1"
+                                value={digit}
+                                onChange={(e) => handleCodeChange(index, e.target.value)}
+                                className="verify-code-input"
+                            />
                         ))}
                     </div>
 
