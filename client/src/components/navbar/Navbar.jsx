@@ -60,11 +60,13 @@ const Navbar = () => {
                     <Link to="/" className="navbar-logo">
                         <img src="/logo.png" alt="DTravel Logo" className="navbar-logo-image" />
                     </Link>
+                </div>
 
-                    {isBookingFlow ? (
-                        // Navbar cho trang booking
-                        <div></div>
-                    ) : (
+                {isBookingFlow ? (
+                    // Navbar cho trang booking
+                    <div className="navbar-center"></div>
+                ) : (
+                    <div className="navbar-center">
                         <ul className="navbar-menu">
                             {/* Tour trong nước */}
                             <li className="navbar-menu-dropdown">
@@ -176,9 +178,12 @@ const Navbar = () => {
                             <li>
                                 <span className="navbar-menu-item">Cẩm nang du lịch</span>
                             </li>
+                            <li>
+                                <span className="navbar-menu-item">Liên hệ</span>
+                            </li>
                         </ul>
-                    )}
-                </div>
+                    </div>
+                )}
 
                 {isBookingFlow ? (
                     // Navbar cho trang booking
@@ -198,11 +203,6 @@ const Navbar = () => {
                     </div>
                 ) : (
                     <div className="navbar-right">
-                        {/* Search Component */}
-                        <div className="search-wrapper">
-                            <Search />
-                        </div>
-
                         {user ? (
                             // Khi đã login -> hiện tên user hoặc avatar
                             <div className="navbar-user-info" onClick={() => setShowUserDropdown(!showUserDropdown)}>

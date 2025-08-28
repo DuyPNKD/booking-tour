@@ -1,5 +1,5 @@
 const db = require("../config/db");
-
+const dayjs = require("dayjs");
 exports.getAllTours = async (req, res) => {
     const {regionId, subregionId, locationId, page = 1, limit = 10, orderBy = "t.id", orderDir = "ASC"} = req.query;
 
@@ -257,5 +257,135 @@ exports.getTourTerms = async (req, res) => {
     } catch (err) {
         console.error("Lỗi khi lấy terms:", err);
         res.status(500).json({message: "Lỗi khi lấy thông tin điều khoản"});
+    }
+};
+
+// ✅ API Lấy danh sách departure_city unique
+exports.getDepartureCities = async (req, res) => {
+    try {
+        const [rows] = await db.query(`
+            SELECT DISTINCT departure_city 
+            FROM tour_departures 
+            WHERE departure_city IS NOT NULL 
+            ORDER BY departure_city ASC
+        `);
+        res.json(rows.map((r) => r.departure_city));
+    } catch (error) {
+        console.error("❌ Lỗi khi lấy departure cities:", error);
+        res.status(500).json({error: "Lỗi server"});
+    }
+};
+
+// ✅ API suggest (autocomplete)
+exports.getSuggestTours = async (req, res) => {
+    let {q} = req.query;
+
+    if (!q || q.length < 2) return res.json([]);
+
+    try {
+        q = q.trim();
+
+        const [rows] = await db.query(
+            `
+            SELECT id, title, slug
+            FROM tours
+            WHERE title LIKE ? COLLATE utf8mb4_general_ci
+            LIMIT 10
+            `,
+            [`%${q}%`]
+        );
+
+        res.json(rows);
+    } catch (error) {
+        console.error("❌ Lỗi khi suggest tour:", error);
+        res.status(500).json({error: "Lỗi server"});
+    }
+};
+
+// ✅ API search
+exports.getSearchTours = async (req, res) => {
+    const {destination, startDate, departure, page = 1, limit = 10} = req.query;
+
+    try {
+        const parsedPage = parseInt(page, 10);
+        const parsedLimit = parseInt(limit, 10);
+        const offset = (parsedPage - 1) * parsedLimit;
+
+        const whereClauses = [];
+        const params = [];
+
+        if (destination) {
+            whereClauses.push("t.title LIKE ?");
+            params.push(`%${destination}%`);
+        }
+        if (startDate) {
+            whereClauses.push("td.departure_date >= ?");
+            params.push(startDate);
+        }
+        if (departure) {
+            whereClauses.push("td.departure_city LIKE ?");
+            params.push(`%${departure}%`);
+        }
+
+        const where = whereClauses.length > 0 ? "WHERE " + whereClauses.join(" AND ") : "";
+
+        // 1. Tổng số bản ghi
+        const [countRows] = await db.query(
+            `SELECT COUNT(*) as totalItems
+             FROM tours t
+             JOIN tour_departures td ON t.id = td.tour_id
+             ${where}`,
+            params
+        );
+        const totalItems = countRows[0].totalItems;
+
+        // 2. Dữ liệu chính
+        const [rows] = await db.query(
+            `SELECT t.id, t.title, t.slug, t.num_day, t.num_night,
+                    t.price, t.old_price, t.rating, t.rating_count,
+                    td.departure_city, td.departure_date, td.return_date, td.price as departure_price,
+                    l.name as location_name,
+                    (SELECT image_url FROM tours_images ti WHERE ti.tour_id = t.id ORDER BY ti.id ASC LIMIT 1) AS image_url
+             FROM tours t
+             JOIN tour_departures td ON t.id = td.tour_id
+             JOIN locations l ON t.location_id = l.id
+             ${where}
+             ORDER BY td.departure_date ASC
+             LIMIT ? OFFSET ?`,
+            [...params, parsedLimit, offset]
+        );
+
+        const data = rows.map((r) => ({
+            id: r.id,
+            title: r.title,
+            slug: r.slug,
+            num_day: r.num_day,
+            num_night: r.num_night,
+            price: r.price,
+            old_price: r.old_price,
+            rating: r.rating,
+            rating_count: r.rating_count,
+            image_url: r.image_url || null,
+            departure_city: r.departure_city,
+            departure_date: dayjs(r.departure_date).format("DD-MM-YYYY"),
+            return_date: dayjs(r.return_date).format("DD-MM-YYYY"),
+        }));
+
+        // 3. Tính totalPages
+        const totalPages = Math.ceil(totalItems / parsedLimit);
+
+        // 4. Trả về kết quả
+        res.json({
+            result: data,
+            pagination: {
+                totalItems,
+                totalItemsPerPage: parsedLimit,
+                currentPage: parsedPage,
+                totalPages,
+            },
+        });
+    } catch (error) {
+        console.error("❌ Lỗi khi search tours:", error);
+        res.status(500).json({error: "Lỗi server"});
     }
 };

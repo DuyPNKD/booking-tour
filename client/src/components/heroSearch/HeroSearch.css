@@ -1,0 +1,487 @@
+.hero-search {
+    width: 100%;
+    position: relative;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: url("https://images.unsplash.com/photo-1643029891412-92f9a81a8c16?q=80&w=2086&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.hero-search-wrapper {
+    padding: 56px 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-search-headline {
+    text-align: left;
+    margin-bottom: 18px;
+    color: #fff;
+    width: 1170px;
+    margin: 0 auto;
+}
+
+.hero-search-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.hero-search-subtitle {
+    margin: 6px 0 0 0;
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+.hero-search-content {
+    display: grid;
+    grid-template-columns: 1fr 450px;
+    gap: 24px;
+    width: 1170px;
+    margin: 0 auto;
+}
+
+.hero-search-left {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 16px;
+    padding: 16px;
+    height: 100%;
+}
+
+.hero-search-right {
+    display: flex;
+}
+
+.search-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.search-row {
+    display: flex;
+    gap: 15px;
+    align-items: flex-end;
+}
+.field-icon {
+    color: #666;
+    margin-right: 10px;
+    font-size: 22px;
+    width: 20px;
+    text-align: center;
+}
+
+.search-field {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 8px 15px;
+    min-height: 50px;
+    transition: all 0.3s ease;
+}
+
+.search-field:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.search-field input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 16px;
+    color: #333;
+    width: 100%;
+}
+
+.search-field input::placeholder {
+    color: #999;
+}
+
+.field-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    position: relative;
+}
+
+.field-label {
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+}
+
+.field-value {
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+    position: relative;
+}
+
+.departure-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* Field sizes */
+.destination-field {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+}
+
+.date-field,
+.departure-field {
+    flex: 1;
+    min-width: 155px;
+}
+
+.search-button {
+    background: #ff6b35;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: -webkit-fill-available;
+    white-space: nowrap;
+}
+
+.search-button:hover {
+    background: #e55a2b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+}
+
+.search-button:active {
+    transform: translateY(0);
+}
+
+/* Right side tour card */
+.hero-search-tour-card {
+    border-radius: 16px;
+    overflow: hidden;
+    /* box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12); */
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.hero-search-tour-card-image {
+    background-size: cover;
+    background-position: center;
+    height: 180px;
+}
+
+.hero-search-tour-card-body {
+    padding: 16px;
+}
+
+.hero-search-tour-card-badge {
+    display: inline-block;
+    background: #ff4d4f;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 4px 10px;
+    margin-bottom: 8px;
+}
+
+.hero-search-tour-card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    color: #fff;
+}
+
+.hero-search-tour-card-meta {
+    font-size: 13px;
+    color: #666;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hero-search-tour-card-footer {
+    margin-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero-search-tour-card-price .price {
+    font-size: 18px;
+    font-weight: 800;
+    color: #e53935;
+}
+
+.hero-search-tour-card-price .price-note {
+    font-size: 12px;
+    color: #666;
+    margin-left: 4px;
+}
+
+.hero-search-tour-card-cta {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Bỏ viền khung của DatePicker */
+.date-field .ant-picker {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Khi focus cũng không hiện outline */
+.date-field .ant-picker-focused {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Input bên trong DatePicker */
+.date-field .ant-picker-input > input {
+    caret-color: transparent !important; /* ẩn con trỏ nhấp nháy */
+    pointer-events: none; /* 👈 nếu bạn không muốn gõ tay, chỉ chọn bằng lịch */
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/*------------*/
+/* Destination dropdown */
+.destination-dropdown {
+    position: absolute;
+    top: 56px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 20;
+}
+
+/* Suggestions styling */
+.suggestions-list {
+    max-height: 300px;
+    border-bottom: 1px solid #f0f0f0;
+    border-radius: 10px;
+}
+.suggestions-header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    padding: 10px 14px;
+    font-weight: 700;
+    color: #003c71;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+}
+
+.suggest-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.suggest-item:hover {
+    background-color: #f7fbff;
+}
+.suggest-icon {
+    color: #666;
+    font-size: 16px;
+}
+.suggest-text {
+    flex: 1;
+    min-width: 0; /* allow ellipsis in flex item */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestions-more {
+    width: 100%;
+    text-align: center;
+    background: #003c71;
+    color: #fff;
+    border: none;
+    padding: 14px 14px;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 0 0 10px 10px;
+}
+.suggestions-more:hover {
+    background: #01305a;
+}
+
+.dropdown-section-top {
+    padding: 14px;
+}
+
+.dropdown-section-bottom .dropdown-title {
+    padding-left: 14px;
+}
+.dropdown-section:last-child {
+    margin-bottom: 0;
+}
+
+.dropdown-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #003c71;
+    margin-bottom: 8px;
+}
+
+.history-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.chip {
+    border: none;
+    background: #f3f4f6;
+    color: #333;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 16px;
+    cursor: pointer;
+    max-width: 200px;
+
+    white-space: nowrap; /* Không xuống dòng */
+    overflow: hidden; /* Ẩn phần vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu ... */
+}
+
+.chip:hover {
+    background: #e9eaee;
+}
+
+.hot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.hot-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+.hot-item:hover {
+    background-color: rgb(169 211 255 / 30%);
+}
+
+.hot-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+}
+
+.hot-meta {
+    text-align: left;
+}
+.hot-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #333;
+}
+.hot-count {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Select khớp style với field-value */
+.departure-select .ant-select-selector {
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Giá trị hiển thị to, đậm */
+.departure-select .ant-select-selection-item {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.departure-select {
+    width: 288px; /* 👈 chiếm toàn bộ chiều rộng cha */
+    font-size: 16px;
+}
+
+/* Khi dropdown render ra, ép nó có cùng width với cha */
+.departure-field .ant-select-dropdown {
+    min-width: 100% !important; /* rộng bằng cha */
+    box-sizing: border-box; /* để không bị tràn padding */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .hero-search-container,
+    .hero-search-wrapper {
+        width: 100%;
+        padding: 0 16px;
+        box-sizing: border-box;
+    }
+
+    .hero-search-content {
+        grid-template-columns: 1fr;
+    }
+
+    .search-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .destination-field,
+    .date-field,
+    .departure-field {
+        min-width: 100%;
+    }
+
+    .search-button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-field {
+        padding: 10px 12px;
+        min-height: 45px;
+    }
+
+    .search-button {
+        padding: 10px 20px;
+        min-height: 45px;
+        font-size: 15px;
+    }
+}

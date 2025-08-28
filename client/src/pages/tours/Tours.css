@@ -14,10 +14,10 @@
     text-align: left;
 }
 
-.tour-list-header h1 {
+.tour-list-title {
     color: #00506c;
-    font-size: 24px;
-    margin: 20px 0;
+    font-size: 30px;
+    margin: 10px 0;
     font-weight: 400;
 }
 
@@ -40,8 +40,8 @@
     font-size: 15px;
 }
 
-.tour-list-desc {
-    font-size: 13px;
+.tour-list-summary {
+    font-size: 24px;
 }
 
 .tour-list-content {
@@ -151,9 +151,6 @@
 }
 
 /* Filter và danh mục */
-
-.tour-list-sidebar {
-}
 
 .tour-sidebar {
     flex: 1;
@@ -414,4 +411,101 @@
 
 .tour-card-row-btn:hover {
     background: #ff8000;
+}
+
+/* Skeleton */
+.skeleton-row {
+    box-shadow: none;
+}
+
+.skeleton-img {
+    width: 250px;
+    height: 170px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-right: 1px solid #eee;
+}
+
+.skeleton-line {
+    height: 14px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 4px;
+    margin: 8px 0;
+}
+
+.skeleton-line.short {
+    width: 40%;
+}
+.skeleton-title {
+    height: 18px;
+    width: 70%;
+}
+.skeleton-badge {
+    width: 46px;
+    height: 18px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+.skeleton-btn {
+    width: 120px;
+    height: 34px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+}
+.skeleton-line.price {
+    width: 80px;
+    height: 20px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Pagination */
+.pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 2px;
+    background: #fff;
+}
+
+.pagination .pg-nav,
+.pagination button {
+    min-width: 36px;
+    height: 32px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #444;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.pagination button.pg-active {
+    background: #e6f4ff;
+    color: #333;
+    border-color: #91caff;
+}
+
+.pagination .pg-nav:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination .pg-ellipsis {
+    padding: 0 4px;
+    color: #888;
 }

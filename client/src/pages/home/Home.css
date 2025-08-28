@@ -7,9 +7,19 @@
 
 .home-container {
     width: 100%;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 16px 0px;
+}
+
+/* Unified section container sizing */
+.promotions-section,
+.tour-categories,
+.vietnam-section,
+.foreign-section,
+.travel-guide-section {
+    width: 1170px;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 /* Customize Swiper styles */
@@ -54,7 +64,7 @@
 }
 
 .promotions-section {
-    margin: 3rem 0;
+    padding: 16px 0px;
 }
 
 .promotions-grid {
@@ -106,9 +116,23 @@
 
 .trending-tours-section {
     background-color: #ffefe5;
-    width: 100vw; /* Chiều rộng toàn màn hình */
-    margin-left: calc(-50vw + 50%); /* Loại bỏ giới hạn của container */
-    padding: 2rem 0; /* Khoảng cách trên và dưới */
+    /* Full-bleed background across viewport */
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    width: 100vw;
+    padding: 16px 0; /* Khoảng cách trên và dưới */
+}
+
+/* Limit inner content width while keeping full-bleed background */
+.trending-tours-section .container {
+    width: 1170px;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
 }
 
 .trending-tours-section h2 {
@@ -161,7 +185,7 @@
 }
 
 .tour-categories {
-    margin: 3rem 0;
+    padding: 16px 0px;
     display: flex;
     flex-direction: column;
     gap: 4rem;
@@ -245,7 +269,7 @@
 }
 
 .vietnam-section {
-    margin: 3rem 0;
+    padding: 16px 0px;
 }
 
 .vietnam-section h2 {
@@ -255,7 +279,7 @@
 }
 
 .foreign-section {
-    margin: 3rem 0;
+    padding: 16px 0px;
 }
 
 .foreign-section h2 {
@@ -296,7 +320,7 @@
 }
 
 .travel-guide-section {
-    margin: 3rem 0;
+    padding: 16px 0px;
     display: flex;
     flex-direction: column;
     gap: 2rem;

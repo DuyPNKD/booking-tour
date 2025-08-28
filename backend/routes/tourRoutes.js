@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 const tourController = require("../controllers/tourController");
 
+// ✅ Search & Suggest
+router.get("/suggest", tourController.getSuggestTours);
+router.get("/search", tourController.getSearchTours);
+router.get("/departure-cities", tourController.getDepartureCities);
+
+// ✅ Tour detail
 router.get("/", tourController.getAllTours);
 router.get("/:id", tourController.getTourById);
 router.get("/:id/departures", tourController.getTourDepartures);

@@ -1,11 +1,6 @@
 import React, {useEffect} from "react";
 import {Link} from "react-router-dom";
-import {Swiper, SwiperSlide} from "swiper/react";
-import {Autoplay, Pagination, Navigation} from "swiper/modules";
 import TourCategory from "../../components/tourCategory/TourCategory";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/navigation";
 import haGiang from "../../assets/ha_giang.webp";
 import haLong from "../../assets/ha_long.webp";
 import hoBaBe from "../../assets/ho_ba_be.webp";
@@ -26,17 +21,22 @@ import km3 from "../../assets/km3.webp";
 import beach from "../../assets/beach.jpg";
 
 import "./Home.css";
-import Banner from "../../components/banner/Banner";
+import HeroSearch from "../../components/heroSearch/HeroSearch";
 import VietnamGrid from "../../components/vietNam/VietnamGrid";
+import {Swiper, SwiperSlide} from "swiper/react";
+import {Autoplay, Pagination, Navigation} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
 
 const Home = () => {
     useEffect(() => {
         const handleScroll = () => {
             const navbar = document.querySelector(".navbar");
-            const videoBanner = document.querySelector(".video-banner");
-            if (navbar && videoBanner) {
-                const videoBottom = videoBanner.getBoundingClientRect().bottom;
-                if (videoBottom <= 0) {
+            const heroSection = document.querySelector(".hero-search");
+            if (navbar && heroSection) {
+                const heroBottom = heroSection.getBoundingClientRect().bottom;
+                if (heroBottom <= 0) {
                     navbar.classList.add("navbar-scrolled");
                 } else {
                     navbar.classList.remove("navbar-scrolled");
@@ -332,28 +332,6 @@ const Home = () => {
         },
     ];
 
-    // Mock data for banner slides
-    const bannerSlides = [
-        {
-            id: 1,
-            image: "https://images.unsplash.com/photo-1643029891412-92f9a81a8c16?q=80&w=2086&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            title: "Khám phá Việt Nam",
-            description: "Hành trình đến những điểm đến tuyệt vời",
-        },
-        {
-            id: 2,
-            image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            title: "Du lịch nước ngoài",
-            description: "Trải nghiệm văn hóa đa dạng",
-        },
-        {
-            id: 3,
-            image: "https://images.unsplash.com/photo-1712035758319-9bfc9ffea604?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-            title: "Tour mùa anh đào",
-            description: "Ngắm hoa anh đào nở rộ",
-        },
-    ];
-
     // Mock data for khuyến mãi
 
     const promotions = [
@@ -414,19 +392,43 @@ const Home = () => {
     ];
     // Dữ liệu cho Vi Vu Nước Ngoài
     const foreignDestinations = [
-        {title: "Hàn Quốc", image: "https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item1"},
-        {title: "Ấn Độ", image: "https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item2"},
-        {title: "Trung Quốc", image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item3"},
-        {title: "Nhật Bản", image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item4"},
-        {title: "Bali - Indonesia", image: "https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item5"},
-        {title: "Thái Lan", image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", className: "item6"},
+        {
+            title: "Hàn Quốc",
+            image: "https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item1",
+        },
+        {
+            title: "Ấn Độ",
+            image: "https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item2",
+        },
+        {
+            title: "Trung Quốc",
+            image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item3",
+        },
+        {
+            title: "Nhật Bản",
+            image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item4",
+        },
+        {
+            title: "Bali - Indonesia",
+            image: "https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item5",
+        },
+        {
+            title: "Thái Lan",
+            image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            className: "item6",
+        },
     ];
 
     return (
         <>
             <div className="home">
                 <div className="home-container">
-                    <Banner bannerSlides={bannerSlides} />
+                    <HeroSearch />
                     {/* Promotions Section */}
                     <div className="promotions-section">
                         <div className="category-header">
@@ -481,10 +483,20 @@ const Home = () => {
                     {/* Tour Categories */}
                     <div className="tour-categories">
                         {/* Tour trong nước */}
-                        <TourCategory title="Tour HOT Trong Nước Giá Tốt" tours={domesticTours} link="/danh-muc-tour?type=domestic" categoryId="domestic" />
+                        <TourCategory
+                            title="Tour HOT Trong Nước Giá Tốt"
+                            tours={domesticTours}
+                            link="/danh-muc-tour?type=domestic"
+                            categoryId="domestic"
+                        />
 
                         {/* Tour nước ngoài */}
-                        <TourCategory title="Tour HOT Nước Ngoài Giá Tốt" tours={internationalTours} link="/danh-muc-tour?type=international" categoryId="international" />
+                        <TourCategory
+                            title="Tour HOT Nước Ngoài Giá Tốt"
+                            tours={internationalTours}
+                            link="/danh-muc-tour?type=international"
+                            categoryId="international"
+                        />
                     </div>
 
                     {/* Khám phá Việt Nam */}

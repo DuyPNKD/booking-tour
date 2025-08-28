@@ -84,12 +84,16 @@ CREATE TABLE IF NOT EXISTS tour_schedules (
 CREATE TABLE tour_departures (
   id INT PRIMARY KEY AUTO_INCREMENT,
   tour_id INT,
+  departure_city VARCHAR(255),
   departure_date DATE,
   return_date DATE,
   available_seats INT DEFAULT NULL,  
   price INT,
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
+
+ALTER TABLE tour_departures
+ADD departure_city VARCHAR(255) AFTER tour_id;
 
 -- Bảng thông tin cần lưu ý
 CREATE TABLE tour_terms (
@@ -249,6 +253,26 @@ ALTER TABLE tours DROP COLUMN location;
 ALTER TABLE tours
 ADD CONSTRAINT fk_tour_location
 FOREIGN KEY (location_id) REFERENCES locations(id);
+
+SELECT id, title FROM tours;
+SELECT id, title, slug FROM tours WHERE title LIKE '%Ha Lo%';
+
+SELECT t.id, t.title, t.slug, d.departure_city, d.departure_date
+FROM tours t
+JOIN tour_departures d ON t.id = d.tour_id
+WHERE t.title LIKE '%Ho%' COLLATE utf8mb4_unicode_ci
+  AND d.departure_city = 'Hồ Chí Minh'
+  AND d.departure_date = '2025-09-01';
+  
+UPDATE tour_departures SET departure_city = 'Hà Nội' WHERE departure_city IS NULL;
+
+-- Test tính năng search
+INSERT INTO tours (title, slug, num_day, num_night, price, old_price, rating, rating_count, location_id)
+VALUES ('Tour Hạ Long 3N2Đ', 'tour-ha-long-3n2d', 3, 2, 3500000, 4000000, 4.5, 120, 1);
+
+INSERT INTO tour_departures (tour_id, departure_city, departure_date, return_date, available_seats, price)
+VALUES (322, 'Hà Nội', '2025-09-01', '2025-09-03', 20, 3500000),
+       (322, 'Hồ Chí Minh', '2025-09-05', '2025-09-07', 15, 3700000);
 
 
 -- 1. Users
