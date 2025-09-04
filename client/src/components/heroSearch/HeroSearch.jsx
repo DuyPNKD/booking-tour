@@ -13,7 +13,7 @@ import "./HeroSearch.css";
 
 const HeroSearch = () => {
     const [destination, setDestination] = useState("");
-    const [departureDate, setDepartureDate] = useState("");
+    const [departureDate, setDepartureDate] = useState(null);
     const [departureFrom, setDepartureFrom] = useState("Hà Nội");
     const [departureCities, setDepartureCities] = useState([]);
     const [suggestions, setSuggestions] = useState([]);
@@ -21,59 +21,21 @@ const HeroSearch = () => {
     const typingTimeoutRef = useRef(null);
 
     const destinationFieldRef = useRef(null);
+    const dateFieldRef = useRef(null);
+    const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+    const [isDepartureSelectOpen, setIsDepartureSelectOpen] = useState(false);
     const navigate = useNavigate();
 
-    const searchHistory = [
-        "Tour Nhật Bản 4N4Đ: Tokyo - Kyoto",
-        "Tour Singapore - Malaysia",
-        "Tour Trung Quốc 5N4Đ: Hàng Châu - Tô Châu",
-        "Tour Liên Tuyến Ba Nước Đông Dương",
-        "Tour Bình Hưng 2N2Đ: Ninh Thuận",
-        "Tour Singapore - Malaysia",
-    ];
+    // Lưu mảng từ khóa đã tìm (render ra các chip lịch sử)
+    const [searchHistory, setSearchHistory] = useState([]);
+    // Tên key trong localStorage để lưu lịch sử tìm kiếm
+    const HISTORY_KEY = "heroSearch.history";
+    // Số lượng mục tối đa sẽ lưu trong lịch sử
+    const MAX_HISTORY = 10;
 
-    const hotDestinations = [
-        {name: "Úc", count: 7, image: "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?q=80&w=800"}, // Sydney Opera House
-        {
-            name: "Châu Âu",
-            count: 34,
-            image: "https://plus.unsplash.com/premium_photo-1661963064037-cfcf2e10db2d?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Eiffel Tower
-        {
-            name: "Singapore",
-            count: 30,
-            image: "https://images.unsplash.com/photo-1533281808624-e9b07b4294ff?q=80&w=1026&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Marina Bay Sands
-        {name: "Thái Lan", count: 26, image: "https://images.unsplash.com/photo-1544989164-31dc3c645987?q=80&w=800"}, // Wat Arun
-        {
-            name: "Miền Bắc",
-            count: 10,
-            image: "https://images.unsplash.com/photo-1643029891412-92f9a81a8c16?q=80&w=2086&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Ha Long Bay
-        {
-            name: "Đà Nẵng",
-            count: 27,
-            image: "https://images.unsplash.com/photo-1663684591502-93887202a863?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Golden Bridge
-        {name: "Trung Quốc", count: 132, image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800"}, // Great Wall
-        {
-            name: "Nhật Bản",
-            count: 43,
-            image: "https://plus.unsplash.com/premium_photo-1661878091370-4ccb8763756a?q=80&w=1632&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Tokyo/Cherry blossoms
-        {
-            name: "Bali",
-            count: 8,
-            image: "https://images.unsplash.com/photo-1704253411612-e4deb715dcd8?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Bali temple
-        {name: "Hàn Quốc", count: 25, image: "https://images.unsplash.com/photo-1549692520-acc6669e2f0c?q=80&w=800"}, // Seoul palace
-        {
-            name: "Phú Quốc",
-            count: 14,
-            image: "https://images.unsplash.com/photo-1587772495731-909d40b30851?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        }, // Phu Quoc beach
-        {name: "Mỹ", count: 5, image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800"}, // NYC skyline
-    ];
+    // Danh sách "ĐỊA ĐIỂM HOT" lấy từ API và trạng thái loading
+    const [hotDestinations, setHotDestinations] = useState([]);
+    const [loadingHot, setLoadingHot] = useState(false);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -84,6 +46,75 @@ const HeroSearch = () => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
+
+    // Đóng DatePicker khi click ra ngoài cả field và dropdown panel
+    useEffect(() => {
+        const onDocMouseDown = (e) => {
+            if (!isDatePickerOpen) return;
+            const isInField = dateFieldRef.current && dateFieldRef.current.contains(e.target);
+            const dropdown = document.querySelector(".ant-picker-dropdown");
+            const isInDropdown = dropdown && dropdown.contains(e.target);
+            if (!isInField && !isInDropdown) {
+                setIsDatePickerOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", onDocMouseDown);
+        return () => document.removeEventListener("mousedown", onDocMouseDown);
+    }, [isDatePickerOpen]);
+
+    // Load history on mount
+    useEffect(() => {
+        // 1) Đọc dữ liệu thô từ localStorage theo key HISTORY_KEY
+        try {
+            const raw = localStorage.getItem(HISTORY_KEY);
+            // 2) Nếu có dữ liệu, parse JSON; nếu không thì dùng mảng rỗng
+            const parsed = raw ? JSON.parse(raw) : [];
+            // 3) Chỉ nhận dữ liệu hợp lệ là mảng
+            setSearchHistory(Array.isArray(parsed) ? parsed : []);
+        } catch (_) {
+            // 4) Nếu JSON lỗi/không hợp lệ → đặt lịch sử rỗng để an toàn
+            setSearchHistory([]);
+        }
+    }, []);
+
+    // Thêm một từ khóa mới vào lịch sử (đẩy lên đầu, loại trùng, giới hạn MAX_HISTORY)
+    const addHistory = (term) => {
+        // 1) Chuẩn hóa: ép về chuỗi, trim khoảng trắng đầu/cuối
+        const t = (term || "").trim();
+        // 2) Nếu rỗng thì bỏ qua
+        if (!t) return;
+        // 3) Cập nhật state dựa trên state trước đó
+        setSearchHistory((prev) => {
+            // 3.1) Loại trùng: bỏ các mục có nội dung giống (không phân biệt hoa/thường)
+            const noDup = prev.filter((x) => x.toLowerCase() !== t.toLowerCase());
+            // 3.2) Thêm từ khóa mới lên đầu, cắt còn tối đa MAX_HISTORY mục
+            const next = [t, ...noDup].slice(0, MAX_HISTORY);
+            try {
+                // 3.3) Lưu lại xuống localStorage để lần sau mở trang vẫn còn
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+            } catch (_) {
+                // Trường hợp quota localStorage đầy hoặc user tắt storage
+            }
+            // 3.4) Trả về mảng lịch sử mới để React setState
+            return next;
+        });
+    };
+
+    // Xóa một từ khóa cụ thể khỏi lịch sử (khi bấm icon × trên chip)
+    const removeHistory = (term) => {
+        setSearchHistory((prev) => {
+            // 1) Tạo mảng mới không còn phần tử cần xóa
+            const next = prev.filter((x) => x.toLowerCase() !== (term || "").toLowerCase());
+            try {
+                // 2) Lưu mảng mới xuống localStorage
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+            } catch (_) {
+                // Bỏ qua lỗi ghi storage nếu có
+            }
+            // 3) Trả về state mới
+            return next;
+        });
+    };
 
     // Fetch API khi component mount
     useEffect(() => {
@@ -131,14 +162,45 @@ const HeroSearch = () => {
         return () => clearTimeout(typingTimeoutRef.current);
     }, [destination]);
 
-    const handleSelect = (slug) => {
-        navigate(`/danh-muc-tour?search=${slug}`);
+    // Fetch hot destinations một lần khi mount (có cache sessionStorage)
+    useEffect(() => {
+        const fetchHot = async () => {
+            try {
+                setLoadingHot(true);
+                const cache = sessionStorage.getItem("heroSearch.hot");
+                if (cache) {
+                    const parsed = JSON.parse(cache);
+                    if (Array.isArray(parsed)) {
+                        setHotDestinations(parsed);
+                        setLoadingHot(false);
+                        return;
+                    }
+                }
+                const res = await axios.get("http://localhost:3000/api/tours/hot-destinations");
+                const list = Array.isArray(res.data) ? res.data : [];
+                setHotDestinations(list);
+                try {
+                    sessionStorage.setItem("heroSearch.hot", JSON.stringify(list));
+                } catch (_) {}
+            } catch (e) {
+                setHotDestinations([]);
+            } finally {
+                setLoadingHot(false);
+            }
+        };
+        fetchHot();
+    }, []);
+
+    const handleSelect = (tour) => {
+        addHistory(tour.title);
+        navigate(`/tours/${tour.id}`);
         setShowDestinationDropdown(false);
-        setDestination(slug);
+        setDestination(tour.title);
     };
 
     const handleSearch = (e) => {
         e.preventDefault();
+        addHistory(destination);
         const params = new URLSearchParams({
             destination: destination || "",
             startDate: departureDate ? dayjs(departureDate).format("YYYY-MM-DD") : "",
@@ -182,7 +244,7 @@ const HeroSearch = () => {
                                                         const regex = new RegExp(`(${destination})`, "gi"); // tìm chữ trùng
                                                         const parts = tour.title.split(regex); // tách chuỗi
                                                         return (
-                                                            <div key={tour.id} className="suggest-item" onClick={() => handleSelect(tour.slug)}>
+                                                            <div key={tour.id} className="suggest-item" onClick={() => handleSelect(tour)}>
                                                                 <FontAwesomeIcon icon={faFlag} className="suggest-icon" />
                                                                 <div className="suggest-text">
                                                                     {parts.map((part, idx) =>
@@ -203,7 +265,12 @@ const HeroSearch = () => {
                                                             type="button"
                                                             className="suggestions-more"
                                                             onClick={() => {
-                                                                navigate(`/danh-muc-tour?search=${encodeURIComponent(destination)}`);
+                                                                const params = new URLSearchParams({
+                                                                    destination: destination || "",
+                                                                    startDate: departureDate ? dayjs(departureDate).format("YYYY-MM-DD") : "",
+                                                                    departure: departureFrom || "",
+                                                                }).toString();
+                                                                navigate(`/danh-muc-tour?${params}`);
                                                                 setShowDestinationDropdown(false);
                                                             }}
                                                         >
@@ -213,39 +280,82 @@ const HeroSearch = () => {
                                                 </div>
                                             )}
 
-                                            {/* Lịch sử tìm kiếm */}
+                                            {
+                                                /* Lịch sử tìm kiếm */
+                                                // Khi không có gợi ý (suggestions.length === 0), hiển thị phần lịch sử
+                                            }
                                             {suggestions.length === 0 && (
                                                 <div className="dropdown-section-top">
+                                                    {/* Tiêu đề phần lịch sử */}
                                                     <div className="dropdown-title">Lịch sử tìm kiếm</div>
                                                     <div className="history-chips">
+                                                        {/* Duyệt qua từng mục lịch sử và render thành chip */}
                                                         {searchHistory.map((item, idx) => (
                                                             <button key={idx} type="button" className="chip" onClick={() => setDestination(item)}>
-                                                                {item}
+                                                                {/* Text trong chip: có ellipsis nếu dài */}
+                                                                <span className="chip-text">{item}</span>
+                                                                <span
+                                                                    className="chip-close"
+                                                                    onClick={(e) => {
+                                                                        // Chặn nổi bọt để tránh trigger onClick của chip
+                                                                        e.stopPropagation();
+                                                                        // Xóa riêng mục lịch sử này
+                                                                        removeHistory(item);
+                                                                    }}
+                                                                    aria-label="Xóa"
+                                                                >
+                                                                    ×
+                                                                </span>
                                                             </button>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
 
-                                            {/* Địa điểm hot */}
+                                            {/* Địa điểm hot: danh sách điểm đến nổi bật, click sẽ điều hướng sang trang danh sách với bộ lọc hiện tại */}
                                             {suggestions.length === 0 && (
                                                 <div className="dropdown-section-bottom">
                                                     <div className="dropdown-title">ĐỊA ĐIỂM HOT</div>
                                                     <div className="hot-grid">
-                                                        {hotDestinations.map((d) => (
-                                                            <div
-                                                                key={d.name}
-                                                                type="button"
-                                                                className="hot-item"
-                                                                onClick={() => setDestination(d.name)}
-                                                            >
-                                                                <img src={d.image} alt={d.name} />
-                                                                <div className="hot-meta">
-                                                                    <div className="hot-name">{d.name}</div>
-                                                                    <div className="hot-count">{d.count} tours</div>
+                                                        {loadingHot && <div className="hot-item">Đang tải...</div>}
+                                                        {!loadingHot &&
+                                                            hotDestinations.map((d) => (
+                                                                <div
+                                                                    key={d.name}
+                                                                    role="button"
+                                                                    tabIndex={0}
+                                                                    className="hot-item"
+                                                                    onClick={() => {
+                                                                        addHistory(d.name);
+                                                                        const params = new URLSearchParams({
+                                                                            destination: d.name || "",
+                                                                            startDate: departureDate ? dayjs(departureDate).format("YYYY-MM-DD") : "",
+                                                                            departure: departureFrom || "",
+                                                                        }).toString();
+                                                                        navigate(`/danh-muc-tour?${params}`);
+                                                                        setShowDestinationDropdown(false);
+                                                                    }}
+                                                                    onKeyDown={(e) => {
+                                                                        if (e.key === "Enter") {
+                                                                            const params = new URLSearchParams({
+                                                                                destination: d.name || "",
+                                                                                startDate: departureDate
+                                                                                    ? dayjs(departureDate).format("YYYY-MM-DD")
+                                                                                    : "",
+                                                                                departure: departureFrom || "",
+                                                                            }).toString();
+                                                                            navigate(`/danh-muc-tour?${params}`);
+                                                                            setShowDestinationDropdown(false);
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <img src={d.image} alt={d.name} />
+                                                                    <div className="hot-meta">
+                                                                        <div className="hot-name">{d.name}</div>
+                                                                        <div className="hot-count">{d.count} tours</div>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                        ))}
+                                                            ))}
                                                     </div>
                                                 </div>
                                             )}
@@ -256,13 +366,25 @@ const HeroSearch = () => {
 
                             <div className="search-row">
                                 {/* Ô chọn ngày khởi hành */}
-                                <div className="search-field date-field">
+                                <div
+                                    className="search-field date-field"
+                                    ref={dateFieldRef}
+                                    onMouseDown={(e) => {
+                                        // Ngăn focus/blur mặc định khiến popup tự mở/đóng lập tức
+                                        e.preventDefault();
+                                        setIsDatePickerOpen((prev) => !prev);
+                                    }}
+                                >
                                     <FontAwesomeIcon icon={faCalendar} className="field-icon" />
                                     <div className="field-content">
                                         <div className="field-label">Ngày khởi hành</div>
                                         <DatePicker
                                             value={departureDate}
-                                            onChange={(date) => setDepartureDate(date)}
+                                            onChange={(date) => {
+                                                setDepartureDate(date);
+                                                // Đóng sau khi chọn ngày để tránh bật/tắt ngay lập tức
+                                                setIsDatePickerOpen(false);
+                                            }}
                                             format="DD/MM/YYYY"
                                             placeholder="Chọn ngày"
                                             locale={locale}
@@ -270,11 +392,19 @@ const HeroSearch = () => {
                                             suffixIcon={null}
                                             allowClear={false}
                                             placement="bottomLeft" // 👈 Canh popup xuất hiện từ bên trái
+                                            open={isDatePickerOpen}
                                         />
                                     </div>
                                 </div>
 
-                                <div className="search-field departure-field">
+                                <div
+                                    className="search-field departure-field"
+                                    onMouseDown={(e) => {
+                                        // Tránh blur làm dropdown đóng ngay
+                                        e.preventDefault();
+                                        setIsDepartureSelectOpen((prev) => !prev);
+                                    }}
+                                >
                                     <FontAwesomeIcon icon={faPaperPlane} className="field-icon" />
                                     <div className="field-content">
                                         {/* label luôn hiển thị */}
@@ -284,13 +414,19 @@ const HeroSearch = () => {
                                         <div className="field-value">{departureFrom}</div>
                                         <Select
                                             value={departureFrom}
-                                            onChange={(value) => setDepartureFrom(value)}
+                                            onChange={(value) => {
+                                                setDepartureFrom(value);
+                                                // Chủ động đóng sau khi chọn để tránh flicker
+                                                setIsDepartureSelectOpen(false);
+                                            }}
                                             bordered={false}
                                             className="departure-select"
                                             suffixIcon={null}
                                             dropdownMatchSelectWidth={true}
                                             placement="bottomLeft" // 👈 cho phép dropdown rộng tùy chỉnh // 👈 khớp 100% width theo Select cha
                                             options={departureCities}
+                                            open={isDepartureSelectOpen}
+                                            dropdownStyle={{zIndex: 2000}}
                                         />
                                     </div>
                                 </div>

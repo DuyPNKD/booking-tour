@@ -389,3 +389,39 @@ exports.getSearchTours = async (req, res) => {
         res.status(500).json({error: "Lỗi server"});
     }
 };
+
+// ✅ API Hot Destinations: trả về danh sách điểm đến nổi bật
+exports.getHotDestinations = async (req, res) => {
+    try {
+        // Lấy top 9 location theo số lượng tour, kèm ảnh đại diện đầu tiên của một tour thuộc location đó
+        const [rows] = await db.query(
+            `SELECT 
+                l.name AS name,
+                COUNT(t.id) AS count,
+                (
+                    SELECT ti.image_url
+                    FROM tours_images ti
+                    WHERE ti.tour_id IN (SELECT id FROM tours WHERE location_id = l.id)
+                    ORDER BY ti.id ASC
+                    LIMIT 1
+                ) AS image
+             FROM locations l
+             JOIN tours t ON t.location_id = l.id
+             GROUP BY l.id, l.name
+             ORDER BY count DESC
+             LIMIT 9`
+        );
+
+        // Fallback ảnh nếu null
+        const data = rows.map((r) => ({
+            name: r.name,
+            count: r.count,
+            image: r.image || "https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=800",
+        }));
+
+        res.json(data);
+    } catch (error) {
+        console.error("❌ Lỗi khi lấy hot destinations:", error);
+        res.status(500).json({error: "Lỗi server"});
+    }
+};

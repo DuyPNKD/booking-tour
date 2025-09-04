@@ -7,6 +7,9 @@ router.get("/suggest", tourController.getSuggestTours);
 router.get("/search", tourController.getSearchTours);
 router.get("/departure-cities", tourController.getDepartureCities);
 
+// ✅ Hot destinations (điểm đến nổi bật)
+router.get("/hot-destinations", tourController.getHotDestinations);
+
 // ✅ Tour detail
 router.get("/", tourController.getAllTours);
 router.get("/:id", tourController.getTourById);

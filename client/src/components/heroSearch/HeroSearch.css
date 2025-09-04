@@ -91,6 +91,7 @@
 .search-field:hover {
     border-color: #007bff;
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    cursor: pointer;
 }
 
 .search-field input {
@@ -367,19 +368,48 @@
     border: none;
     background: #f3f4f6;
     color: #333;
-    padding: 8px 12px;
+    padding: 8px 18px 8px 12px;
     border-radius: 999px;
     font-size: 16px;
     cursor: pointer;
     max-width: 200px;
-
     white-space: nowrap; /* Không xuống dòng */
-    overflow: hidden; /* Ẩn phần vượt quá */
-    text-overflow: ellipsis; /* Hiển thị dấu ... */
+    overflow: visible; /* cho phép icon x tràn ra ngoài */
+    position: relative;
+    line-height: 16px;
 }
 
 .chip:hover {
     background: #e9eaee;
+}
+
+.chip-text {
+    display: inline-block;
+    max-width: 100%;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.chip-close {
+    position: absolute;
+    top: -4px;
+    right: -px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 50%;
+    background: #d1d5db;
+    color: #111827;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.chip-close:hover {
+    background: #9ca3af;
 }
 
 .hot-grid {

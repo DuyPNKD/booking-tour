@@ -51,6 +51,10 @@ CREATE TABLE IF NOT EXISTS tours (
   FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
 
+SELECT u.name, o.product
+FROM users u
+RIGHT JOIN orders o ON c.id = o.customer_id;
+
 --  Bảng Hình ảnh liên quan đến tour
 CREATE TABLE IF NOT EXISTS tours_images (
    id INT PRIMARY KEY AUTO_INCREMENT,
