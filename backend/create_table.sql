@@ -51,10 +51,6 @@ CREATE TABLE IF NOT EXISTS tours (
   FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
 
-SELECT u.name, o.product
-FROM users u
-RIGHT JOIN orders o ON c.id = o.customer_id;
-
 --  Bảng Hình ảnh liên quan đến tour
 CREATE TABLE IF NOT EXISTS tours_images (
    id INT PRIMARY KEY AUTO_INCREMENT,
@@ -199,20 +195,17 @@ CREATE TABLE IF NOT EXISTS booking_details (
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
--- Bảng payments
-CREATE TABLE IF NOT EXISTS payments (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  booking_id INT,
-  amount INT,
-  payment_method VARCHAR(50),
-  status ENUM('unpaid', 'paid', 'failed') DEFAULT 'unpaid',
-  paid_at DATETIME,
-  order_id VARCHAR(50),
-  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
-);
-
-
-
+	-- Bảng payments
+	CREATE TABLE IF NOT EXISTS payments (
+	  id INT PRIMARY KEY AUTO_INCREMENT,
+	  booking_id INT,
+	  amount INT,
+	  payment_method VARCHAR(50),
+	  status ENUM('unpaid', 'pending', 'paid', 'failed') DEFAULT 'unpaid',
+	  paid_at DATETIME,
+	  order_id VARCHAR(50),
+	  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+	);
 
 -- Navbar
 -- Bảng Miền/Châu lục
