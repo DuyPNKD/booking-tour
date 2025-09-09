@@ -235,7 +235,7 @@ const Navbar = () => {
                                                 setShowUserDropdown(false);
                                             }}
                                         >
-                                            Ưu đãi của tôi
+                                            Voucher của tôi
                                         </div>
                                         <div
                                             className="navbar-user-dropdown-item"

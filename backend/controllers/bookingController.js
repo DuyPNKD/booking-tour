@@ -22,7 +22,10 @@ exports.createBooking = async (req, res) => {
                 userId = existingUser[0].id;
             } else {
                 // Tạo tài khoản mới (guest)
-                const [userResult] = await conn.query(`INSERT INTO users (name, email, phone, gender, address, role) VALUES (?, ?, ?, ?, ?, 'user')`, [full_name, email, phone_number, gender, address]);
+                const [userResult] = await conn.query(
+                    `INSERT INTO users (name, email, phone, gender, address, role) VALUES (?, ?, ?, ?, ?, 'user')`,
+                    [full_name, email, phone_number, gender, address]
+                );
                 userId = userResult.insertId;
             }
         }
@@ -131,5 +134,131 @@ exports.getBookingById = async (req, res) => {
     } catch (error) {
         console.error("Error in getBookingById:", error);
         res.status(500).json({success: false, error: error.message});
+    }
+};
+
+// API lấy danh sách các booking của người dùng hiện tại
+exports.getMyBookings = async (req, res) => {
+    try {
+        // Lấy userId từ thông tin người dùng đã xác thực (gắn vào req qua middleware)
+        const userId = req.user?.id;
+
+        // Nếu không có userId => chưa đăng nhập hoặc token không hợp lệ
+        if (!userId) return res.status(401).json({success: false, error: "Unauthorized"});
+
+        // Truy vấn danh sách booking của user từ database
+        const [rows] = await pool.query(
+            `SELECT 
+                b.id AS booking_id,                    -- ID của booking
+                b.status,                              -- Trạng thái booking (đã thanh toán, đang xử lý, v.v.)
+                b.departure_date,                      -- Ngày khởi hành
+                b.total_price,                         -- Tổng giá tiền
+
+                -- Lấy order_id của lần thanh toán gần nhất cho booking này
+                (
+                    SELECT order_id 
+                    FROM payments p
+                    WHERE p.booking_id = b.id
+                    ORDER BY p.paid_at DESC, p.id DESC
+                    LIMIT 1
+                ) AS order_id,
+
+                -- Thông tin tour liên quan đến booking
+                t.id AS tour_id,
+                t.title,
+                t.num_day,
+                t.num_night,
+
+                -- Tên địa điểm của tour
+                l.name AS location_name,
+
+                -- Lấy ảnh đầu tiên của tour để hiển thị
+                (
+                    SELECT ti.image_url 
+                    FROM tours_images ti 
+                    WHERE ti.tour_id = t.id 
+                    ORDER BY ti.id ASC 
+                    LIMIT 1
+                ) AS image_url
+
+            FROM bookings b
+            JOIN tours t ON b.tour_id = t.id              -- Ghép bảng tours để lấy thông tin tour
+            LEFT JOIN locations l ON t.location_id = l.id -- Ghép bảng locations để lấy tên địa điểm
+            WHERE b.user_id = ?                           -- Chỉ lấy booking của user hiện tại
+            ORDER BY b.id DESC`, // Sắp xếp theo booking mới nhất
+            [userId]
+        );
+
+        // Định dạng lại dữ liệu trả về cho frontend
+        const data = rows.map((r) => ({
+            booking_id: r.booking_id,
+            status: r.status,
+            departure_date: r.departure_date,
+            total_price: r.total_price,
+            order_id: r.order_id,
+            tour: {
+                id: r.tour_id,
+                title: r.title,
+                num_day: r.num_day,
+                num_night: r.num_night,
+                location_name: r.location_name,
+                image_url: r.image_url,
+            },
+        }));
+
+        // Trả dữ liệu về cho client
+        res.json({success: true, data});
+    } catch (error) {
+        // Nếu có lỗi trong quá trình xử lý, log ra và trả lỗi về client
+        console.error("Error in getMyBookings:", error);
+        res.status(500).json({success: false, error: error.message});
+    }
+};
+
+// API xóa booking của chính người dùng
+exports.deleteMyBooking = async (req, res) => {
+    // Lấy userId từ token đã xác thực (gắn vào req.user bởi middleware)
+    const userId = req.user?.id;
+
+    // Lấy bookingId từ URL (ví dụ: /me/123 → bookingId = 123)
+    const bookingId = req.params.id;
+
+    // Nếu chưa đăng nhập hoặc token không hợp lệ → từ chối truy cập
+    if (!userId) return res.status(401).json({success: false, error: "Unauthorized"});
+
+    // Mở kết nối đến database
+    const conn = await pool.getConnection();
+    try {
+        // Bắt đầu transaction để đảm bảo tính toàn vẹn khi xóa
+        await conn.beginTransaction();
+
+        // Kiểm tra xem booking có tồn tại và thuộc về user hiện tại không
+        const [rows] = await conn.query(`SELECT id FROM bookings WHERE id = ? AND user_id = ? LIMIT 1`, [bookingId, userId]);
+
+        // Nếu không tìm thấy booking → rollback và trả lỗi
+        if (rows.length === 0) {
+            await conn.rollback();
+            return res.status(404).json({success: false, error: "Booking not found"});
+        }
+
+        // Xóa các dòng trong bảng booking_details trước (tránh lỗi ràng buộc FK)
+        await conn.query(`DELETE FROM booking_details WHERE booking_id = ?`, [bookingId]);
+
+        // Sau đó xóa booking chính
+        await conn.query(`DELETE FROM bookings WHERE id = ? AND user_id = ?`, [bookingId, userId]);
+
+        // Nếu mọi thứ ổn → commit transaction
+        await conn.commit();
+
+        // Trả kết quả thành công về client
+        return res.json({success: true});
+    } catch (error) {
+        // Nếu có lỗi trong quá trình xử lý → rollback và trả lỗi
+        await conn.rollback();
+        console.error("Error in deleteMyBooking:", error);
+        return res.status(500).json({success: false, error: error.message});
+    } finally {
+        // Giải phóng kết nối DB sau khi xử lý xong
+        conn.release();
     }
 };
