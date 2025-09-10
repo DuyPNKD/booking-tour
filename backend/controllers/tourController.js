@@ -1,14 +1,33 @@
 const db = require("../config/db");
 const dayjs = require("dayjs");
 exports.getAllTours = async (req, res) => {
-    const {regionId, subregionId, locationId, page = 1, limit = 10, orderBy = "t.id", orderDir = "ASC"} = req.query;
+    console.log("===== GET ALL TOURS CALLED =====");
+    // Lấy các tham số lọc và sắp xếp từ query string
+    const {regionId, subregionId, locationId, page = 1, limit = 10, sortBy, departure, duration, priceFrom, priceTo} = req.query;
 
-    //Tính offset
-    // page: trang hiện tại, limit: số lượng tour mỗi trang
+    // Xử lý tham số sortBy thành orderBy và orderDir phù hợp với tên cột trong database
+    let orderBy = "t.price"; // Mặc định sắp xếp theo giá
+    let orderDir = "ASC";
+    if (sortBy === "priceAsc") {
+        orderBy = "t.price";
+        orderDir = "ASC";
+    } else if (sortBy === "priceDesc") {
+        orderBy = "t.price";
+        orderDir = "DESC";
+    } else if (sortBy === "durationAsc") {
+        orderBy = "t.num_day";
+        orderDir = "ASC";
+    } else if (sortBy === "durationDesc") {
+        orderBy = "t.num_day";
+        orderDir = "DESC";
+    }
+
+    // Tính offset cho phân trang
     const parsedPage = parseInt(page);
     const parsedLimit = parseInt(limit);
     const offset = (parsedPage - 1) * parsedLimit;
 
+    // Tạo câu truy vấn JOIN các bảng liên quan
     let baseQuery = `
         FROM tours t
         LEFT JOIN locations l ON t.location_id = l.id
@@ -16,9 +35,11 @@ exports.getAllTours = async (req, res) => {
         LEFT JOIN regions r ON sr.region_id = r.id
     `;
 
+    // Tạo mảng điều kiện lọc và giá trị tương ứng
     const conditions = [];
     const values = [];
 
+    // Thêm điều kiện lọc nếu có tham số
     if (regionId) {
         conditions.push("r.id = ?");
         values.push(regionId);
@@ -31,14 +52,34 @@ exports.getAllTours = async (req, res) => {
         conditions.push("l.id = ?");
         values.push(locationId);
     }
+    if (departure) {
+        // Lọc theo điểm xuất phát
+        conditions.push("t.departure_city LIKE ?");
+        values.push(`%${departure}%`);
+    }
+    if (duration) {
+        // Lọc theo số ngày tour
+        conditions.push("t.num_day = ?");
+        values.push(duration);
+    }
+    if (priceFrom) {
+        conditions.push("t.price >= ?");
+        values.push(Number(priceFrom));
+    }
+    if (priceTo) {
+        conditions.push("t.price <= ?");
+        values.push(Number(priceTo));
+    }
 
+    // Ghép các điều kiện thành WHERE
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    console.log("WHERE", whereClause, "VALUES", values);
 
     try {
-        // 1. Lấy tổng số tour phù hợp
+        // 1. Truy vấn tổng số tour phù hợp với điều kiện lọc
         const [[{totalItems}]] = await db.query(`SELECT COUNT(*) as totalItems ${baseQuery} ${whereClause}`, values);
 
-        // 2. Lấy dữ liệu tour phân trang
+        // 2. Truy vấn dữ liệu tour, có phân trang, lọc và sắp xếp
         const [data] = await db.query(
             `
             SELECT 
@@ -65,15 +106,15 @@ exports.getAllTours = async (req, res) => {
                 ) AS departure_date
             ${baseQuery}
             ${whereClause}
-            ORDER BY ${orderBy} ${orderDir.toUpperCase() === "DESC" ? "DESC" : "ASC"}
+            ORDER BY ${orderBy} ${orderDir}
             LIMIT ? OFFSET ?
             `,
             [...values, parsedLimit, offset]
         );
 
-        // 3. Tính totalPages
+        // 3. Tính tổng số trang
         const totalPages = Math.ceil(totalItems / parsedLimit);
-        // 4. Trả về kết quả
+        // 4. Trả về kết quả gồm danh sách tour và thông tin phân trang
         res.json({
             result: data,
             pagination: {
@@ -84,6 +125,7 @@ exports.getAllTours = async (req, res) => {
             },
         });
     } catch (error) {
+        // Xử lý lỗi server
         console.error("Lỗi khi lấy dữ liệu tour:", error);
         res.status(500).json({message: "Lỗi server"});
     }

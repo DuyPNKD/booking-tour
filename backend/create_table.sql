@@ -12,6 +12,7 @@ CREATE TABLE users (
   is_active TINYINT DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
+
 ALTER TABLE users
 ADD COLUMN birth_date DATE;
 
@@ -52,6 +53,7 @@ CREATE TABLE IF NOT EXISTS tours (
   location_id INT NOT NULL,          -- FK đến locations
   FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
+SELECT * FROM tours WHERE price >= 1000000 AND price <= 3000000 order by price ASC;
 
 --  Bảng Hình ảnh liên quan đến tour
 CREATE TABLE IF NOT EXISTS tours_images (

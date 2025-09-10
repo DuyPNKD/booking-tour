@@ -1,7 +1,6 @@
 import React, {useState, useEffect} from "react";
 import {Link, useSearchParams} from "react-router-dom";
 import "./Tours.css"; // Tạo file css này để style
-import ninhThuan from "../../assets/ninh_thuan.webp";
 import {getRatingLabel} from "../../utils/ratingUtils";
 import axios from "axios";
 import Pagination from "../../components/pagination/Pagination";
@@ -11,6 +10,13 @@ const Tours = () => {
     const [pagination, setPagination] = useState({totalItems: 0, totalPages: 1, currentPage: 1, totalItemsPerPage: 10});
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(false);
+    const [filter, setFilter] = useState({
+        departure: "",
+        duration: "",
+        priceFrom: "",
+        priceTo: "",
+        sortBy: "",
+    });
 
     const [searchParams, setSearchParams] = useSearchParams(); // Lấy các tham số tìm kiếm từ URL
     const locationId = searchParams.get("location_id"); // Ví dụ: lấy location_id từ URL
@@ -46,6 +52,11 @@ const Tours = () => {
                             locationId: searchParams.get("location_id"),
                             page,
                             limit: itemsPerPage,
+                            departure: searchParams.get("departure"),
+                            duration: searchParams.get("duration"),
+                            priceFrom: searchParams.get("priceFrom"),
+                            priceTo: searchParams.get("priceTo"),
+                            sortBy: searchParams.get("sortBy"),
                         },
                     });
                 }
@@ -75,6 +86,28 @@ const Tours = () => {
         next.set("page", String(newPage));
         setSearchParams(next);
         window.scrollTo({top: 0, behavior: "smooth"});
+    };
+
+    const handleFilterChange = (e) => {
+        const {name, value} = e.target;
+        setFilter((prev) => ({...prev, [name]: value}));
+    };
+
+    const handleApplyFilter = () => {
+        const next = new URLSearchParams(searchParams);
+        // Ép kiểu về số khi set giá trị filter
+        if (filter.departure) next.set("departure", filter.departure);
+        else next.delete("departure");
+        if (filter.duration) next.set("duration", String(Number(filter.duration)));
+        else next.delete("duration");
+        if (filter.priceFrom) next.set("priceFrom", String(Number(filter.priceFrom)));
+        else next.delete("priceFrom");
+        if (filter.priceTo) next.set("priceTo", String(Number(filter.priceTo)));
+        else next.delete("priceTo");
+        if (filter.sortBy) next.set("sortBy", filter.sortBy);
+        else next.delete("sortBy");
+        next.set("page", "1"); // reset page
+        setSearchParams(next);
     };
 
     return (
@@ -181,34 +214,36 @@ const Tours = () => {
                             </div>
                             <div className="tour-filter-group">
                                 <label>Điểm xuất phát</label>
-                                <select>
-                                    <option>Tất cả</option>
-                                    <option>Hà Nội</option>
-                                    <option>Hồ Chí Minh</option>
+                                <select name="departure" value={filter.departure} onChange={handleFilterChange}>
+                                    <option value="">Tất cả</option>
+                                    <option value="Hà Nội">Hà Nội</option>
+                                    <option value="Hồ Chí Minh">Hồ Chí Minh</option>
                                     {/* ... */}
                                 </select>
                             </div>
                             <div className="tour-filter-group">
                                 <label>Thời gian tour (ngày)</label>
-                                <input type="number" placeholder="Nhập số ngày" />
+                                <input type="number" name="duration" value={filter.duration} onChange={handleFilterChange} placeholder="Nhập số ngày" />
                             </div>
                             <div className="tour-filter-group">
                                 <label>Mức giá</label>
-                                <input type="number" placeholder="Từ giá, ví dụ: 3.000.000" />
+                                <input type="number" name="priceFrom" value={filter.priceFrom} onChange={handleFilterChange} placeholder="Từ giá, ví dụ: 3.000.000" />
                                 <label>đến</label>
-                                <input type="number" placeholder="Đến giá, ví dụ: 10.000.000" style={{marginTop: 4}} />
+                                <input type="number" name="priceTo" value={filter.priceTo} onChange={handleFilterChange} placeholder="Đến giá, ví dụ: 10.000.000" style={{marginTop: 4}} />
                             </div>
                             <div className="tour-filter-group">
                                 <label>Sắp xếp theo</label>
-                                <select>
-                                    <option>DTravel gợi ý</option>
-                                    <option>Giá tăng dần</option>
-                                    <option>Giá giảm dần</option>
-                                    <option>Thời lượng tour tăng dần</option>
-                                    <option>Thời lượng tour giảm dần</option>
+                                <select name="sortBy" value={filter.sortBy} onChange={handleFilterChange}>
+                                    <option value="">DTravel gợi ý</option>
+                                    <option value="priceAsc">Giá tăng dần</option>
+                                    <option value="priceDesc">Giá giảm dần</option>
+                                    <option value="durationAsc">Thời lượng tour tăng dần</option>
+                                    <option value="durationDesc">Thời lượng tour giảm dần</option>
                                 </select>
                             </div>
-                            <button className="tour-filter-apply">Áp dụng</button>
+                            <button className="tour-filter-apply" onClick={handleApplyFilter}>
+                                Áp dụng
+                            </button>
                         </div>
 
                         {/* Danh mục */}
