@@ -12,6 +12,8 @@ CREATE TABLE users (
   is_active TINYINT DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
+ALTER TABLE users
+ADD COLUMN birth_date DATE;
 
 ALTER TABLE users ADD COLUMN avatar VARCHAR(255) DEFAULT NULL AFTER role;
 
@@ -195,17 +197,17 @@ CREATE TABLE IF NOT EXISTS booking_details (
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
-	-- Bảng payments
-	CREATE TABLE IF NOT EXISTS payments (
-	  id INT PRIMARY KEY AUTO_INCREMENT,
-	  booking_id INT,
-	  amount INT,
-	  payment_method VARCHAR(50),
-	  status ENUM('unpaid', 'pending', 'paid', 'failed') DEFAULT 'unpaid',
-	  paid_at DATETIME,
-	  order_id VARCHAR(50),
-	  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
-	);
+-- Bảng payments
+CREATE TABLE IF NOT EXISTS payments (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  booking_id INT,
+  amount INT,
+  payment_method VARCHAR(50),
+  status ENUM('unpaid', 'pending', 'paid', 'failed') DEFAULT 'unpaid',
+  paid_at DATETIME,
+  order_id VARCHAR(50),
+  FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+);
 
 -- Navbar
 -- Bảng Miền/Châu lục

@@ -34,7 +34,12 @@ export const AuthProvider = ({children}) => {
         localStorage.removeItem("user");
     };
 
-    return <AuthContext.Provider value={{user, token, login, logout}}>{children}</AuthContext.Provider>;
+    const updateUser = (nextUser) => {
+        setUser(nextUser);
+        localStorage.setItem("user", JSON.stringify(nextUser));
+    };
+
+    return <AuthContext.Provider value={{user, token, login, logout, updateUser}}>{children}</AuthContext.Provider>;
 };
 
 // Custom hook cho gọn

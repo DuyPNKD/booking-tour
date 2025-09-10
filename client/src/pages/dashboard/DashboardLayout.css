@@ -33,6 +33,36 @@
     border-left: 3px solid transparent;
     transition: background 0.15s, border-color 0.15s;
 }
+.dashboard-user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.dashboard-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb; /* viền xung quanh hình ảnh */
+}
+.dashboard-user-texts {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.dashboard-user-name {
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.dashboard-user-email {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
 .dashboard-sidebar-item.active {
     color: #1976d2;
     background: #f5faff;

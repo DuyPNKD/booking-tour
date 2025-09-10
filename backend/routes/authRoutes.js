@@ -10,10 +10,28 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const authMiddleware = require("../middlewares/authMiddleware");
 const {sendVerificationEmail, sendResetPasswordEmail} = require("../utils/mailer");
+const multer = require("multer"); // 1.Dùng thư viện Multer để nhận file từ FE
+const path = require("path");
 
 router.get("/ping", (req, res) => {
     res.send("Auth route OK");
 });
+
+// 2.Multer lưu file avatar vào folder uploads/avatars
+const storage = multer.diskStorage({
+    // Chỉ định thư mục lưu file upload
+    destination: function (req, file, cb) {
+        // Lưu vào thư mục uploads/avatars (tính từ gốc dự án)
+        cb(null, path.join(__dirname, "../public/uploads/avatars"));
+    },
+    // Đặt tên file upload: userId-timestamp.ext (giúp tránh trùng tên)
+    filename: function (req, file, cb) {
+        const ext = path.extname(file.originalname); // Lấy phần mở rộng file (.jpg, .png, ...)
+        cb(null, req.user.id + "_" + Date.now() + ext); // Ví dụ: 12_1699999999999.jpg
+    },
+});
+// Tạo middleware upload dùng cấu hình trên
+const upload = multer({storage});
 
 // 📌 Đăng ký
 router.post("/register", async (req, res) => {
@@ -90,6 +108,66 @@ router.get("/me", authMiddleware, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({message: "Lỗi server"});
+    }
+});
+
+// 📌 Cập nhật hồ sơ
+router.put("/me", authMiddleware, async (req, res) => {
+    try {
+        // Lấy id của user từ thông tin được gắn bởi authMiddleware (đã giải mã token)
+        const userId = req.user.id;
+
+        // Lấy dữ liệu cập nhật từ body request
+        const {name, phone, address, gender, birthDay, birthMonth, birthYear} = req.body;
+
+        // Tạo mảng lưu trữ các trường cần cập nhật và mảng chứa các giá trị tương ứng
+        const fields = [];
+        const params = [];
+
+        // Nếu có giá trị name, thêm trường name vào mảng cập nhật
+        if (name) {
+            fields.push("name = ?");
+            params.push(name);
+        }
+        // Nếu có giá trị phone, thêm trường phone vào mảng cập nhật
+        if (phone) {
+            fields.push("phone = ?");
+            params.push(phone);
+        }
+        // Nếu có giá trị address, thêm trường address vào mảng cập nhật
+        if (address) {
+            fields.push("address = ?");
+            params.push(address);
+        }
+        // Nếu có giá trị gender, thêm trường gender vào mảng cập nhật
+        if (gender) {
+            fields.push("gender = ?");
+            params.push(gender);
+        }
+        // Nếu có đầy đủ ngày, tháng, năm sinh, tạo chuỗi ngày theo format 'YYYY-MM-DD'
+        if (birthDay && birthMonth && birthYear) {
+            const birthDate = `${birthYear}-${birthMonth.padStart(2, "0")}-${birthDay.padStart(2, "0")}`;
+            fields.push("birth_date = ?");
+            params.push(birthDate);
+        }
+
+        // Nếu có ít nhất 1 trường để cập nhật, thực hiện câu lệnh UPDATE
+        if (fields.length > 0) {
+            // Thêm userId vào cuối mảng params cho mệnh đề WHERE
+            params.push(userId);
+            // Xây dựng truy vấn UPDATE động dựa trên các trường được cung cấp từ request
+            await db.query(`UPDATE users SET ${fields.join(", ")} WHERE id = ?`, params);
+        }
+
+        // Sau khi cập nhật, truy vấn lại thông tin user để trả về cho client
+        const [[user]] = await db.query("SELECT id, name, email, phone, address, gender, birth_date FROM users WHERE id = ?", [userId]);
+
+        // Trả về thông báo thành công và thông tin user đã cập nhật
+        res.json({success: true, user});
+    } catch (err) {
+        // Nếu có lỗi xảy ra, log lỗi và trả về thông báo lỗi cho client
+        console.error("Update profile error:", err);
+        res.status(500).json({success: false, message: "Lỗi cập nhật hồ sơ"});
     }
 });
 
@@ -301,13 +379,7 @@ router.post("/google", async (req, res) => {
         let user;
         if (rows.length === 0) {
             // ✅ Nếu chưa có thì tạo user mới
-            const [result] = await db.query("INSERT INTO users (name, email, is_active, role, avatar) VALUES (?, ?, ?, ?, ?)", [
-                name,
-                email,
-                1,
-                "user",
-                picture,
-            ]);
+            const [result] = await db.query("INSERT INTO users (name, email, is_active, role, avatar) VALUES (?, ?, ?, ?, ?)", [name, email, 1, "user", picture]);
 
             user = {
                 id: result.insertId,
@@ -340,5 +412,21 @@ router.post("/google", async (req, res) => {
         res.status(401).json({message: "Token Google không hợp lệ"});
     }
 });
+
+// API upload avatar -> 3. BE trả về đường dẫn file cho FE.
+router.post(
+    "/upload/avatar",
+    authMiddleware, // Kiểm tra đăng nhập, gắn req.user
+    upload.single("avatar"), // Nhận file từ key "avatar" trong FormData
+    (req, res) => {
+        // Nếu không có file gửi lên
+        if (!req.file) {
+            return res.status(400).json({success: false, message: "Không có file được upload"});
+        }
+        // Tạo đường dẫn file vừa upload để trả về cho FE
+        const filePath = "/uploads/avatars/" + req.file.filename;
+        res.json({success: true, path: filePath});
+    }
+);
 
 module.exports = router;
