@@ -33,6 +33,7 @@ app.get("/payment-result", (req, res) => {
 });
 
 app.use("/api/auth", require("./routes/authRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 /* ✅ Cho phép truy cập ảnh trong public/uploads */
 app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));

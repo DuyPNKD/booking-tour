@@ -13,6 +13,19 @@ CREATE TABLE users (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 );
 
+INSERT INTO users (name, email, password, phone, gender, address, role, is_active)
+VALUES (
+  'Admin', 
+  'admin@example.com', 
+  '$2b$10$9uY9gN1Jd4F8xR6YVn7qKegxRMfK8d6u6hjF0wObXXoF6hV9sUJqW', -- password đã hash
+  '0123456789', 
+  'other', 
+  'Hanoi', 
+  'admin', 
+  1
+);
+
+
 ALTER TABLE users
 ADD COLUMN birth_date DATE;
 

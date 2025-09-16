@@ -15,6 +15,7 @@ import DashboardLayout from "./pages/dashboard/DashboardLayout";
 import ProfilePage from "./pages/dashboard/ProfilePage";
 import TripsPage from "./pages/dashboard/TripsPage";
 import VoucherPage from "./pages/dashboard/VoucherPage";
+import AdminLoginPage from "./pages/admin/AdminLoginPage";
 
 import "./App.css";
 
@@ -43,6 +44,9 @@ function App() {
 
                 {/* Trang đăng nhập */}
                 <Route path="/auth/login" element={<AuthPage />} />
+
+                {/* Trang đăng nhập admin */}
+                <Route path="/admin/login" element={<AdminLoginPage />} />
 
                 {/* Trang đặt tour */}
                 <Route path="/booking/:id" element={<BookingPage />} />
