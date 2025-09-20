@@ -1,4 +1,4 @@
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {BrowserRouter as Router, Routes, Route, useLocation} from "react-router-dom";
 import Navbar from "./components/navbar/Navbar";
 import Footer from "./components/footer/Footer";
 import Home from "./pages/home/Home";
@@ -16,13 +16,22 @@ import ProfilePage from "./pages/dashboard/ProfilePage";
 import TripsPage from "./pages/dashboard/TripsPage";
 import VoucherPage from "./pages/dashboard/VoucherPage";
 import AdminLoginPage from "./pages/admin/AdminLoginPage";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminTours from "./pages/admin/AdminTours";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminReports from "./pages/admin/AdminReports";
+import AdminSettings from "./pages/admin/AdminSettings";
 
 import "./App.css";
 
-function App() {
+function AppRoutes() {
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith("/admin") && location.pathname !== "/admin/login";
     return (
-        <Router>
-            <Navbar />
+        <>
+            {!isAdminRoute && <Navbar />}
             <Routes>
                 {/* Trang chủ */}
                 <Route path="/" element={<Home />} />
@@ -48,6 +57,17 @@ function App() {
                 {/* Trang đăng nhập admin */}
                 <Route path="/admin/login" element={<AdminLoginPage />} />
 
+                {/* Khu vực admin */}
+                <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="tours" element={<AdminTours />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="reports" element={<AdminReports />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                </Route>
+
                 {/* Trang đặt tour */}
                 <Route path="/booking/:id" element={<BookingPage />} />
 
@@ -57,7 +77,7 @@ function App() {
                 {/* Trang kết quả thanh toán */}
                 <Route path="/payment-result" element={<PaymentResult />} />
 
-                {/* Dashboard */}
+                {/* Dashboard người dùng */}
                 <Route path="/dashboard" element={<DashboardLayout />}>
                     <Route path="profile" element={<ProfilePage />} />
                     <Route path="trips" element={<TripsPage />} />
@@ -67,7 +87,15 @@ function App() {
                 {/* Trang 404 */}
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />
             </Routes>
-            <Footer />
+            {!isAdminRoute && <Footer />}
+        </>
+    );
+}
+
+function App() {
+    return (
+        <Router>
+            <AppRoutes />
         </Router>
     );
 }

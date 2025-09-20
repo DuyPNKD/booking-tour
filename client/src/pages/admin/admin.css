@@ -1,0 +1,58 @@
+.admin-wrapper {
+    min-height: 100vh;
+    background: #f7fafd;
+}
+.admin-sidebar {
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
+    background: #ffffff;
+    border-right: 1px solid #e6eaf0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    flex-shrink: 0;
+}
+.admin-sidebar .nav-link {
+    color: #334155;
+    border-radius: 8px;
+    margin: 2px 0;
+}
+.admin-sidebar .nav-link.active,
+.admin-sidebar .nav-link:hover {
+    background: #e7f1ff;
+    color: #0d6efd;
+}
+.admin-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e6eaf0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.admin-content {
+    min-width: 0;
+}
+.admin-search .form-control {
+    width: 320px;
+    max-width: 50vw;
+}
+.admin-card {
+    border: 1px solid #e6eaf0;
+}
+.admin-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        display: none;
+    }
+}

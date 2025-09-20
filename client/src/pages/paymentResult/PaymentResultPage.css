@@ -268,7 +268,6 @@
 }
 
 .btn {
-    padding: 14px 28px;
     border: none;
     border-radius: 12px;
     font-size: 1rem;
@@ -279,7 +278,6 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    min-width: 140px;
     justify-content: center;
     position: relative;
     overflow: hidden;
@@ -424,4 +422,24 @@
     .payment-result-desc {
         font-size: 1rem;
     }
+}
+
+/* Action column: keep edit/delete buttons on one row */
+.action-column,
+.actions,
+td.actions,
+.table-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.action-column > *,
+.actions > *,
+td.actions > *,
+.table-actions > * {
+    margin: 0;
 }

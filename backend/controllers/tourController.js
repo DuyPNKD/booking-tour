@@ -237,15 +237,15 @@ exports.getDepartureDates = async (req, res) => {
 exports.getTourOverview = async (req, res) => {
     const tourId = req.params.id;
     try {
-        const [[overview]] = await db.query("SELECT content FROM tour_overviews WHERE tour_id = ?", [tourId]);
+        const [[tour]] = await db.query("SELECT overview FROM tours WHERE id = ?", [tourId]);
 
-        if (!overview) {
+        if (!tour || !tour.overview) {
             return res.status(404).json({error: "Không tìm thấy phần giới thiệu"});
         }
 
-        res.json(overview);
+        res.json({content: tour.overview});
     } catch (err) {
-        console.error(err);
+        console.error("getTourOverview error", err);
         res.status(500).json({error: "Lỗi server khi lấy overview"});
     }
 };

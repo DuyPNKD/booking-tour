@@ -15,15 +15,20 @@ CREATE TABLE users (
 
 INSERT INTO users (name, email, password, phone, gender, address, role, is_active)
 VALUES (
-  'Admin', 
-  'admin@example.com', 
-  '$2b$10$9uY9gN1Jd4F8xR6YVn7qKegxRMfK8d6u6hjF0wObXXoF6hV9sUJqW', -- password đã hash
-  '0123456789', 
-  'other', 
-  'Hanoi', 
-  'admin', 
+  'Admin',
+  'admin@example.com',
+  '$2b$10$kKXmpAe1DxAnB4VwWZlL2.y.ZD.eEYmkBzIY01XABCUpu7jN70GMa',
+  '0123456789',
+  'other',
+  'Hanoi',
+  'admin',
   1
 );
+
+
+UPDATE users
+SET password = '$2b$10$kKXmpAe1DxAnB4VwWZlL2.y.ZD.eEYmkBzIY01XABCUpu7jN70GMa'
+WHERE email = 'admin@example.com';
 
 
 ALTER TABLE users
@@ -54,44 +59,45 @@ CREATE TABLE password_resets (
 
 CREATE TABLE IF NOT EXISTS tours (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  title VARCHAR(255),
-  slug VARCHAR(255),
-  num_day INT,
-  num_night INT,
-  price INT,
-  old_price INT,
-  rating FLOAT,
-  rating_count INT,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) NOT NULL UNIQUE,
+  num_day INT NOT NULL,
+  num_night INT NOT NULL,
+  price INT NOT NULL,            -- Giá hiển thị mặc định (thường là giá người lớn)
+  old_price INT,                 -- Giá gốc để hiển thị khuyến mãi
+  thumbnail_url VARCHAR(500),    -- Ảnh đại diện
+  rating FLOAT DEFAULT 0,
+  rating_count INT DEFAULT 0,
+  overview LONGTEXT,
+  location_id INT NOT NULL,
+  status ENUM('active','paused','archived') DEFAULT 'active',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  location_id INT NOT NULL,          -- FK đến locations
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
-SELECT * FROM tours WHERE price >= 1000000 AND price <= 3000000 order by price ASC;
+
+ALTER TABLE tours DROP INDEX slug;
+ALTER TABLE tours ADD CONSTRAINT uniq_tour_slug UNIQUE (slug);
+ALTER TABLE tours 
+MODIFY COLUMN status ENUM('pending','active','paused','archived') DEFAULT 'pending';
+
 
 --  Bảng Hình ảnh liên quan đến tour
 CREATE TABLE IF NOT EXISTS tours_images (
    id INT PRIMARY KEY AUTO_INCREMENT,
    tour_id INT,
-   image_url VARCHAR(255),
+   image_url VARCHAR(500),
    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
    FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
 
-
--- Bảng tour_overviews
-CREATE TABLE IF NOT EXISTS tour_overviews (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  tour_id INT,
-  content TEXT,
-  FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
-);
-
 -- Bảng tour_schedules
 CREATE TABLE IF NOT EXISTS tour_schedules (
   id INT PRIMARY KEY AUTO_INCREMENT,
   tour_id INT,
-  day_text VARCHAR(100),       
+  day_text VARCHAR(100),   
+  day_order INT,
   content TEXT,                             
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
@@ -109,9 +115,6 @@ CREATE TABLE tour_departures (
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
 
-ALTER TABLE tour_departures
-ADD departure_city VARCHAR(255) AFTER tour_id;
-
 -- Bảng thông tin cần lưu ý
 CREATE TABLE tour_terms (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -125,13 +128,62 @@ CREATE TABLE tour_terms (
 -- Bảng tour_prices
 CREATE TABLE IF NOT EXISTS tour_prices (
   id INT PRIMARY KEY AUTO_INCREMENT,
-  tour_id INT,
-  target_type ENUM('adult', 'child', 'infant'),
-  min_age INT,
-  max_age INT,
-  price INT,
-  FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
+  tour_id INT NOT NULL,
+  target_type ENUM('adult', 'child', 'infant') NOT NULL,
+  min_age INT NOT NULL,
+  max_age INT NOT NULL,
+  price INT NOT NULL,
+  old_price INT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_tour_price (tour_id, target_type)
 );
+
+DELIMITER //
+
+-- Khi thêm giá người lớn thì update sang bảng tours
+CREATE TRIGGER after_insert_tour_prices
+AFTER INSERT ON tour_prices
+FOR EACH ROW
+BEGIN
+  IF NEW.target_type = 'adult' THEN
+    UPDATE tours
+    SET price = NEW.price,
+        old_price = NEW.old_price
+    WHERE id = NEW.tour_id;
+  END IF;
+END//
+
+-- Khi cập nhật giá người lớn thì update sang bảng tours
+CREATE TRIGGER after_update_tour_prices
+AFTER UPDATE ON tour_prices
+FOR EACH ROW
+BEGIN
+  IF NEW.target_type = 'adult' THEN
+    UPDATE tours
+    SET price = NEW.price,
+        old_price = NEW.old_price
+    WHERE id = NEW.tour_id;
+  END IF;
+END//
+
+-- Khi xóa giá người lớn thì reset về NULL
+CREATE TRIGGER after_delete_tour_prices
+AFTER DELETE ON tour_prices
+FOR EACH ROW
+BEGIN
+  IF OLD.target_type = 'adult' THEN
+    UPDATE tours
+    SET price = NULL,
+        old_price = NULL
+    WHERE id = OLD.tour_id;
+  END IF;
+END//
+
+DELIMITER ;
+
+
 
 -- Bảng đánh giá tour
 CREATE TABLE IF NOT EXISTS tour_reviews (
