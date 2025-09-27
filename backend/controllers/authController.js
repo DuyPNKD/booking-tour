@@ -83,11 +83,24 @@ exports.login = async function (req, res) {
             return res.status(401).json({message: "Unauthorized"});
         }
 
-        // Bước 4: Sinh JWT và trả về kết quả
+        // Bước 4: Tạo Acccess token (ngăn hạn) ---
         const payload = {id: user.id, email: user.email, role: user.role};
         const token = jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1h"});
+
+        // Bước 5: Tạo Refresh Token (dài hạn) ---
+        const refreshToken = jwt.sign({id: user.id}, process.env.JWT_REFRESH_SECRET, {expiresIn: "7d"});
+
+        // Set cookie (refresh token)
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true, // chặn JS đọc cookie
+            secure: true, // bắt buộc HTTPS
+            sameSite: "strict", // chống CSRF
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
+        });
+
+        // Trả về cho FE
         return res.json({
-            token,
+            token: token,
             user: {id: user.id, name: user.name, email: user.email, role: user.role},
         });
     } catch (err) {
@@ -343,7 +356,13 @@ exports.googleLogin = async function (req, res) {
         let user;
         if (rows.length === 0) {
             // Bước 4: Nếu không có, tạo mới user
-            const [result] = await db.query("INSERT INTO users (name, email, is_active, role, avatar) VALUES (?, ?, ?, ?, ?)", [name, email, 1, "user", picture]);
+            const [result] = await db.query("INSERT INTO users (name, email, is_active, role, avatar) VALUES (?, ?, ?, ?, ?)", [
+                name,
+                email,
+                1,
+                "user",
+                picture,
+            ]);
             user = {id: result.insertId, name, email, role: "user", picture};
         } else {
             // Bước 5: Nếu có, lấy thông tin user
@@ -357,5 +376,43 @@ exports.googleLogin = async function (req, res) {
     } catch (err) {
         console.error("Lỗi đăng nhập Google:", err);
         res.status(401).json({message: "Token Google không hợp lệ"});
+    }
+};
+
+/** Refresh access token bằng refresh token hợp lệ
+ * Route: POST /api/auth/refresh-token
+ * Body: { refresh_token }
+ * - Kiểm tra refresh token trong DB
+ * - Tạo access token mới nếu hợp lệ
+ * Response: { access_token }
+ * */
+
+exports.refresh = async function (req, res) {
+    try {
+        // 1. Lấy refresh token từ cookie
+        const refreshToken = req.cookies.refreshToken;
+        if (!refreshToken) {
+            return res.status(400).json({message: "Thiếu refresh_token"});
+        }
+
+        // 2. Xác thực refresh token
+        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (err, payload) => {
+            if (err) {
+                return res.status(403).json({message: "Refresh token không hợp lệ hoặc đã hết hạn"});
+            }
+
+            // 3. Sinh access token mới (ngắn hạn)
+            const newAccessToken = jwt.sign(
+                {id: payload.id, email: payload.email, role: payload.role},
+                process.env.JWT_SECRET,
+                {expiresIn: "1h"} // nên ngắn, ví dụ 1 giờ
+            );
+
+            // 4. Trả về cho client
+            return res.json({access_token: newAccessToken});
+        });
+    } catch (err) {
+        console.error("/api/auth/refresh lỗi:", err);
+        res.status(500).json({message: "Lỗi server"});
     }
 };

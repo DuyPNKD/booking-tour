@@ -6,9 +6,15 @@ const AdminLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const handleLogout = () => {
-        localStorage.removeItem("adminToken");
-        navigate("/admin/login");
+    const handleLogout = async () => {
+        try {
+            await axios.post("/api/logout", {}, {withCredentials: true}); // clear cookie / refresh token ở server
+        } catch (err) {
+            console.error("Logout error", err);
+        } finally {
+            localStorage.removeItem("adminToken");
+            navigate("/admin/login");
+        }
     };
 
     return (
@@ -59,7 +65,9 @@ const AdminLayout = () => {
             <div className="admin-content flex-grow-1">
                 <header className="admin-topbar d-flex align-items-center justify-content-between px-3 py-2">
                     <form className="d-none d-md-flex align-items-center admin-search">
-                        <span className="me-2 text-muted"><i className="fa-solid fa-magnifying-glass"></i></span>
+                        <span className="me-2 text-muted">
+                            <i className="fa-solid fa-magnifying-glass"></i>
+                        </span>
                         <input className="form-control" placeholder="Tìm kiếm..." />
                     </form>
                     <div className="d-flex align-items-center gap-3">
@@ -82,5 +90,3 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
-
-

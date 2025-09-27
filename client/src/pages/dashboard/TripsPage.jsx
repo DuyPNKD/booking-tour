@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import Pagination from "../../components/pagination/Pagination";
 import {useAuth} from "../../context/AuthContext";
+import {userApi} from "../../utils/userApi"; // ✅ import userApi có interceptor
 import "./DashboardLayout.css";
 import "./TripsPage.css";
 
@@ -26,23 +27,11 @@ export default function TripsPage() {
                 // Bật trạng thái loading để hiển thị "Đang tải..."
                 setLoading(true);
 
-                // Gọi API backend để lấy danh sách booking của user hiện tại
-                const res = await fetch("http://localhost:3000/api/booking/me/list", {
-                    headers: {
-                        // Gắn token vào header để xác thực
-                        Authorization: token ? `Bearer ${token}` : undefined,
-                    },
-                    credentials: "include", // Cho phép gửi cookie nếu cần
-                });
+                const {data} = await userApi.get("/booking/me/list"); // ✅ Dùng userApi
 
-                // Chuyển kết quả về dạng JSON
-                const json = await res.json();
-
-                // Thao tác xóa item
-                // Nếu component vẫn còn tồn tại và API trả về thành công
-                if (!ignore && json?.success) {
+                if (!ignore && data?.success) {
                     // Gắn dữ liệu booking vào state
-                    setItems(json.data || []);
+                    setItems(data.data || []);
                 }
             } catch (e) {
                 // Nếu có lỗi khi gọi API → log ra console

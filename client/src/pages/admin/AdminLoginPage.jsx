@@ -22,10 +22,10 @@ const AdminLoginPage = () => {
         setLoading(true);
         try {
             const response = await axios.post("http://localhost:3000/api/admin/login", {email, password});
-
-            // BE trả: { token, user }
-            if (response.data?.token) {
-                localStorage.setItem("adminToken", response.data.token);
+            console.log(response.data);
+            // BE trả: { access_token, user }
+            if (response.data?.access_token) {
+                localStorage.setItem("adminToken", response.data.access_token);
                 alert(`Đăng nhập thành công! Chào mừng bạn trở lại, ${response.data.user?.name || "Admin"}`);
                 navigate("/admin/dashboard");
             } else {

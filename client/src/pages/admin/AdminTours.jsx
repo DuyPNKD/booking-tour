@@ -1,5 +1,6 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useMemo, useRef, useState} from "react";
 import {adminApi} from "../../utils/adminApi";
+import axios from "axios";
 
 // Toast Component
 const Toast = ({message, type = "success", onClose}) => {
@@ -74,16 +75,16 @@ const emptyForm = {
     // Prices
     adult_price: "",
     adult_old_price: "",
-    adult_min_age: "",
-    adult_max_age: "",
+    adult_min_age: 10,
+    adult_max_age: 99,
     child_price: "",
     child_old_price: "",
-    child_min_age: "",
-    child_max_age: "",
+    child_min_age: 5,
+    child_max_age: 9,
     infant_price: "",
     infant_old_price: "",
-    infant_min_age: "",
-    infant_max_age: "",
+    infant_min_age: 0,
+    infant_max_age: 4,
     // Images (multi-URL, one per line)
     images_text: "",
     // Schedules
@@ -117,12 +118,130 @@ const AdminTours = () => {
 
     const limit = 10;
 
+    // Refs for hidden file inputs
+    const thumbInputRef = useRef(null);
+    const galleryInputRef = useRef(null);
+
     const showToast = (message, type = "success") => {
         setToast({show: true, message, type});
     };
 
     const hideToast = () => {
         setToast({show: false, message: "", type: "success"});
+    };
+
+    // Upload single thumbnail to /api/upload/cloudinary
+    /**
+     * handleUploadThumbnailFile
+     * Luồng hoạt động:
+     * - Khi người dùng chọn file thumbnail, hàm này được gọi.
+     * - Upload file lên server qua API, lấy URL trả về và lưu vào form.
+     * - Nếu lỗi thì hiển thị toast thông báo lỗi.
+     * - Reset input file để có thể chọn lại cùng file nếu cần.
+     */
+    const handleUploadThumbnailFile = async (e) => {
+        try {
+            // Lấy file đầu tiên từ input
+            const file = e.target.files?.[0];
+            if (!file) return;
+            // Tạo form data để gửi file lên server
+            const formData = new FormData();
+            formData.append("file", file);
+            // Lấy token xác thực từ localStorage
+            const token = localStorage.getItem("adminToken");
+            // Gọi API upload lên cloudinary
+            const {data} = await axios.post("http://localhost:3000/api/upload/cloudinary", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: token ? `Bearer ${token}` : undefined,
+                },
+            });
+            // Nếu upload thành công và có url, lưu vào form
+            if (data?.success && data?.url) {
+                setForm((prev) => ({...prev, thumbnail_url: data.url}));
+            }
+        } catch (err) {
+            // Nếu lỗi, hiển thị toast thông báo lỗi
+            showToast(err.response?.data?.message || "Upload thumbnail thất bại", "error");
+        } finally {
+            // Reset input file để có thể chọn lại cùng file
+            e.target.value = "";
+        }
+    };
+
+    // Upload multiple images to /api/upload/cloudinary/multiple
+    /**
+     * handleUploadDetailImages
+     * Luồng hoạt động:
+     * - Khi người dùng chọn nhiều file ảnh chi tiết, hàm này được gọi.
+     * - Upload tất cả file lên server qua API, lấy danh sách URL trả về và lưu vào form.
+     * - Nếu lỗi thì hiển thị toast thông báo lỗi.
+     * - Reset input file để có thể chọn lại cùng file nếu cần.
+     */
+    const handleUploadDetailImages = async (e) => {
+        try {
+            // Lấy danh sách file từ input
+            const files = Array.from(e.target.files || []);
+            if (files.length === 0) return;
+            // Tạo form data để gửi nhiều file lên server
+            const formData = new FormData();
+            files.forEach((f) => formData.append("files", f));
+            // Lấy token xác thực từ localStorage
+            const token = localStorage.getItem("adminToken");
+            // Gọi API upload nhiều file lên cloudinary
+            const {data} = await axios.post("http://localhost:3000/api/upload/cloudinary/multiple", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: token ? `Bearer ${token}` : undefined,
+                },
+            });
+            // Nếu upload thành công và có danh sách file, lấy url và lưu vào form
+            if (data?.success && Array.isArray(data?.files)) {
+                const urls = data.files.map((f) => f.url).filter(Boolean);
+                const appendText = urls.join("\n");
+                setForm((prev) => ({
+                    ...prev,
+                    images_text: prev.images_text ? `${prev.images_text}\n${appendText}` : appendText,
+                }));
+            }
+        } catch (err) {
+            // Nếu lỗi, hiển thị toast thông báo lỗi
+            showToast(err.response?.data?.message || "Upload ảnh thất bại", "error");
+        } finally {
+            // Reset input file để có thể chọn lại cùng file
+            e.target.value = "";
+        }
+    };
+
+    // Remove thumbnail URL
+    /**
+     * handleRemoveThumbnail
+     * Luồng hoạt động:
+     * - Khi người dùng nhấn nút xóa thumbnail, hàm này được gọi.
+     * - Xóa URL thumbnail khỏi form (không xóa trên server).
+     */
+    const handleRemoveThumbnail = () => {
+        // Xóa thumbnail_url trong form
+        setForm((prev) => ({...prev, thumbnail_url: ""}));
+    };
+
+    // Remove one gallery image URL
+    /**
+     * handleRemoveGalleryImage
+     * Luồng hoạt động:
+     * - Khi người dùng nhấn nút xóa ảnh chi tiết, hàm này được gọi.
+     * - Xóa URL ảnh khỏi danh sách images_text trong form (không xóa trên server).
+     */
+    const handleRemoveGalleryImage = (url) => {
+        setForm((prev) => {
+            // Tách danh sách URL, loại bỏ URL cần xóa, ghép lại thành chuỗi
+            const nextList = (prev.images_text || "")
+                .split("\n")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .filter((u) => u !== url);
+            return {...prev, images_text: nextList.join("\n")};
+        });
     };
 
     const loadLocations = async () => {
@@ -160,7 +279,6 @@ const AdminTours = () => {
 
     const openAdd = () => {
         setIsEdit(false);
-        // Restore form from localStorage if exists
         const savedForm = localStorage.getItem("adminTourForm");
         if (savedForm) {
             try {
@@ -423,6 +541,17 @@ const AdminTours = () => {
     const go = (p) => {
         const page = Math.min(Math.max(1, p), pagination.totalPages || 1);
         loadTours(page);
+    };
+
+    // Helper to get old_price value for adult/child
+    const getOldPrice = (price, oldPrice) => {
+        if (oldPrice !== "" && oldPrice !== null && !isNaN(Number(oldPrice))) {
+            return oldPrice;
+        }
+        if (price !== "" && price !== null && !isNaN(Number(price))) {
+            return Math.round(Number(price) * 0.8);
+        }
+        return "";
     };
 
     return (
@@ -744,6 +873,74 @@ const AdminTours = () => {
                                             ))}
                                         </select>
                                     </div>
+
+                                    <div className="col-12 col-md-6">
+                                        <label className="form-label">Thumbnail</label>
+                                        <div className="d-flex align-items-center gap-3">
+                                            <div
+                                                role="button"
+                                                onClick={() => thumbInputRef.current?.click()}
+                                                className="position-relative d-flex flex-column align-items-center justify-content-center border rounded"
+                                                style={{
+                                                    width: 180,
+                                                    height: 110,
+                                                    cursor: "pointer",
+                                                    backgroundColor: "#fafafa",
+                                                    backgroundImage: form.thumbnail_url ? `url(${form.thumbnail_url})` : "none",
+                                                    backgroundSize: "cover",
+                                                    backgroundPosition: "center",
+                                                    borderRadius: "8px",
+                                                    boxShadow: form.thumbnail_url ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
+                                                    transition: "box-shadow 0.2s",
+                                                }}
+                                            >
+                                                {!form.thumbnail_url && (
+                                                    <>
+                                                        <div style={{fontSize: 22, lineHeight: 1}}>+</div>
+                                                        <div className="text-muted" style={{fontSize: 12}}>
+                                                            Upload
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {form.thumbnail_url && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-danger position-absolute"
+                                                        style={{
+                                                            top: 6,
+                                                            right: 6,
+                                                            width: 24,
+                                                            height: 24,
+                                                            padding: 0,
+                                                            fontSize: 16,
+                                                            lineHeight: 1,
+                                                        }}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemoveThumbnail();
+                                                        }}
+                                                        aria-label="Xóa thumbnail"
+                                                        title="Xóa thumbnail"
+                                                    >
+                                                        ×
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <input
+                                                ref={thumbInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                className="d-none"
+                                                onChange={handleUploadThumbnailFile}
+                                            />
+                                        </div>
+                                        <input
+                                            className="form-control mt-2"
+                                            value={form.thumbnail_url || ""}
+                                            readOnly
+                                            placeholder="URL Cloudinary sẽ hiện ở đây sau khi upload"
+                                        />
+                                    </div>
                                     <div className="col-12 col-md-6">
                                         <label className="form-label">Trạng thái</label>
                                         <select name="status" className="form-select" value={form.status} onChange={onChange}>
@@ -753,14 +950,80 @@ const AdminTours = () => {
                                             <option value="archived">archived</option>
                                         </select>
                                     </div>
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Thumbnail URL</label>
+
+                                    {/* Ảnh chi tiết */}
+                                    <div className="col-12">
+                                        <label className="form-label">Ảnh chi tiết</label>
+                                        <div className="mb-2 d-flex flex-wrap gap-2">
+                                            {(form.images_text || "")
+                                                .split("\n")
+                                                .map((u) => u.trim())
+                                                .filter(Boolean)
+                                                .map((u, idx) => (
+                                                    <div key={idx} className="position-relative">
+                                                        <img
+                                                            src={u}
+                                                            alt={`img-${idx}`}
+                                                            style={{
+                                                                width: 180,
+                                                                height: 110,
+                                                                objectFit: "cover",
+                                                                borderRadius: 8,
+                                                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                                            }}
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-danger position-absolute d-flex align-items-center justify-content-center"
+                                                            style={{
+                                                                top: 6,
+                                                                right: 6,
+                                                                width: 24,
+                                                                height: 24,
+                                                                padding: 0,
+                                                                fontSize: 16,
+                                                                lineHeight: 1,
+                                                            }}
+                                                            onClick={() => handleRemoveGalleryImage(u)}
+                                                            aria-label="Xóa ảnh"
+                                                            title="Xóa ảnh"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            <div
+                                                role="button"
+                                                onClick={() => galleryInputRef.current?.click()}
+                                                className="d-flex flex-column align-items-center justify-content-center border rounded"
+                                                style={{
+                                                    width: 180,
+                                                    height: 110,
+                                                    cursor: "pointer",
+                                                    backgroundColor: "#fafafa",
+                                                    borderRadius: "8px",
+                                                }}
+                                            >
+                                                <div style={{fontSize: 22, lineHeight: 1}}>+</div>
+                                                <div className="text-muted" style={{fontSize: 12}}>
+                                                    Upload
+                                                </div>
+                                            </div>
+                                        </div>
                                         <input
-                                            name="thumbnail_url"
-                                            className="form-control"
-                                            value={form.thumbnail_url}
-                                            onChange={onChange}
-                                            placeholder="https://..."
+                                            ref={galleryInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            multiple
+                                            className="d-none"
+                                            onChange={handleUploadDetailImages}
+                                        />
+                                        <textarea
+                                            className="form-control mb-2"
+                                            value={form.images_text || ""}
+                                            readOnly
+                                            rows="3"
+                                            placeholder="Các URL Cloudinary đã upload sẽ hiện ở đây"
                                         />
                                     </div>
 
@@ -786,7 +1049,7 @@ const AdminTours = () => {
                                                             min="0"
                                                             className="form-control"
                                                             placeholder="Giá gốc (old_price)"
-                                                            value={form.adult_old_price}
+                                                            value={getOldPrice(form.adult_price, form.adult_old_price)}
                                                             onChange={onChange}
                                                         />
                                                     </div>
@@ -832,7 +1095,7 @@ const AdminTours = () => {
                                                             min="0"
                                                             className="form-control"
                                                             placeholder="Giá gốc (old_price)"
-                                                            value={form.child_old_price}
+                                                            value={getOldPrice(form.child_price, form.child_old_price)}
                                                             onChange={onChange}
                                                         />
                                                     </div>
@@ -909,19 +1172,6 @@ const AdminTours = () => {
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-
-                                    {/* Ảnh chi tiết */}
-                                    <div className="col-12">
-                                        <label className="form-label">Ảnh chi tiết (mỗi dòng 1 URL)</label>
-                                        <textarea
-                                            name="images_text"
-                                            rows="4"
-                                            className="form-control"
-                                            value={form.images_text}
-                                            onChange={onChange}
-                                            placeholder="https://...\nhttps://..."
-                                        />
                                     </div>
 
                                     {/* Tổng quan (Overview) */}
@@ -1204,5 +1454,38 @@ const AdminTours = () => {
         </div>
     );
 };
+
+/*
+==========================
+QUY TRÌNH HOẠT ĐỘNG COMPONENT AdminTours
+==========================
+
+1. Khi component mount:
+   - Gọi loadLocations để lấy danh sách địa điểm.
+   - Gọi loadTours để lấy danh sách tour (theo search/locationId).
+
+2. Người dùng có thể:
+   - Tìm kiếm tour, lọc theo địa điểm.
+   - Thêm tour mới (openAdd): mở modal, điền form, upload ảnh, submit.
+   - Sửa tour (openEdit): tải chi tiết tour, mở modal, chỉnh sửa, submit.
+   - Xóa tour (onDelete): xác nhận, gọi API xóa, reload danh sách.
+
+3. Trong modal thêm/sửa tour:
+   - Người dùng nhập thông tin cơ bản, upload thumbnail, upload nhiều ảnh chi tiết.
+   - Có thể thêm/sửa/xóa lịch trình, ngày khởi hành, thông tin lưu ý.
+   - Khi submit, dữ liệu được gom lại thành payload và gửi lên server (API).
+
+4. Upload ảnh:
+   - Thumbnail: upload 1 ảnh, lấy URL lưu vào form.
+   - Ảnh chi tiết: upload nhiều ảnh, lấy nhiều URL lưu vào form.
+
+5. Import tour từ file Excel/CSV:
+   - Mở modal import, chọn file, upload lên server, nhận kết quả thành công/thất bại.
+
+6. Toast thông báo:
+   - Hiển thị thông báo thành công/thất bại cho các thao tác (thêm/sửa/xóa/import/upload).
+
+==========================
+*/
 
 export default AdminTours;

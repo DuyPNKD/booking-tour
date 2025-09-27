@@ -3,7 +3,12 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "start": "node index.js"
+        "start": "node index.js",
+        "dev": "nodemon index.js",
+        "migrate:check": "node checkOldImageUrls.js",
+        "migrate:auto": "node autoMigration.js",
+        "migrate:run": "node migrateToCloudinary.js",
+        "migrate:clean": "node migrateToCloudinary.js --delete-old"
     },
     "keywords": [],
     "author": "",
@@ -13,11 +18,13 @@
         "axios": "^1.11.0",
         "bcrypt": "^6.0.0",
         "bcryptjs": "^3.0.2",
+        "cloudinary": "^2.7.0",
+        "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
         "crypto": "^1.0.1",
         "dayjs": "^1.11.14",
         "dotenv": "^16.5.0",
-        "express": "^5.1.0",
+        "express": "^4.21.2",
         "google-auth-library": "^10.2.1",
         "jsonwebtoken": "^9.0.2",
         "multer": "^1.4.5-lts.1",

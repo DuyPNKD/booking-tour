@@ -10,7 +10,7 @@ import axios from "axios";
 // Tạo axios instance với base URL cho admin API
 export const adminApi = axios.create({
     baseURL: "http://localhost:3000/api/admin",
-    withCredentials: false,
+    withCredentials: true, // phải bật true để cookie refreshToken được gửi kèm
 });
 
 // Request interceptor: Tự động thêm Authorization header
@@ -27,13 +27,29 @@ adminApi.interceptors.request.use((config) => {
 // Response interceptor: Xử lý lỗi authentication
 adminApi.interceptors.response.use(
     (res) => res, // Trả về response thành công
-    (err) => {
-        // Nếu gặp lỗi 401 (Unauthorized)
-        if (err.response?.status === 401) {
-            // Xóa token khỏi localStorage
-            localStorage.removeItem("adminToken");
-            // Redirect về trang login
-            window.location.href = "/admin/login";
+    async (err) => {
+        const originalRequest = err.config;
+
+        // Nếu gặp lỗi 401 (Unauthorized) và chưa retry
+        if (err.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                // Gọi API refresh token (BE sẽ đọc từ cookie HttpOnly)
+                const {data} = await adminApi.post("/refresh", {}, {withCredentials: true});
+
+                // Lưu token mới vào localStorage
+                localStorage.setItem("adminToken", data.access_token);
+
+                // Cập nhật header Authorization cho request gốc
+                originalRequest.headers.Authorization = `Bearer ${data.access_token}`;
+                // Retry request gốc
+                return adminApi(originalRequest);
+            } catch (refreshError) {
+                // Nếu refresh token không hợp lệ, redirect về login
+                localStorage.removeItem("adminToken");
+                alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
+                window.location.href = "/admin/login";
+            }
         }
         return Promise.reject(err);
     }

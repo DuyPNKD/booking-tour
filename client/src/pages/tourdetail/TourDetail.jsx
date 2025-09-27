@@ -475,6 +475,19 @@ export default function TourDetail() {
         navigate(`/booking/${tour.id}?${query}`);
     };
 
+    // Di chuyển vào trong component để dùng được biến prices
+    const getOldPriceByType = (type) => {
+        const found = prices.find((p) => p.target_type === type);
+        if (!found) return 0;
+        if (found.old_price !== undefined && found.old_price !== null && found.old_price !== "") {
+            return found.old_price;
+        }
+        if (found.price !== undefined && found.price !== null && found.price !== "") {
+            return Math.round(Number(found.price) * 0.8);
+        }
+        return 0;
+    };
+
     return (
         <div className="tour-detail-container">
             {/* Breadcrumb */}
@@ -756,7 +769,23 @@ export default function TourDetail() {
                                 <div className="tour-guest-row guest-adult">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Người lớn</span>
-                                        <span className="tour-guest-price">{getPriceByType("adult").toLocaleString()} VND</span>
+                                        <span className="tour-guest-price" style={{fontSize: 18, fontWeight: 700}}>
+                                            {getPriceByType("adult").toLocaleString()} VND
+                                        </span>
+                                        {getOldPriceByType("adult") > 0 && (
+                                            <span
+                                                className="tour-guest-old-price"
+                                                style={{
+                                                    display: "block",
+                                                    fontSize: 13,
+                                                    color: "#888",
+                                                    textDecoration: "line-through",
+                                                    marginTop: 2,
+                                                }}
+                                            >
+                                                {getOldPriceByType("adult").toLocaleString()} VND
+                                            </span>
+                                        )}
                                         <span className="tour-guest-desc">{getAgeRange("adult")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
@@ -773,8 +802,23 @@ export default function TourDetail() {
                                 <div className="tour-guest-row">
                                     <div className="tour-guest-info">
                                         <span className="tour-guest-label">Trẻ em</span>
-                                        <span className="tour-guest-price">{getPriceByType("child").toLocaleString()} VND</span>
-
+                                        <span className="tour-guest-price" style={{fontSize: 18, fontWeight: 700}}>
+                                            {getPriceByType("child").toLocaleString()} VND
+                                        </span>
+                                        {getOldPriceByType("child") > 0 && (
+                                            <span
+                                                className="tour-guest-old-price"
+                                                style={{
+                                                    display: "block",
+                                                    fontSize: 13,
+                                                    color: "#888",
+                                                    textDecoration: "line-through",
+                                                    marginTop: 2,
+                                                }}
+                                            >
+                                                {getOldPriceByType("child").toLocaleString()} VND
+                                            </span>
+                                        )}
                                         <span className="tour-guest-desc">{getAgeRange("child")}</span>
                                     </div>
                                     <div className="tour-guest-qty">
