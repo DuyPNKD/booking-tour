@@ -20,7 +20,7 @@ const AdminLayout = () => {
     return (
         <div className="admin-wrapper d-flex">
             <aside className="admin-sidebar d-flex flex-column p-3">
-                <div className="d-flex align-items-center mb-4">
+                <div className="d-flex align-items-center mb-4 ps-3">
                     <i className="fa-solid fa-suitcase-rolling me-2 text-primary"></i>
                     <span className="fw-bold">DTravel Admin</span>
                 </div>
@@ -33,6 +33,11 @@ const AdminLayout = () => {
                     <li>
                         <NavLink to="/admin/tours" className="nav-link">
                             <i className="fa-solid fa-map-location-dot me-2"></i> Quản lý Tour
+                        </NavLink>
+                    </li>
+                    <li>
+                        <NavLink to="/admin/topics" className="nav-link">
+                            <i className="fa-solid fa-receipt me-2"></i> Quản lý Chủ đề
                         </NavLink>
                     </li>
                     <li>
@@ -63,7 +68,7 @@ const AdminLayout = () => {
             </aside>
 
             <div className="admin-content flex-grow-1">
-                <header className="admin-topbar d-flex align-items-center justify-content-between px-3 py-2">
+                <header className="admin-topbar d-flex align-items-center justify-content-between" style={{padding: "16px 36px"}}>
                     <form className="d-none d-md-flex align-items-center admin-search">
                         <span className="me-2 text-muted">
                             <i className="fa-solid fa-magnifying-glass"></i>

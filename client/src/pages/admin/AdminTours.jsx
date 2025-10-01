@@ -93,6 +93,7 @@ const emptyForm = {
     departures: [{departure_city: "", departure_date: "", return_date: "", available_seats: "", price: ""}],
     // Terms
     terms: [{section_title: "Giá bao gồm", content: ""}],
+    topics: [],
 };
 
 const AdminTours = () => {
@@ -121,6 +122,8 @@ const AdminTours = () => {
     // Refs for hidden file inputs
     const thumbInputRef = useRef(null);
     const galleryInputRef = useRef(null);
+
+    const [topicOptions, setTopicOptions] = useState([]);
 
     const showToast = (message, type = "success") => {
         setToast({show: true, message, type});
@@ -270,6 +273,16 @@ const AdminTours = () => {
         }
     };
 
+    // Load topics from API
+    const loadTopics = async () => {
+        try {
+            const {data} = await adminApi.get("/topics");
+            setTopicOptions(data || []);
+        } catch (e) {
+            setTopicOptions([]);
+        }
+    };
+
     useEffect(() => {
         loadLocations();
     }, []);
@@ -289,12 +302,14 @@ const AdminTours = () => {
         } else {
             setForm(emptyForm);
         }
+        loadTopics();
         setShowModal(true);
     };
 
     const openEdit = async (t) => {
         try {
             setIsEdit(true);
+            loadTopics();
             // fetch detail for edit
             const {data} = await adminApi.get(`/tours/${t.id}`);
             const images_text = (data.images || []).map((i) => i.image_url).join("\n");
@@ -340,6 +355,7 @@ const AdminTours = () => {
                     price: d.price ?? "",
                 })),
                 terms: (data.terms || []).map((t) => ({section_title: t.section_title || "", content: t.content || ""})),
+                topics: (data.topics || []).map((topic) => topic.id || topic.slug || topic), // tùy backend trả về
             });
             setShowModal(true);
         } catch (e) {
@@ -434,91 +450,113 @@ const AdminTours = () => {
         });
     };
 
+    // Hàm build payload riêng
+    const buildTourPayload = (form) => {
+        return {
+            title: form.title,
+            slug: form.slug?.trim()
+                ? form.slug
+                : form.title
+                      ?.trim()
+                      .toLowerCase()
+                      .replace(/\s+/g, "-")
+                      .replace(/[^a-z0-9-]/g, ""),
+            num_day: Number(form.num_day || 0),
+            num_night: Number(form.num_night || 0),
+            price: form.adult_price !== "" ? Number(form.adult_price) : null,
+            old_price: form.adult_old_price !== "" ? Number(form.adult_old_price) : null,
+            location_id: Number(form.location_id || 0),
+            status: form.status,
+            topics: form.topics || [],
+            thumbnail_url: form.thumbnail_url || null,
+            images: (form.images_text || "")
+                .split("\n")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .map((u) => ({image_url: u})),
+            overview: form.overview_content ? {content: form.overview_content} : null,
+            schedules: (form.schedules || [])
+                .filter((s) => s.day_text || s.content)
+                .map((s, idx) => ({
+                    day_text: s.day_text || `Ngày ${idx + 1}`,
+                    day_order: s.day_order ? Number(s.day_order) : idx + 1,
+                    content: s.content || "",
+                })),
+            departures: (form.departures || [])
+                .filter((d) => d.departure_date)
+                .map((d) => ({
+                    departure_city: d.departure_city || null,
+                    departure_date: d.departure_date,
+                    return_date: d.return_date || null,
+                    available_seats: d.available_seats !== "" ? Number(d.available_seats) : null,
+                    price: d.price !== "" ? Number(d.price) : null,
+                })),
+            terms: (form.terms || [])
+                .filter((t) => t.section_title || t.content)
+                .map((t) => ({section_title: t.section_title || "", content: t.content || ""})),
+            prices: [
+                form.adult_price !== "" || form.adult_old_price !== ""
+                    ? {
+                          target_type: "adult",
+                          min_age: form.adult_min_age !== "" ? Number(form.adult_min_age) : 10,
+                          max_age: form.adult_max_age !== "" ? Number(form.adult_max_age) : 99,
+                          price: Number(form.adult_price || 0),
+                          old_price: form.adult_old_price !== "" ? Number(form.adult_old_price || 0) : null,
+                      }
+                    : null,
+                form.child_price !== "" || form.child_old_price !== ""
+                    ? {
+                          target_type: "child",
+                          min_age: form.child_min_age !== "" ? Number(form.child_min_age) : 5,
+                          max_age: form.child_max_age !== "" ? Number(form.child_max_age) : 9,
+                          price: Number(form.child_price || 0),
+                          old_price: form.child_old_price !== "" ? Number(form.child_old_price || 0) : null,
+                      }
+                    : null,
+                form.infant_price !== "" || form.infant_old_price !== ""
+                    ? {
+                          target_type: "infant",
+                          min_age: form.infant_min_age !== "" ? Number(form.infant_min_age) : 0,
+                          max_age: form.infant_max_age !== "" ? Number(form.infant_max_age) : 4,
+                          price: Number(form.infant_price || 0),
+                          old_price: form.infant_old_price !== "" ? Number(form.infant_old_price || 0) : null,
+                      }
+                    : null,
+            ].filter(Boolean),
+        };
+    };
+
+    // Validate cơ bản
+    const validateForm = (form) => {
+        if (!form.title?.trim()) return "Tên tour không được để trống";
+        if (!form.location_id) return "Phải chọn địa điểm";
+        if (!form.departures || form.departures.length === 0) return "Phải có ít nhất 1 ngày khởi hành";
+        if (!form.topics || form.topics.length === 0) return "Phải chọn ít nhất 1 chủ đề tour";
+        return null;
+    };
+
     const onSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            const payload = {
-                title: form.title,
-                slug:
-                    form.slug && form.slug.trim()
-                        ? form.slug
-                        : form.title
-                              ?.trim()
-                              .toLowerCase()
-                              .replace(/\s+/g, "-")
-                              .replace(/[^a-z0-9-]/g, ""),
-                num_day: Number(form.num_day || 0),
-                num_night: Number(form.num_night || 0),
-                // price/old_price of adult will be synced by DB trigger as we insert tour_prices
-                price: Number(form.adult_price || 0) || null,
-                old_price: form.adult_old_price !== "" ? Number(form.adult_old_price || 0) : null,
-                location_id: Number(form.location_id || 0),
-                status: form.status,
-                thumbnail_url: form.thumbnail_url || null,
-                images: (form.images_text || "")
-                    .split("\n")
-                    .map((s) => s.trim())
-                    .filter(Boolean)
-                    .map((u) => ({image_url: u})),
-                overview: form.overview_content ? {content: form.overview_content} : null,
-                schedules: (form.schedules || [])
-                    .filter((s) => s.day_text || s.content)
-                    .map((s, idx) => ({
-                        day_text: s.day_text || `Ngày ${idx + 1}`,
-                        day_order: s.day_order ? Number(s.day_order) : idx + 1,
-                        content: s.content || "",
-                    })),
-                departures: (form.departures || [])
-                    .filter((d) => d.departure_date)
-                    .map((d) => ({
-                        departure_city: d.departure_city || null,
-                        departure_date: d.departure_date,
-                        return_date: d.return_date || null,
-                        available_seats: d.available_seats !== "" ? Number(d.available_seats) : null,
-                        price: d.price !== "" ? Number(d.price) : null,
-                    })),
-                terms: (form.terms || [])
-                    .filter((t) => t.section_title || t.content)
-                    .map((t) => ({section_title: t.section_title || "", content: t.content || ""})),
-                prices: [
-                    form.adult_price !== "" || form.adult_old_price !== ""
-                        ? {
-                              target_type: "adult",
-                              min_age: form.adult_min_age !== "" ? Number(form.adult_min_age) : 10,
-                              max_age: form.adult_max_age !== "" ? Number(form.adult_max_age) : 99,
-                              price: Number(form.adult_price || 0),
-                              old_price: form.adult_old_price !== "" ? Number(form.adult_old_price || 0) : null,
-                          }
-                        : null,
-                    form.child_price !== "" || form.child_old_price !== ""
-                        ? {
-                              target_type: "child",
-                              min_age: form.child_min_age !== "" ? Number(form.child_min_age) : 5,
-                              max_age: form.child_max_age !== "" ? Number(form.child_max_age) : 9,
-                              price: Number(form.child_price || 0),
-                              old_price: form.child_old_price !== "" ? Number(form.child_old_price || 0) : null,
-                          }
-                        : null,
-                    form.infant_price !== "" || form.infant_old_price !== ""
-                        ? {
-                              target_type: "infant",
-                              min_age: form.infant_min_age !== "" ? Number(form.infant_min_age) : 0,
-                              max_age: form.infant_max_age !== "" ? Number(form.infant_max_age) : 4,
-                              price: Number(form.infant_price || 0),
-                              old_price: form.infant_old_price !== "" ? Number(form.infant_old_price || 0) : null,
-                          }
-                        : null,
-                ].filter(Boolean),
-            };
+            // Check validate
+            const error = validateForm(form);
+            if (error) {
+                showToast(error, "error");
+                return;
+            }
+
+            const payload = buildTourPayload(form);
+
             if (isEdit) {
                 await adminApi.put(`/tours/${form.id}`, payload);
                 showToast("Cập nhật tour thành công", "success");
             } else {
                 await adminApi.post("/tours", payload);
                 showToast("Thêm tour thành công", "success");
-                // Clear saved form after successful submission
                 localStorage.removeItem("adminTourForm");
             }
+
             setShowModal(false);
             loadTours(pagination.currentPage || 1);
         } catch (e) {
@@ -622,28 +660,28 @@ const AdminTours = () => {
                         <table className="table table-hover align-middle mb-0 table-bordered table-striped" style={{tableLayout: "fixed"}}>
                             <thead className="table-light">
                                 <tr>
-                                    <th className="text-center" style={{width: "3%"}}>
+                                    <th className="text-center" style={{width: "5%"}}>
                                         #
                                     </th>
-                                    <th className="text-center" style={{width: "3%"}}>
+                                    <th className="text-center" style={{width: "5%"}}>
                                         ID
                                     </th>
-                                    <th className="text-center" style={{width: "40%"}}>
+                                    <th className="text-center" style={{width: "30%"}}>
                                         Tên tour
                                     </th>
-                                    <th className="text-center" style={{width: "10%"}}>
+                                    <th className="text-center" style={{width: "15%"}}>
                                         Giá
                                     </th>
-                                    <th className="text-center" style={{width: "10%"}}>
+                                    <th className="text-center" style={{width: "12.5%"}}>
                                         Địa điểm
                                     </th>
-                                    <th className="text-center" style={{width: "10%"}}>
+                                    <th className="text-center" style={{width: "12.5%"}}>
                                         Ngày tạo
                                     </th>
                                     <th className="text-center" style={{width: "10%"}}>
                                         Trạng thái
                                     </th>
-                                    <th className="text-center" style={{width: "14%"}}>
+                                    <th className="text-center" style={{width: "10%"}}>
                                         Hành động
                                     </th>
                                 </tr>
@@ -660,7 +698,7 @@ const AdminTours = () => {
                                         >
                                             {t.title}
                                         </td>
-                                        <td className="text-end">{currency(t.price)}</td>
+                                        <td className="text-center">{currency(t.price)}</td>
                                         <td className="text-center">{t.location_name || t.location_id}</td>
                                         <td className="text-center">
                                             {t.created_at
@@ -862,6 +900,17 @@ const AdminTours = () => {
                                             onChange={onChange}
                                         />
                                     </div>
+
+                                    <div className="col-12 col-md-6">
+                                        <label className="form-label">Trạng thái</label>
+                                        <select name="status" className="form-select" value={form.status} onChange={onChange}>
+                                            <option value="pending">pending</option>
+                                            <option value="active">active</option>
+                                            <option value="paused">paused</option>
+                                            <option value="archived">archived</option>
+                                        </select>
+                                    </div>
+
                                     <div className="col-12 col-md-6">
                                         <label className="form-label">Địa điểm</label>
                                         <select name="location_id" className="form-select" value={form.location_id} onChange={onChange} required>
@@ -872,6 +921,50 @@ const AdminTours = () => {
                                                 </option>
                                             ))}
                                         </select>
+                                    </div>
+
+                                    {/* Chủ đề tour */}
+                                    <div className="col-12 col-md-6">
+                                        <label className="form-label">Chủ đề tour</label>
+                                        <div className="d-flex flex-wrap gap-3">
+                                            {topicOptions.map((topic) => (
+                                                <div className="form-check" key={topic.id}>
+                                                    <input
+                                                        className="form-check-input"
+                                                        type="checkbox"
+                                                        id={`topic-${topic.id}`}
+                                                        value={topic.id}
+                                                        checked={(form.topics || []).includes(topic.id)}
+                                                        onChange={(e) => {
+                                                            const checked = e.target.checked;
+                                                            setForm((prev) => {
+                                                                const topics = new Set(prev.topics || []);
+                                                                if (checked) topics.add(topic.id);
+                                                                else topics.delete(topic.id);
+                                                                return {...prev, topics: Array.from(topics)};
+                                                            });
+                                                        }}
+                                                    />
+                                                    <label className="form-check-label" htmlFor={`topic-${topic.id}`}>
+                                                        {topic.name}
+                                                    </label>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Badge hiển thị các chủ đề đã chọn */}
+                                        {(form.topics || []).length > 0 && (
+                                            <div className="mt-2 d-flex flex-wrap gap-2">
+                                                {form.topics.map((tid) => {
+                                                    const topic = topicOptions.find((t) => t.id === tid);
+                                                    return (
+                                                        <span key={tid} className="badge bg-primary">
+                                                            {topic ? topic.name : tid}
+                                                        </span>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="col-12 col-md-6">
@@ -940,15 +1033,6 @@ const AdminTours = () => {
                                             readOnly
                                             placeholder="URL Cloudinary sẽ hiện ở đây sau khi upload"
                                         />
-                                    </div>
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Trạng thái</label>
-                                        <select name="status" className="form-select" value={form.status} onChange={onChange}>
-                                            <option value="pending">pending</option>
-                                            <option value="active">active</option>
-                                            <option value="paused">paused</option>
-                                            <option value="archived">archived</option>
-                                        </select>
                                     </div>
 
                                     {/* Ảnh chi tiết */}

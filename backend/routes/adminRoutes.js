@@ -5,6 +5,7 @@ const adminTour = require("../controllers/adminTourController");
 const adminTourImport = require("../controllers/adminTourImportController");
 const multer = require("multer");
 const checkRole = require("../middlewares/checkRole");
+const adminTopic = require("../controllers/adminTopicController"); // Thêm dòng này
 
 // Multer config cho admin uploads
 const upload = multer({
@@ -37,5 +38,11 @@ router.get("/locations", auth, checkRole(["admin", "staff"]), adminTour.listLoca
 
 // Bulk import
 router.post("/tours/import", auth, checkRole(["admin"]), upload.single("file"), adminTourImport.importTours);
+
+// Quản lý chủ đề
+router.get("/topics", auth, checkRole(["admin", "staff"]), adminTopic.listTopics);
+router.post("/topics", auth, checkRole(["admin"]), adminTopic.createTopic);
+router.put("/topics/:id", auth, checkRole(["admin"]), adminTopic.updateTopic);
+router.delete("/topics/:id", auth, checkRole(["admin"]), adminTopic.deleteTopic);
 
 module.exports = router;

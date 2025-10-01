@@ -1,13 +1,13 @@
 import React, {useMemo, useState} from "react";
 
 const sampleOrders = [
-    { id: "ODR-00123", customer: "Nguyễn Văn A", tour: "Hà Giang 3N2Đ", startDate: "2025-10-05", total: 3990000, status: "Paid" },
-    { id: "ODR-00124", customer: "Trần Thị B", tour: "Đà Nẵng 4N3Đ", startDate: "2025-10-10", total: 5490000, status: "Pending" },
-    { id: "ODR-00125", customer: "Lê Minh C", tour: "Phú Quốc 3N2Đ", startDate: "2025-10-15", total: 4990000, status: "Cancelled" },
-    { id: "ODR-00126", customer: "Phạm Thu D", tour: "Ninh Thuận 2N1Đ", startDate: "2025-10-20", total: 2990000, status: "Paid" },
+    {id: "ODR-00123", customer: "Nguyễn Văn A", tour: "Hà Giang 3N2Đ", startDate: "2025-10-05", total: 3990000, status: "Paid"},
+    {id: "ODR-00124", customer: "Trần Thị B", tour: "Đà Nẵng 4N3Đ", startDate: "2025-10-10", total: 5490000, status: "Pending"},
+    {id: "ODR-00125", customer: "Lê Minh C", tour: "Phú Quốc 3N2Đ", startDate: "2025-10-15", total: 4990000, status: "Cancelled"},
+    {id: "ODR-00126", customer: "Phạm Thu D", tour: "Ninh Thuận 2N1Đ", startDate: "2025-10-20", total: 2990000, status: "Paid"},
 ];
 
-const formatVnd = (v) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(v);
+const formatVnd = (v) => new Intl.NumberFormat("vi-VN", {style: "currency", currency: "VND"}).format(v);
 
 const statusBadge = (s) => {
     if (s === "Paid") return "bg-success";
@@ -22,7 +22,7 @@ const AdminOrders = () => {
 
     const filtered = useMemo(() => {
         if (status === "All") return orders;
-        return orders.filter(o => o.status === status);
+        return orders.filter((o) => o.status === status);
     }, [orders, status]);
 
     const openDetail = (order) => setSelected(order);
@@ -34,7 +34,7 @@ const AdminOrders = () => {
                 <h5 className="mb-0">Quản lý Đơn hàng</h5>
                 <div className="d-flex align-items-center gap-2">
                     <label className="text-muted small">Trạng thái</label>
-                    <select className="form-select" style={{minWidth: 160}} value={status} onChange={(e)=>setStatus(e.target.value)}>
+                    <select className="form-select" style={{minWidth: 160}} value={status} onChange={(e) => setStatus(e.target.value)}>
                         <option>All</option>
                         <option>Pending</option>
                         <option>Paid</option>
@@ -57,19 +57,23 @@ const AdminOrders = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(o => (
-                                <tr key={o.id} role="button" onClick={()=>openDetail(o)}>
+                            {filtered.map((o) => (
+                                <tr key={o.id} role="button" onClick={() => openDetail(o)}>
                                     <td className="fw-medium">{o.id}</td>
                                     <td>{o.customer}</td>
                                     <td>{o.tour}</td>
                                     <td>{o.startDate}</td>
                                     <td>{formatVnd(o.total)}</td>
-                                    <td><span className={`badge ${statusBadge(o.status)}`}>{o.status}</span></td>
+                                    <td>
+                                        <span className={`badge ${statusBadge(o.status)}`}>{o.status}</span>
+                                    </td>
                                 </tr>
                             ))}
                             {filtered.length === 0 && (
                                 <tr>
-                                    <td colSpan="6" className="text-center text-muted py-4">Không có đơn hàng</td>
+                                    <td colSpan="6" className="text-center text-muted py-4">
+                                        Không có đơn hàng
+                                    </td>
                                 </tr>
                             )}
                         </tbody>
@@ -78,7 +82,12 @@ const AdminOrders = () => {
             </div>
 
             {/* Detail Modal */}
-            <div className={`modal fade ${selected ? "show d-block" : ""}`} tabIndex="-1" role="dialog" style={{background: selected ? "rgba(0,0,0,.5)" : "transparent"}}>
+            <div
+                className={`modal fade ${selected ? "show d-block" : ""}`}
+                tabIndex="-1"
+                role="dialog"
+                style={{background: selected ? "rgba(0,0,0,.5)" : "transparent"}}
+            >
                 <div className="modal-dialog modal-lg" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
@@ -94,7 +103,9 @@ const AdminOrders = () => {
                                     </div>
                                     <div className="col-12 col-md-6">
                                         <div className="text-muted small">Trạng thái</div>
-                                        <div><span className={`badge ${statusBadge(selected.status)}`}>{selected.status}</span></div>
+                                        <div>
+                                            <span className={`badge ${statusBadge(selected.status)}`}>{selected.status}</span>
+                                        </div>
                                     </div>
                                     <div className="col-12 col-md-6">
                                         <div className="text-muted small">Khách hàng</div>
@@ -116,7 +127,9 @@ const AdminOrders = () => {
                             </div>
                         )}
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" onClick={closeDetail}>Đóng</button>
+                            <button type="button" className="btn btn-primary" onClick={closeDetail}>
+                                Đóng
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -126,5 +139,3 @@ const AdminOrders = () => {
 };
 
 export default AdminOrders;
-
-

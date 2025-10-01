@@ -18,6 +18,12 @@
     border-radius: 8px;
     margin: 2px 0;
 }
+
+.admin-sidebar .nav-link i {
+    display: inline-block;
+    width: 24px;
+    text-align: center;
+}
 .admin-sidebar .nav-link.active,
 .admin-sidebar .nav-link:hover {
     background: #e7f1ff;

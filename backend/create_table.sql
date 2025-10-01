@@ -88,12 +88,6 @@ CREATE TABLE IF NOT EXISTS tours (
   FOREIGN KEY (location_id) REFERENCES locations(id) ON DELETE CASCADE
 );
 
-ALTER TABLE tours DROP INDEX slug;
-ALTER TABLE tours ADD CONSTRAINT uniq_tour_slug UNIQUE (slug);
-ALTER TABLE tours 
-MODIFY COLUMN status ENUM('pending','active','paused','archived') DEFAULT 'pending';
-
-
 --  Bảng Hình ảnh liên quan đến tour
 CREATE TABLE IF NOT EXISTS tours_images (
    id INT PRIMARY KEY AUTO_INCREMENT,
@@ -207,6 +201,36 @@ CREATE TABLE IF NOT EXISTS tour_reviews (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS topics (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL UNIQUE,   -- Tên chủ đề, ví dụ "Biển đảo", "Núi rừng"
+  slug VARCHAR(255) NOT NULL UNIQUE,   -- slug cho URL
+  status ENUM('active','inactive') DEFAULT 'active',
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE IF NOT EXISTS tour_topics (
+  tour_id INT NOT NULL,
+  topic_id INT NOT NULL,
+  PRIMARY KEY (tour_id, topic_id),
+  FOREIGN KEY (tour_id) REFERENCES tours(id) ON DELETE CASCADE,
+  FOREIGN KEY (topic_id) REFERENCES topics(id) ON DELETE CASCADE
+);
+
+INSERT INTO topics (slug, name) VALUES
+('domestic', 'Tour trong nước'),
+('international', 'Tour nước ngoài'),
+('tet', 'Tết Nguyên Đán'),
+('304', 'Lễ 30/4 - 1/5'),
+('summer', 'Mùa hè (6-8)'),
+('29', 'Quốc khánh 2/9'),
+('christmas', 'Giáng Sinh'),
+('newyear', 'Tết Dương Lịch');
+
+
 
 -- Bảng bookings
 CREATE TABLE IF NOT EXISTS bookings (

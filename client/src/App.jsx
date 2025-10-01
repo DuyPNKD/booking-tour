@@ -23,7 +23,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
-
+import AdminTopics from "./pages/admin/AdminTopics";
 import "./App.css";
 
 function AppRoutes() {
@@ -62,6 +62,7 @@ function AppRoutes() {
                     <Route index element={<AdminDashboard />} />
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="tours" element={<AdminTours />} />
+                    <Route path="topics" element={<AdminTopics />} />
                     <Route path="orders" element={<AdminOrders />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="reports" element={<AdminReports />} />
