@@ -207,6 +207,7 @@ CREATE TABLE IF NOT EXISTS topics (
   name VARCHAR(255) NOT NULL UNIQUE,   -- Tên chủ đề, ví dụ "Biển đảo", "Núi rừng"
   slug VARCHAR(255) NOT NULL UNIQUE,   -- slug cho URL
   status ENUM('active','inactive') DEFAULT 'active',
+  is_featured TINYINT DEFAULT 0 AFTER status,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -229,6 +230,8 @@ INSERT INTO topics (slug, name) VALUES
 ('29', 'Quốc khánh 2/9'),
 ('christmas', 'Giáng Sinh'),
 ('newyear', 'Tết Dương Lịch');
+
+
 
 
 

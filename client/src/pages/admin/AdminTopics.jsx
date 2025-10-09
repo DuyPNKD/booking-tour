@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Modal, Input, Popconfirm, message, Tag, Select} from "antd";
+import {Modal, Input, Popconfirm, message, Tag, Select, Switch} from "antd";
 import {adminApi} from "../../utils/adminApi";
 
 const statusColors = {
@@ -14,8 +14,19 @@ const AdminTopics = () => {
     const [loading, setLoading] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [editingTopic, setEditingTopic] = useState(null);
-    const [form, setForm] = useState({name: "", slug: "", status: "active"});
+    const [form, setForm] = useState({name: "", slug: "", status: "active", is_feature: false});
     const [pagination, setPagination] = useState({current: 1, total: 0});
+    const [featuredTopics, setFeaturedTopics] = useState([]);
+
+    // Load featured topics from API
+    const loadFeaturedTopics = async () => {
+        try {
+            const {data} = await adminApi.get("/topics/feature");
+            setFeaturedTopics(data);
+        } catch (e) {
+            setFeaturedTopics([]);
+        }
+    };
 
     // Load topics from API
     const loadTopics = async (page = 1) => {
@@ -36,11 +47,12 @@ const AdminTopics = () => {
 
     useEffect(() => {
         loadTopics(1);
+        loadFeaturedTopics();
     }, []);
 
     const showAddModal = () => {
         setEditingTopic(null);
-        setForm({name: "", slug: "", status: "active"});
+        setForm({name: "", slug: "", status: "active", is_feature: false});
         setModalVisible(true);
     };
 
@@ -50,6 +62,7 @@ const AdminTopics = () => {
             name: topic.name,
             slug: topic.slug,
             status: topic.status || "active",
+            is_feature: !!topic.is_feature,
         });
         setModalVisible(true);
     };
@@ -68,9 +81,10 @@ const AdminTopics = () => {
                 message.success("Thêm chủ đề thành công");
             }
             setModalVisible(false);
-            setForm({name: "", slug: "", status: "active"});
+            setForm({name: "", slug: "", status: "active", is_feature: false});
             setEditingTopic(null);
             loadTopics(pagination.current);
+            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
         } catch (e) {
             message.error(e.response?.data?.message || "Lỗi thao tác chủ đề");
         }
@@ -80,11 +94,29 @@ const AdminTopics = () => {
         try {
             await adminApi.delete(`/topics/${id}`);
             message.success("Đã xóa chủ đề");
-            // Nếu xóa hết trang hiện tại thì lùi về trang trước
             const nextPage = topics.length === 1 && pagination.current > 1 ? pagination.current - 1 : pagination.current;
             loadTopics(nextPage);
+            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
         } catch (e) {
             message.error(e.response?.data?.message || "Xóa chủ đề thất bại");
+        }
+    };
+
+    // Toggle feature status
+    const handleToggleFeature = async (topic) => {
+        const id = topic.id;
+        const newValue = !topic.is_feature;
+        try {
+            if (newValue) {
+                await adminApi.post(`/topics/${id}/feature`);
+                message.success("Đã bật hiển thị trang chủ");
+            } else {
+                await adminApi.delete(`/topics/${id}/feature`);
+                message.success("Đã tắt hiển thị trang chủ");
+            }
+            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
+        } catch (e) {
+            message.error("Không thể cập nhật trạng thái hiển thị trang chủ");
         }
     };
 
@@ -131,6 +163,20 @@ const AdminTopics = () => {
                         <i className="fa-solid fa-circle-xmark me-1"></i> Inactive
                     </span>
                 ),
+        },
+        {
+            title: "Hiển thị trang chủ",
+            dataIndex: "is_feature",
+            key: "is_feature",
+            align: "center",
+            render: (v, record) => (
+                <Switch
+                    checked={!!v}
+                    onChange={() => handleToggleFeature(record)}
+                    checkedChildren={<i className="fa-solid fa-star" style={{color: "#fbc02d"}} />}
+                    unCheckedChildren={<i className="fa-regular fa-star" style={{color: "#bdbdbd"}} />}
+                />
+            ),
         },
         {
             title: "Hành động",
@@ -227,6 +273,17 @@ const AdminTopics = () => {
                         </span>
                     )}
                 </td>
+                <td className="text-center" onClick={() => handleToggleFeature(topic)} style={{cursor: "pointer"}}>
+                    {topic.is_feature ? (
+                        <span className="badge" style={{backgroundColor: "#fffde7", color: "#fbc02d"}}>
+                            <i className="fa-solid fa-star me-1"></i> Có
+                        </span>
+                    ) : (
+                        <span className="badge" style={{backgroundColor: "#fafafa", color: "#bdbdbd"}}>
+                            <i className="fa-regular fa-star me-1"></i> Không
+                        </span>
+                    )}
+                </td>
                 <td className="text-center">
                     <div className="d-flex flex-wrap justify-content-center gap-2">
                         <button
@@ -286,6 +343,34 @@ const AdminTopics = () => {
 
     return (
         <div className="container-fluid">
+            {/* Hiển thị danh sách chủ đề nổi bật */}
+            <div className="mb-3">
+                <h6 className="mb-2">Chủ đề hiển thị trên trang chủ:</h6>
+                {featuredTopics.length > 0 ? (
+                    <div className="d-flex flex-wrap gap-2">
+                        {featuredTopics.map((topic) => (
+                            <span
+                                key={topic.id}
+                                className="badge"
+                                style={{
+                                    backgroundColor: "#fffde7",
+                                    color: "#fbc02d",
+                                    fontSize: "1rem",
+                                    padding: "0.5em 1.2em",
+                                    borderRadius: "1.5em",
+                                    fontWeight: 600,
+                                    border: "1px solid #ffe082",
+                                }}
+                            >
+                                <i className="fa-solid fa-star me-1"></i>
+                                {topic.name}
+                            </span>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="text-muted">Không có chủ đề nào được bật hiển thị trang chủ.</span>
+                )}
+            </div>
             <div className="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-3">
                 <h5 className="mb-0">Quản lý Chủ đề</h5>
                 <div className="d-flex gap-2">
@@ -446,12 +531,16 @@ const AdminTopics = () => {
                             <Select
                                 value={form.status}
                                 onChange={(status) => setForm((prev) => ({...prev, status}))}
-                                style={{width: "100%"}}
+                                style={{width: "100%", marginBottom: 12}}
                                 options={[
                                     {value: "active", label: "active"},
                                     {value: "inactive", label: "inactive"},
                                 ]}
                             />
+                            <div className="d-flex align-items-center mb-2">
+                                <Switch checked={form.is_feature} onChange={(checked) => setForm((prev) => ({...prev, is_feature: checked}))} />
+                                <span className="ms-2">Hiển thị ở trang chủ</span>
+                            </div>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-outline-secondary" onClick={() => setModalVisible(false)}>

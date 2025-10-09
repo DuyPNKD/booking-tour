@@ -45,4 +45,9 @@ router.post("/topics", auth, checkRole(["admin"]), adminTopic.createTopic);
 router.put("/topics/:id", auth, checkRole(["admin"]), adminTopic.updateTopic);
 router.delete("/topics/:id", auth, checkRole(["admin"]), adminTopic.deleteTopic);
 
+// Feature topics
+router.get("/topics/feature", auth, checkRole(["admin", "staff"]), adminTopic.listFeaturedTopics);
+router.post("/topics/:id/feature", auth, checkRole(["admin"]), adminTopic.markAsFeatured);
+router.delete("/topics/:id/feature", auth, checkRole(["admin"]), adminTopic.unmarkAsFeatured);
+
 module.exports = router;
