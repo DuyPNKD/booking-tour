@@ -28,7 +28,7 @@ import "./App.css";
 
 function AppRoutes() {
     const location = useLocation();
-    const isAdminRoute = location.pathname.startsWith("/admin") && location.pathname !== "/admin/login";
+    const isAdminRoute = location.pathname.startsWith("/admin");
     return (
         <>
             {!isAdminRoute && <Navbar />}

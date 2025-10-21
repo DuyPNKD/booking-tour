@@ -1,189 +1,438 @@
-import React, {useMemo, useState} from "react";
+import React, {useState, useEffect} from "react";
+import {Table, Button, Input, Modal, Form, Select, Switch, message, Space, Popconfirm, Tag, Card, Row, Col, Typography} from "antd";
+import {PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined, UserOutlined} from "@ant-design/icons";
+import {adminApi} from "../../utils/adminApi";
 
-const initialUsers = [
-    {id: 1, name: "Nguyễn Văn A", email: "a@example.com", role: "user", createdAt: "2025-08-01", status: "Active"},
-    {id: 2, name: "Trần Thị B", email: "b@example.com", role: "admin", createdAt: "2025-08-10", status: "Active"},
-    {id: 3, name: "Lê Minh C", email: "c@example.com", role: "user", createdAt: "2025-09-05", status: "Locked"},
-    {id: 4, name: "Phạm Thu D", email: "d@example.com", role: "user", createdAt: "2025-09-10", status: "Active"},
-    {id: 5, name: "Hoàng E", email: "e@example.com", role: "user", createdAt: "2025-09-12", status: "Active"},
-    {id: 6, name: "Mai F", email: "f@example.com", role: "user", createdAt: "2025-09-13", status: "Locked"},
-    {id: 7, name: "Vũ G", email: "g@example.com", role: "admin", createdAt: "2025-09-14", status: "Active"},
-    {id: 8, name: "Đặng H", email: "h@example.com", role: "user", createdAt: "2025-09-15", status: "Active"},
-    {id: 9, name: "Ngô I", email: "i@example.com", role: "user", createdAt: "2025-09-16", status: "Active"},
-    {id: 10, name: "Phan J", email: "j@example.com", role: "user", createdAt: "2025-09-17", status: "Active"},
-    {id: 11, name: "Tô K", email: "k@example.com", role: "user", createdAt: "2025-09-18", status: "Active"},
-    {id: 12, name: "La L", email: "l@example.com", role: "user", createdAt: "2025-09-19", status: "Active"},
-];
+const {Title} = Typography;
+const {Option} = Select;
 
 const AdminUsers = () => {
-    const [users, setUsers] = useState(initialUsers);
-    const [search, setSearch] = useState("");
-    const [showModal, setShowModal] = useState(false);
-    const [form, setForm] = useState({ name: "", email: "", role: "user" });
-    const [page, setPage] = useState(1);
-    const pageSize = 6;
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchText, setSearchText] = useState("");
+    const [roleFilter, setRoleFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 10,
+        total: 0,
+    });
 
-    const filtered = useMemo(() => {
-        const s = search.trim().toLowerCase();
-        if (!s) return users;
-        return users.filter(u =>
-            u.name.toLowerCase().includes(s) ||
-            u.email.toLowerCase().includes(s) ||
-            String(u.id).includes(s)
-        );
-    }, [search, users]);
+    // Modal states
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editingUser, setEditingUser] = useState(null);
+    const [form] = Form.useForm();
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-    const current = useMemo(() => {
-        const start = (page - 1) * pageSize;
-        return filtered.slice(start, start + pageSize);
-    }, [filtered, page]);
+    // Fetch users from API
+    const fetchUsers = async (params = {}) => {
+        setLoading(true);
+        try {
+            const queryParams = new URLSearchParams({
+                page: params.current || pagination.current,
+                limit: params.pageSize || pagination.pageSize,
+                search: searchText,
+                role: roleFilter,
+                status: statusFilter,
+            });
 
-    const openAdd = () => {
-        setForm({ name: "", email: "", role: "user" });
-        setShowModal(true);
-    };
-    const closeModal = () => setShowModal(false);
+            const response = await adminApi.get(`/users?${queryParams}`);
 
-    const onChange = (e) => {
-        const {name, value} = e.target;
-        setForm(prev => ({...prev, [name]: value}));
-    };
-
-    const onAdd = (e) => {
-        e.preventDefault();
-        const nextId = (users[users.length - 1]?.id || 0) + 1;
-        const newUser = { id: nextId, name: form.name, email: form.email, role: form.role, createdAt: new Date().toISOString().slice(0,10), status: "Active" };
-        setUsers(prev => [newUser, ...prev]);
-        setShowModal(false);
-        setPage(1);
-    };
-
-    const toggleRole = (id) => {
-        setUsers(prev => prev.map(u => u.id === id ? {...u, role: u.role === "admin" ? "user" : "admin"} : u));
-    };
-
-    const toggleLock = (id) => {
-        setUsers(prev => prev.map(u => u.id === id ? {...u, status: u.status === "Locked" ? "Active" : "Locked"} : u));
+            if (response.data.success) {
+                setUsers(response.data.data);
+                setPagination({
+                    current: response.data.pagination.current,
+                    pageSize: response.data.pagination.pageSize,
+                    total: response.data.pagination.total,
+                });
+            } else {
+                message.error(response.data.message || "Lỗi khi tải danh sách người dùng");
+            }
+        } catch (error) {
+            console.error("Error fetching users:", error);
+            message.error("Lỗi khi tải danh sách người dùng");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const go = (p) => setPage(Math.min(Math.max(1, p), totalPages));
+    // Load users on component mount and when filters change
+    useEffect(() => {
+        fetchUsers();
+    }, [searchText, roleFilter, statusFilter]);
+
+    // Handle search
+    const handleSearch = (value) => {
+        setSearchText(value);
+        setPagination((prev) => ({...prev, current: 1}));
+    };
+
+    // Handle role filter
+    const handleRoleFilter = (value) => {
+        setRoleFilter(value);
+        setPagination((prev) => ({...prev, current: 1}));
+    };
+
+    // Handle status filter
+    const handleStatusFilter = (value) => {
+        setStatusFilter(value);
+        setPagination((prev) => ({...prev, current: 1}));
+    };
+
+    // Clear all filters
+    const clearFilters = () => {
+        setSearchText("");
+        setRoleFilter("");
+        setStatusFilter("");
+        setPagination((prev) => ({...prev, current: 1}));
+    };
+
+    // Open modal for adding new user
+    const handleAdd = () => {
+        setEditingUser(null);
+        form.resetFields();
+        setIsModalVisible(true);
+    };
+
+    // Open modal for editing user
+    const handleEdit = (record) => {
+        setEditingUser(record);
+        form.setFieldsValue({
+            name: record.name,
+            email: record.email,
+            phone: record.phone,
+            gender: record.gender,
+            address: record.address,
+            role: record.role,
+            is_active: record.is_active === 1,
+        });
+        setIsModalVisible(true);
+    };
+
+    // Handle modal submit
+    const handleModalSubmit = async () => {
+        try {
+            const values = await form.validateFields();
+
+            if (editingUser) {
+                // Update user
+                const response = await adminApi.put(`/users/${editingUser.id}`, values);
+
+                if (response.data.success) {
+                    message.success("Cập nhật người dùng thành công");
+                    fetchUsers();
+                } else {
+                    message.error(response.data.message || "Lỗi khi cập nhật người dùng");
+                }
+            } else {
+                // Create new user
+                const response = await adminApi.post("/users", values);
+
+                if (response.data.success) {
+                    message.success("Tạo người dùng thành công");
+                    fetchUsers();
+                } else {
+                    message.error(response.data.message || "Lỗi khi tạo người dùng");
+                }
+            }
+
+            setIsModalVisible(false);
+            form.resetFields();
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            if (error.response?.data?.message) {
+                message.error(error.response.data.message);
+            } else {
+                message.error("Có lỗi xảy ra khi xử lý yêu cầu");
+            }
+        }
+    };
+
+    // Handle delete user
+    const handleDelete = async (id) => {
+        try {
+            const response = await adminApi.delete(`/users/${id}`);
+
+            if (response.data.success) {
+                message.success("Xóa người dùng thành công");
+                fetchUsers();
+            } else {
+                message.error(response.data.message || "Lỗi khi xóa người dùng");
+            }
+        } catch (error) {
+            console.error("Error deleting user:", error);
+            if (error.response?.data?.message) {
+                message.error(error.response.data.message);
+            } else {
+                message.error("Có lỗi xảy ra khi xóa người dùng");
+            }
+        }
+    };
+
+    // Table columns configuration
+    const columns = [
+        {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+            width: 80,
+            sorter: (a, b) => a.id - b.id,
+        },
+        {
+            title: "Tên",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+        },
+        {
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
+        },
+        {
+            title: "Số điện thoại",
+            dataIndex: "phone",
+            key: "phone",
+        },
+        {
+            title: "Giới tính",
+            dataIndex: "gender",
+            key: "gender",
+            render: (gender) => {
+                const genderMap = {
+                    male: "Nam",
+                    female: "Nữ",
+                    other: "Khác",
+                };
+                return genderMap[gender] || "-";
+            },
+        },
+        {
+            title: "Role",
+            dataIndex: "role",
+            key: "role",
+            render: (role) => <Tag color={role === "admin" ? "red" : "blue"}>{role === "admin" ? "Admin" : "User"}</Tag>,
+            filters: [
+                {text: "Admin", value: "admin"},
+                {text: "User", value: "user"},
+            ],
+            onFilter: (value, record) => record.role === value,
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "is_active",
+            key: "is_active",
+            render: (is_active) => <Tag color={is_active === 1 ? "green" : "red"}>{is_active === 1 ? "Hoạt động" : "Khóa"}</Tag>,
+            filters: [
+                {text: "Hoạt động", value: 1},
+                {text: "Khóa", value: 0},
+            ],
+            onFilter: (value, record) => record.is_active === value,
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "created_at",
+            key: "created_at",
+            render: (date) => new Date(date).toLocaleDateString("vi-VN"),
+            sorter: (a, b) => new Date(a.created_at) - new Date(b.created_at),
+        },
+        {
+            title: "Hành động",
+            key: "action",
+            render: (_, record) => (
+                <Space size="small">
+                    <Button type="primary" size="small" icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+                        Sửa
+                    </Button>
+                    <Popconfirm
+                        title="Bạn có chắc chắn muốn xóa người dùng này?"
+                        onConfirm={() => handleDelete(record.id)}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                    >
+                        <Button type="primary" danger size="small" icon={<DeleteOutlined />}>
+                            Xóa
+                        </Button>
+                    </Popconfirm>
+                </Space>
+            ),
+        },
+    ];
 
     return (
-        <div className="container-fluid">
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-3">
-                <h5 className="mb-0">Quản lý Người dùng</h5>
-                <div className="d-flex gap-2">
-                    <input className="form-control" placeholder="Tìm theo tên, email..." value={search} onChange={(e)=>{setSearch(e.target.value); setPage(1);}} />
-                    <button className="btn btn-primary" onClick={openAdd}><i className="fa-solid fa-user-plus me-2"></i> Thêm user mới</button>
-                </div>
-            </div>
+        <div style={{padding: "24px"}}>
+            <Card>
+                <Row justify="space-between" align="middle" style={{marginBottom: 16}}>
+                    <Col>
+                        <Title level={4} style={{margin: 0}}>
+                            <UserOutlined style={{marginRight: 8}} />
+                            Quản lý Người dùng
+                        </Title>
+                    </Col>
+                    <Col>
+                        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
+                            Thêm người dùng
+                        </Button>
+                    </Col>
+                </Row>
 
-            <div className="card">
-                <div className="table-responsive">
-                    <table className="table table-hover align-middle mb-0">
-                        <thead className="table-light">
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Ngày tạo</th>
-                                <th>Trạng thái</th>
-                                <th className="text-end">Hành động</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {current.map(u => (
-                                <tr key={u.id}>
-                                    <td className="text-muted">{u.id}</td>
-                                    <td className="fw-medium">{u.name}</td>
-                                    <td>{u.email}</td>
-                                    <td>
-                                        <span className={`badge ${u.role === "admin" ? "bg-primary" : "bg-secondary"}`}>{u.role}</span>
-                                    </td>
-                                    <td>{u.createdAt}</td>
-                                    <td>
-                                        <span className={`badge ${u.status === "Active" ? "bg-success" : "bg-danger"}`}>{u.status}</span>
-                                    </td>
-                                    <td className="text-end">
-                                        <div className="btn-group">
-                                            <button className="btn btn-sm btn-outline-secondary" onClick={()=>toggleRole(u.id)}>
-                                                <i className="fa-solid fa-rotate me-1"></i> Đổi role
-                                            </button>
-                                            <button className="btn btn-sm btn-outline-danger" onClick={()=>toggleLock(u.id)}>
-                                                <i className="fa-solid fa-user-lock me-1"></i> {u.status === "Locked" ? "Mở khóa" : "Khóa"}
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {current.length === 0 && (
-                                <tr>
-                                    <td colSpan="7" className="text-center text-muted py-4">Không có người dùng</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                {/* Search and Filter Controls */}
+                <Row gutter={16} style={{marginBottom: 16}}>
+                    <Col xs={24} sm={8} md={6}>
+                        <Input
+                            placeholder="Tìm kiếm theo tên, email..."
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            allowClear
+                        />
+                    </Col>
+                    <Col xs={24} sm={8} md={4}>
+                        <Select placeholder="Lọc theo role" value={roleFilter} onChange={handleRoleFilter} style={{width: "100%"}} allowClear>
+                            <Option value="admin">Admin</Option>
+                            <Option value="user">User</Option>
+                        </Select>
+                    </Col>
+                    <Col xs={24} sm={8} md={4}>
+                        <Select
+                            placeholder="Lọc theo trạng thái"
+                            value={statusFilter}
+                            onChange={handleStatusFilter}
+                            style={{width: "100%"}}
+                            allowClear
+                        >
+                            <Option value="active">Hoạt động</Option>
+                            <Option value="inactive">Khóa</Option>
+                        </Select>
+                    </Col>
+                    <Col xs={24} sm={24} md={4}>
+                        <Button onClick={clearFilters} style={{width: "100%"}}>
+                            Xóa bộ lọc
+                        </Button>
+                    </Col>
+                </Row>
 
-                {/* Pagination */}
-                <div className="card-footer d-flex justify-content-between align-items-center">
-                    <div className="text-muted small">Trang {page}/{totalPages} • Tổng {filtered.length} người dùng</div>
-                    <ul className="pagination mb-0">
-                        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={()=>go(page-1)}>Prev</button>
-                        </li>
-                        {Array.from({length: totalPages}, (_, i) => i + 1).map(p => (
-                            <li key={p} className={`page-item ${p === page ? "active" : ""}`}>
-                                <button className="page-link" onClick={()=>go(p)}>{p}</button>
-                            </li>
-                        ))}
-                        <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
-                            <button className="page-link" onClick={()=>go(page+1)}>Next</button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                {/* Users Table */}
+                <Table
+                    columns={columns}
+                    dataSource={users}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{
+                        current: pagination.current,
+                        pageSize: pagination.pageSize,
+                        total: pagination.total,
+                        showSizeChanger: true,
+                        showQuickJumper: true,
+                        showTotal: (total, range) => `${range[0]}-${range[1]} của ${total} người dùng`,
+                        onChange: (page, pageSize) => {
+                            fetchUsers({current: page, pageSize});
+                        },
+                    }}
+                    scroll={{x: 1000}}
+                />
+            </Card>
 
-            {/* Add User Modal */}
-            <div className={`modal fade ${showModal ? "show d-block" : ""}`} tabIndex="-1" role="dialog" style={{background: showModal ? "rgba(0,0,0,.5)" : "transparent"}}>
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h6 className="modal-title mb-0">Thêm user mới</h6>
-                            <button type="button" className="btn-close" onClick={closeModal}></button>
-                        </div>
-                        <form onSubmit={onAdd}>
-                            <div className="modal-body">
-                                <div className="mb-3">
-                                    <label className="form-label">Tên</label>
-                                    <input name="name" className="form-control" value={form.name} onChange={onChange} required />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Email</label>
-                                    <input name="email" type="email" className="form-control" value={form.email} onChange={onChange} required />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Role</label>
-                                    <select name="role" className="form-select" value={form.role} onChange={onChange}>
-                                        <option value="user">user</option>
-                                        <option value="admin">admin</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-outline-secondary" onClick={closeModal}>Hủy</button>
-                                <button type="submit" className="btn btn-primary">Thêm</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
+            {/* Add/Edit User Modal */}
+            <Modal
+                title={editingUser ? "Sửa thông tin người dùng" : "Thêm người dùng mới"}
+                open={isModalVisible}
+                onOk={handleModalSubmit}
+                onCancel={() => {
+                    setIsModalVisible(false);
+                    form.resetFields();
+                }}
+                width={600}
+                okText={editingUser ? "Cập nhật" : "Thêm"}
+                cancelText="Hủy"
+            >
+                <Form
+                    form={form}
+                    layout="vertical"
+                    initialValues={{
+                        role: "user",
+                        is_active: true,
+                    }}
+                >
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item
+                                name="name"
+                                label="Tên"
+                                rules={[
+                                    {required: true, message: "Vui lòng nhập tên"},
+                                    {min: 2, message: "Tên phải có ít nhất 2 ký tự"},
+                                ]}
+                            >
+                                <Input placeholder="Nhập tên người dùng" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    {required: true, message: "Vui lòng nhập email"},
+                                    {type: "email", message: "Email không hợp lệ"},
+                                ]}
+                            >
+                                <Input placeholder="Nhập email" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="phone" label="Số điện thoại">
+                                <Input placeholder="Nhập số điện thoại" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="gender" label="Giới tính">
+                                <Select placeholder="Chọn giới tính">
+                                    <Option value="male">Nam</Option>
+                                    <Option value="female">Nữ</Option>
+                                    <Option value="other">Khác</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    <Form.Item name="address" label="Địa chỉ">
+                        <Input.TextArea placeholder="Nhập địa chỉ" rows={2} />
+                    </Form.Item>
+
+                    <Row gutter={16}>
+                        <Col span={12}>
+                            <Form.Item name="role" label="Vai trò" rules={[{required: true, message: "Vui lòng chọn vai trò"}]}>
+                                <Select>
+                                    <Option value="user">User</Option>
+                                    <Option value="admin">Admin</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item name="is_active" label="Trạng thái" valuePropName="checked">
+                                <Switch checkedChildren="Hoạt động" unCheckedChildren="Khóa" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+
+                    {!editingUser && (
+                        <Form.Item
+                            name="password"
+                            label="Mật khẩu"
+                            rules={[
+                                {required: true, message: "Vui lòng nhập mật khẩu"},
+                                {min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự"},
+                            ]}
+                        >
+                            <Input.Password placeholder="Nhập mật khẩu" />
+                        </Form.Item>
+                    )}
+                </Form>
+            </Modal>
         </div>
     );
 };
 
 export default AdminUsers;
-
-

@@ -37,6 +37,7 @@ app.get("/payment-result", (req, res) => {
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
+app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
 
 /* ✅ Cho phép truy cập ảnh trong public/uploads (chỉ khi cần thiết) */

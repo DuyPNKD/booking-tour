@@ -5,6 +5,27 @@
     align-items: center;
     background-color: #f5f5f5;
     padding: 16px;
+    /* Thêm background image */
+    background-image: url("path/to/your/background-image.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    /* Thêm overlay để text dễ đọc hơn */
+    position: relative;
+}
+
+/* Thêm overlay tối màu */
+.admin-login-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5); /* Overlay tối 50% */
+    z-index: 1;
 }
 
 .admin-card {
@@ -14,6 +35,8 @@
     border-radius: 10px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     padding: 24px;
+    position: relative;
+    z-index: 2;
 }
 
 .admin-title {
