@@ -446,11 +446,17 @@ exports.deleteTour = async (req, res) => {
  */
 exports.listLocations = async (req, res) => {
     try {
-        // Bước 1: Lấy danh sách tất cả locations và sắp xếp theo tên (A-Z)
-        const [rows] = await db.query(`SELECT id, name FROM locations ORDER BY name ASC`);
+        // Lấy danh sách locations
+        const [locations] = await db.query(`SELECT id, name FROM locations`);
+        // Lấy danh sách subregions
+        const [subregions] = await db.query(`SELECT id, name FROM subregions`);
 
-        // Bước 2: Trả về danh sách locations
-        res.json(rows);
+        // Gộp 2 mảng, chỉ giữ id và name, sắp xếp theo name
+        const merged = [...locations.map((l) => ({id: l.id, name: l.name})), ...subregions.map((s) => ({id: s.id, name: s.name}))].sort((a, b) =>
+            a.name.localeCompare(b.name, "vi")
+        );
+
+        res.json(merged);
     } catch (err) {
         console.error("listLocations error", err);
         res.status(500).json({message: "Server error"});

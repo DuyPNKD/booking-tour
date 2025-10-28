@@ -10658,6 +10658,14 @@ INSERT INTO locations (name, subregion_id) VALUES
 INSERT INTO locations (name, subregion_id) VALUES
 ('Đài Trung', 13), ('Đài Bắc', 13), ('Cao Hùng', 13);
 
+-- Đông Bắc Á (subregion_id = 11)
+INSERT INTO subregions (name, region_id)
+VALUES ('Đông Bắc Á', 4);
+
+-- Hàn Quốc 
+INSERT INTO locations (name, subregion_id)
+VALUES ('Hàn Quốc', 14), ('Seoul', 14), ('Busan', 14), ('Jeju', 14);
+
 
 
 INSERT INTO subregions (name, region_id) VALUES

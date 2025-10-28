@@ -161,7 +161,7 @@ const Tours = () => {
                         {!isLoading &&
                             tours.map((tour) => (
                                 <Link to={`/tours/${tour.id}`} className="tour-card-row" key={tour.id}>
-                                    <img src={tour.image_url} alt={tour.title} className="tour-card-row-img" />
+                                    <img src={tour.thumbnail_url} alt={tour.title} className="tour-card-row-img" />
                                     <div className="tour-card-row-content">
                                         <div className="tour-card-row-header">
                                             <span className="tour-card-row-title">{tour.title}</span>
@@ -223,13 +223,32 @@ const Tours = () => {
                             </div>
                             <div className="tour-filter-group">
                                 <label>Thời gian tour (ngày)</label>
-                                <input type="number" name="duration" value={filter.duration} onChange={handleFilterChange} placeholder="Nhập số ngày" />
+                                <input
+                                    type="number"
+                                    name="duration"
+                                    value={filter.duration}
+                                    onChange={handleFilterChange}
+                                    placeholder="Nhập số ngày"
+                                />
                             </div>
                             <div className="tour-filter-group">
                                 <label>Mức giá</label>
-                                <input type="number" name="priceFrom" value={filter.priceFrom} onChange={handleFilterChange} placeholder="Từ giá, ví dụ: 3.000.000" />
+                                <input
+                                    type="number"
+                                    name="priceFrom"
+                                    value={filter.priceFrom}
+                                    onChange={handleFilterChange}
+                                    placeholder="Từ giá, ví dụ: 3.000.000"
+                                />
                                 <label>đến</label>
-                                <input type="number" name="priceTo" value={filter.priceTo} onChange={handleFilterChange} placeholder="Đến giá, ví dụ: 10.000.000" style={{marginTop: 4}} />
+                                <input
+                                    type="number"
+                                    name="priceTo"
+                                    value={filter.priceTo}
+                                    onChange={handleFilterChange}
+                                    placeholder="Đến giá, ví dụ: 10.000.000"
+                                    style={{marginTop: 4}}
+                                />
                             </div>
                             <div className="tour-filter-group">
                                 <label>Sắp xếp theo</label>

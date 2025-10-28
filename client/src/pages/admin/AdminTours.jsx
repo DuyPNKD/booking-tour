@@ -1,6 +1,10 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
 import {adminApi} from "../../utils/adminApi";
 import axios from "axios";
+// import ReactQuill from "react-quill";
+// import "react-quill/dist/quill.snow.css";
+// import {Modal} from "antd";
+// import "antd/dist/reset.css";
 
 // Toast Component
 const Toast = ({message, type = "success", onClose}) => {
@@ -90,9 +94,9 @@ const emptyForm = {
     // Schedules
     schedules: [{day_order: 1, day_text: "Ngày 1", content: ""}],
     // Departures
-    departures: [{departure_city: "", departure_date: "", return_date: "", available_seats: "", price: ""}],
+    departures: [{departure_city: "Hà Nội", departure_date: "", return_date: "", available_seats: "", price: ""}],
     // Terms
-    terms: [{section_title: "Giá bao gồm", content: ""}],
+    terms: [{section_title: "Giá tour bao gồm", content: ""}],
     topics: [],
 };
 
@@ -113,6 +117,77 @@ const AdminTours = () => {
     const [importFile, setImportFile] = useState(null);
     const [uploading, setUploading] = useState(false);
     const [uploadMsg, setUploadMsg] = useState("");
+
+    const [editingIndex, setEditingIndex] = useState(null);
+    const [editingContent, setEditingContent] = useState("");
+
+    const saveTimerRef = useRef(null);
+
+    const openScheduleEditor = (idx) => {
+        setEditingIndex(idx);
+        setEditingContent(form.schedules[idx].content || "");
+    };
+
+    const saveScheduleContent = () => {
+        onChangeSchedule(editingIndex, "content", editingContent);
+        setEditingIndex(null);
+        setEditingContent("");
+    };
+
+    function stripHtml(html) {
+        const div = document.createElement("div");
+        div.innerHTML = html;
+        return div.textContent || div.innerText || "";
+    }
+
+    useEffect(() => {
+        // Only auto-save when in Add mode (not edit)
+        if (isEdit) return;
+        // Debounce: save 800ms after last change
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = setTimeout(() => {
+            try {
+                localStorage.setItem("adminTourForm", JSON.stringify(form));
+            } catch (e) {
+                // ignore storage errors
+                console.error("Autosave failed:", e);
+            }
+        }, 800);
+
+        return () => {
+            if (saveTimerRef.current) {
+                clearTimeout(saveTimerRef.current);
+                saveTimerRef.current = null;
+            }
+        };
+    }, [form, isEdit]);
+
+    useEffect(() => {
+        // Save immediately when user closes tab / reloads
+        const handleBeforeUnload = () => {
+            if (!isEdit) {
+                try {
+                    localStorage.setItem("adminTourForm", JSON.stringify(form));
+                } catch (e) {}
+            }
+        };
+        // Save when tab becomes hidden (user switches tab)
+        const handleVisibilityChange = () => {
+            if (document.hidden && !isEdit) {
+                try {
+                    localStorage.setItem("adminTourForm", JSON.stringify(form));
+                } catch (e) {}
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
+    }, [form, isEdit]);
 
     // Toast state
     const [toast, setToast] = useState({show: false, message: "", type: "success"});
@@ -554,7 +629,17 @@ const AdminTours = () => {
             } else {
                 await adminApi.post("/tours", payload);
                 showToast("Thêm tour thành công", "success");
-                localStorage.removeItem("adminTourForm");
+                // Clear saved draft and reset in-memory form so next "Thêm" opens empty
+                try {
+                    localStorage.removeItem("adminTourForm");
+                } catch (e) {
+                    // ignore
+                }
+                setForm(emptyForm);
+                if (saveTimerRef.current) {
+                    clearTimeout(saveTimerRef.current);
+                    saveTimerRef.current = null;
+                }
             }
 
             setShowModal(false);
@@ -581,15 +666,9 @@ const AdminTours = () => {
         loadTours(page);
     };
 
-    // Helper to get old_price value for adult/child
-    const getOldPrice = (price, oldPrice) => {
-        if (oldPrice !== "" && oldPrice !== null && !isNaN(Number(oldPrice))) {
-            return oldPrice;
-        }
-        if (price !== "" && price !== null && !isNaN(Number(price))) {
-            return Math.round(Number(price) * 0.8);
-        }
-        return "";
+    // Thêm handler cho ReactQuill (trả về value string)
+    const onChangeOverview = (value) => {
+        setForm((prev) => ({...prev, overview_content: value}));
     };
 
     return (
@@ -611,12 +690,14 @@ const AdminTours = () => {
                         onClick={() => loadTours(pagination.currentPage || 1)}
                         disabled={loading}
                         style={{
-                            overflow: "visible",
+                            overflow: "hidden", // ngăn hover box-shadow tràn ra
                             position: "relative",
-                            zIndex: 2,
+                            zIndex: 1, // không chồng lên nút Thêm
                             backgroundColor: "#e3f2fd",
                             borderColor: "#2196f3",
                             color: "#1976d2",
+                            flex: "0 0 auto", // ngăn button bị co trong flex container
+                            minWidth: 120, // giữ chiều ngang hợp lý
                         }}
                     >
                         <i className="fa-solid fa-rotate-right"></i>
@@ -649,9 +730,7 @@ const AdminTours = () => {
                     </button>
                 </div>
             </div>
-
             {error && <div className="alert alert-danger">{error}</div>}
-
             <div className="card">
                 {loading ? (
                     <div className="p-4 text-center text-muted">Đang tải...</div>
@@ -824,7 +903,7 @@ const AdminTours = () => {
                 className={`modal fade ${showModal ? "show d-block" : ""}`}
                 tabIndex="-1"
                 role="dialog"
-                style={{background: showModal ? "rgba(0,0,0,.5)" : "transparent"}}
+                style={{background: showModal ? "rgba(0,0,0,.5)" : "transparent", display: showModal ? "block" : "none"}}
             >
                 <div className="modal-dialog modal-lg" role="document">
                     <div className="modal-content">
@@ -951,20 +1030,6 @@ const AdminTours = () => {
                                                 </div>
                                             ))}
                                         </div>
-
-                                        {/* Badge hiển thị các chủ đề đã chọn */}
-                                        {(form.topics || []).length > 0 && (
-                                            <div className="mt-2 d-flex flex-wrap gap-2">
-                                                {form.topics.map((tid) => {
-                                                    const topic = topicOptions.find((t) => t.id === tid);
-                                                    return (
-                                                        <span key={tid} className="badge bg-primary">
-                                                            {topic ? topic.name : tid}
-                                                        </span>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
                                     </div>
 
                                     <div className="col-12 col-md-6">
@@ -1133,7 +1198,7 @@ const AdminTours = () => {
                                                             min="0"
                                                             className="form-control"
                                                             placeholder="Giá gốc (old_price)"
-                                                            value={getOldPrice(form.adult_price, form.adult_old_price)}
+                                                            value={form.adult_old_price}
                                                             onChange={onChange}
                                                         />
                                                     </div>
@@ -1179,7 +1244,7 @@ const AdminTours = () => {
                                                             min="0"
                                                             className="form-control"
                                                             placeholder="Giá gốc (old_price)"
-                                                            value={getOldPrice(form.child_price, form.child_old_price)}
+                                                            value={form.child_old_price}
                                                             onChange={onChange}
                                                         />
                                                     </div>
@@ -1258,9 +1323,10 @@ const AdminTours = () => {
                                         </div>
                                     </div>
 
-                                    {/* Tổng quan (Overview) */}
+                                    {}
+                                    {/* Giới thiệu */}
                                     <div className="col-12">
-                                        <label className="form-label">Tổng quan (Overview)</label>
+                                        <label className="form-label fw-semibold">Giới thiệu</label>
                                         <textarea
                                             name="overview_content"
                                             rows="4"
@@ -1281,16 +1347,6 @@ const AdminTours = () => {
                                         {(form.schedules || []).map((s, idx) => (
                                             <div key={idx} className="border rounded p-3 mb-2">
                                                 <div className="row g-2">
-                                                    <div className="col-12 col-md-2">
-                                                        <label className="form-label">Thứ tự</label>
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            className="form-control"
-                                                            value={s.day_order}
-                                                            onChange={(e) => onChangeSchedule(idx, "day_order", e.target.value)}
-                                                        />
-                                                    </div>
                                                     <div className="col-12 col-md-4">
                                                         <label className="form-label">Ngày</label>
                                                         <input
@@ -1457,13 +1513,12 @@ const AdminTours = () => {
                     </div>
                 </div>
             </div>
-
             {/* Import Modal */}
             <div
                 className={`modal fade ${showImport ? "show d-block" : ""}`}
                 tabIndex="-1"
                 role="dialog"
-                style={{background: showImport ? "rgba(0,0,0,.5)" : "transparent"}}
+                style={{background: showImport ? "rgba(0,0,0,.5)" : "transparent", display: showImport ? "block" : "none"}}
             >
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
@@ -1532,7 +1587,6 @@ const AdminTours = () => {
                     </div>
                 </div>
             </div>
-
             {/* Toast Message */}
             {toast.show && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
         </div>

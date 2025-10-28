@@ -10,6 +10,9 @@ router.get("/departure-cities", tourController.getDepartureCities);
 // ✅ Hot destinations (điểm đến nổi bật)
 router.get("/hot-destinations", tourController.getHotDestinations);
 
+// ✅ Tours by type (trong nước/nước ngoài)
+router.get("/by-type", tourController.getToursByType);
+
 // ✅ Tour detail
 router.get("/", tourController.getAllTours);
 router.get("/:id", tourController.getTourById);

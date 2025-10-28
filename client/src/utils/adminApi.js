@@ -9,7 +9,7 @@ import axios from "axios";
 
 // Tạo axios instance với base URL cho admin API
 export const adminApi = axios.create({
-    baseURL: "http://localhost:3000/api",
+    baseURL: "http://localhost:3000/api/admin",
     withCredentials: true, // phải bật true để cookie refreshToken được gửi kèm
 });
 

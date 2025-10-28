@@ -139,6 +139,7 @@
     font-size: 1.625rem;
     color: #333;
     text-align: left;
+    font-weight: bold;
 }
 
 .trending-tours-grid {
@@ -276,6 +277,7 @@
     font-size: 1.625rem;
     color: #333;
     text-align: left;
+    font-weight: bold;
 }
 
 .foreign-section {
@@ -286,6 +288,7 @@
     font-size: 1.625rem;
     color: #333;
     text-align: left;
+    font-weight: bold;
 }
 
 /* Nước ngoài */

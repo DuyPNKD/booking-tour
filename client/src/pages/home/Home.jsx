@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Link} from "react-router-dom";
 import TourCategory from "../../components/tourCategory/TourCategory";
 import haGiang from "../../assets/ha_giang.webp";
@@ -30,6 +30,9 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 const Home = () => {
+    const [domesticTours, setDomesticTours] = useState([]);
+    const [internationalTours, setInternationalTours] = useState([]);
+
     useEffect(() => {
         const handleScroll = () => {
             const navbar = document.querySelector(".navbar");
@@ -48,233 +51,43 @@ const Home = () => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Mock data for domestic tours
-    const domesticTours = [
-        {
-            id: 1,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "3 ngày 2 đêm",
-            location: "Hà Nội, Sapa",
-            rating: 4.8,
-            booked: 320,
-            oldPrice: "2.800.000",
-            price: "2.500.000",
-        },
-        {
-            id: 2,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 3,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 4,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 5,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 6,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 7,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 8,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 9,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 10,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-    ];
+    useEffect(() => {
+        const fetchTours = async (type, setter) => {
+            try {
+                let base = "";
+                try {
+                    base = import.meta?.env?.VITE_API_URL || "";
+                } catch (e) {
+                    base = "";
+                }
+                const res = await fetch(`${base}/api/tours/by-type?type=${encodeURIComponent(type)}&limit=8`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                const normalized = (json.data || []).map((t) => ({
+                    id: t.id,
+                    title: t.title,
+                    image: t.image_url || t.image || beach, // fallback
+                    duration: t.num_day && t.num_night ? `${t.num_day} ngày ${t.num_night} đêm` : t.duration || "",
+                    location: t.location_name || t.region_name || t.departure_city || "",
+                    rating: t.rating || 0,
+                    booked: t.rating_count || 0,
+                    oldPrice: t.old_price != null ? String(t.old_price) : t.oldPrice || "",
+                    price: t.price != null ? String(t.price) : t.price || "",
+                    slug: t.slug,
+                    departure_date: t.departure_date,
+                }));
+                setter(normalized);
+            } catch (err) {
+                console.error("Fetch tours error:", type, err);
+                setter([]);
+            }
+        };
+
+        fetchTours("domestic", setDomesticTours);
+        fetchTours("international", setInternationalTours);
+    }, []);
 
     // Mock data for international tours
-    const internationalTours = [
-        {
-            id: 11,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "3 ngày 2 đêm",
-            location: "Hà Nội, Sapa",
-            rating: 4.8,
-            booked: 320,
-            oldPrice: "2.800.000",
-            price: "2.500.000",
-        },
-        {
-            id: 12,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 13,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 14,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 15,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 16,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 17,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 18,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-        {
-            id: 19,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1519046904884-53103b34b206?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "5 ngày 4 đêm",
-            location: "Nha Trang, Đà Lạt",
-            rating: 4.9,
-            booked: 500,
-            oldPrice: "4.600.000",
-            price: "4.200.000",
-        },
-        {
-            id: 20,
-            title: "Tour Y Tý - Bắc Hà 3 ngày 2 đêm từ Hà Nội - Nghỉ lễ 30/4 - 1/5",
-            image: "https://images.unsplash.com/photo-1523301343968-6a6ebf63c672?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-            duration: "4 ngày 3 đêm",
-            location: "Đà Nẵng, Hội An",
-            rating: 4.7,
-            booked: 410,
-            oldPrice: "3.800.000",
-            price: "3.500.000",
-        },
-    ];
 
     // Mock data for travel guides
     const travelGuides = [
@@ -383,12 +196,13 @@ const Home = () => {
 
     // Dữ liệu cho Khám phá Việt Nam
     const vietnamDestinations = [
-        {title: "Hà Giang", image: haGiang, className: "ha-giang"},
-        {title: "Hạ Long", image: haLong, className: "ha-long"},
-        {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be"},
-        {title: "Đà Nẵng", image: daNang, className: "da-nang"},
-        {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan"},
-        {title: "Miền Tây", image: mienTay, className: "mien-tay"},
+        // ví dụ: Hà Giang có location_id = 177 -> sẽ navigate tới ?location_id=177
+        {title: "Hà Giang", image: haGiang, className: "ha-giang", link: "/danh-muc-tour?location_id=177"},
+        {title: "Hạ Long", image: haLong, className: "ha-long", link: "/danh-muc-tour?location_id=35"},
+        {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be", link: "/danh-muc-tour?location_id=27"},
+        {title: "Đà Nẵng", image: daNang, className: "da-nang", link: "/danh-muc-tour?location_id=38"},
+        {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan", link: "/danh-muc-tour?location_id=71"},
+        {title: "Miền Tây", image: mienTay, className: "mien-tay", link: "/danh-muc-tour?location_id=90"},
     ];
     // Dữ liệu cho Vi Vu Nước Ngoài
     const foreignDestinations = [
@@ -396,31 +210,37 @@ const Home = () => {
             title: "Hàn Quốc",
             image: "https://images.unsplash.com/photo-1601900245655-7719650f5b7a?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             className: "item1",
+            link: "/danh-muc-tour?location_id=171",
         },
         {
             title: "Ấn Độ",
             image: "https://images.unsplash.com/photo-1606298855672-3efb63017be8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             className: "item2",
+            link: "/danh-muc-tour?location_id=141",
         },
         {
             title: "Trung Quốc",
             image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             className: "item3",
+            link: "/danh-muc-tour?location_id=105",
         },
         {
-            title: "Nhật Bản",
-            image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            title: "Singapore",
+            image: "https://images.unsplash.com/photo-1600664356348-10686526af4f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1175",
             className: "item4",
+            link: "/danh-muc-tour?location_id=137",
         },
         {
             title: "Bali - Indonesia",
             image: "https://images.unsplash.com/photo-1578469550956-0e16b69c6a3d?q=80&w=2006&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             className: "item5",
+            link: "/danh-muc-tour?location_id=140",
         },
         {
             title: "Thái Lan",
             image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             className: "item6",
+            link: "/danh-muc-tour?location_id=129",
         },
     ];
 

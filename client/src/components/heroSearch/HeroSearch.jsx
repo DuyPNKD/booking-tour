@@ -419,14 +419,20 @@ const HeroSearch = () => {
                                                 // Chủ động đóng sau khi chọn để tránh flicker
                                                 setIsDepartureSelectOpen(false);
                                             }}
-                                            bordered={false}
+                                            variant="outlined" // hoặc "filled", "borderless" tùy nhu cầu
                                             className="departure-select"
                                             suffixIcon={null}
-                                            dropdownMatchSelectWidth={true}
+                                            popupMatchSelectWidth={false} // hoặc true, tùy nhu cầu
                                             placement="bottomLeft" // 👈 cho phép dropdown rộng tùy chỉnh // 👈 khớp 100% width theo Select cha
                                             options={departureCities}
                                             open={isDepartureSelectOpen}
-                                            dropdownStyle={{zIndex: 2000}}
+                                            styles={{
+                                                popup: {
+                                                    root: {
+                                                        /* style ở đây */
+                                                    },
+                                                },
+                                            }}
                                         />
                                     </div>
                                 </div>

@@ -1,15 +1,62 @@
-import React, {useRef} from "react";
+import React, {useRef, useState, useEffect} from "react";
 import {Link} from "react-router-dom";
 import {Swiper, SwiperSlide} from "swiper/react";
 import {Navigation} from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import axios from "axios";
+import {Spin, message} from "antd";
 import "./TourCategory.css";
 
-const TourCategory = ({title, tours, link, categoryId}) => {
+const TourCategory = ({title, link, categoryId}) => {
     const prevRef = useRef(null);
     const nextRef = useRef(null);
 
+    const [tours, setTours] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [currentIndex, setCurrentIndex] = useState(0); // Thêm state cho slider
+
+    useEffect(() => {
+        fetchTours();
+    }, [categoryId]);
+
+    const fetchTours = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get(`http://localhost:3000/api/tours/by-type?type=${categoryId}`);
+
+            if (response.data.success) {
+                setTours(response.data.data);
+            } else {
+                message.error("Lỗi khi tải danh sách tour");
+            }
+        } catch (error) {
+            console.error("Error fetching tours:", error);
+            message.error("Lỗi khi tải danh sách tour");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat("vi-VN", {
+            style: "currency",
+            currency: "VND",
+        }).format(price);
+    };
+
+    if (loading) {
+        return (
+            <div className="tour-section">
+                <div className="section-header">
+                    <h2 className="section-title">{title}</h2>
+                </div>
+                <div className="loading-container">
+                    <Spin size="large" />
+                </div>
+            </div>
+        );
+    }
     return (
         <section className="category-section">
             <div className="category-header">
@@ -41,7 +88,7 @@ const TourCategory = ({title, tours, link, categoryId}) => {
                     {tours.map((tour) => (
                         <SwiperSlide key={tour.id}>
                             <Link to={`/tours/${tour.id}`} className="tourCategory-card">
-                                <img src={tour.image} alt={tour.title} className="tourCategory-image" />
+                                <img src={tour.thumbnail_url} alt={tour.title} className="tourCategory-image" />
                                 <div className="tourCategory-content">
                                     <h3 className="tourCategory-title">{tour.title}</h3>
                                     <div className="tourCategory-rating-booked">
@@ -54,16 +101,20 @@ const TourCategory = ({title, tours, link, categoryId}) => {
                                         <div className="tourCategory-infos">
                                             <div className="tourCategory-info-item">
                                                 <i className="fa-regular fa-clock"></i>
-                                                <span>{tour.duration}</span>
+                                                <span>
+                                                    {tour.num_day} ngày {tour.num_night} đêm
+                                                </span>
                                             </div>
                                             <div className="tourCategory-info-item">
                                                 <i className="fa-solid fa-location-dot"></i>
-                                                <span>Điểm đi: {tour.location}</span>
+                                                <span>Điểm đi: {tour.departure_city}</span>
                                             </div>
                                         </div>
                                         <div className="tourCategory-pricing">
-                                            <span className="old-price">{tour.oldPrice} đ</span>
-                                            <span className="new-price">{tour.price} đ</span>
+                                            <span className="old-price">{formatPrice(tour.old_price)}</span>
+                                            {tour.old_price && tour.old_price > tour.price && (
+                                                <span className="new-price">{formatPrice(tour.price)}</span>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

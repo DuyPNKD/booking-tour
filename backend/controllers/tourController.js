@@ -1,7 +1,6 @@
 const db = require("../config/db");
 const dayjs = require("dayjs");
 exports.getAllTours = async (req, res) => {
-    console.log("===== GET ALL TOURS CALLED =====");
     // Lấy các tham số lọc và sắp xếp từ query string
     const {regionId, subregionId, locationId, page = 1, limit = 10, sortBy, departure, duration, priceFrom, priceTo} = req.query;
 
@@ -73,7 +72,6 @@ exports.getAllTours = async (req, res) => {
 
     // Ghép các điều kiện thành WHERE
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-    console.log("WHERE", whereClause, "VALUES", values);
 
     try {
         // 1. Truy vấn tổng số tour phù hợp với điều kiện lọc
@@ -92,13 +90,7 @@ exports.getAllTours = async (req, res) => {
                 t.num_day,
                 t.num_night,
                 l.name AS location_name,
-                (
-                    SELECT ti.image_url 
-                    FROM tours_images ti 
-                    WHERE ti.tour_id = t.id 
-                    ORDER BY ti.id ASC 
-                    LIMIT 1
-                ) AS image_url,
+                t.thumbnail_url,
                 (
                     SELECT DATE_FORMAT(MIN(td.departure_date), '%d-%m-%Y')
                     FROM tour_departures td
@@ -429,6 +421,84 @@ exports.getSearchTours = async (req, res) => {
     } catch (error) {
         console.error("❌ Lỗi khi search tours:", error);
         res.status(500).json({error: "Lỗi server"});
+    }
+};
+
+// ✅ API lấy tour theo loại (trong nước/nước ngoài)
+exports.getToursByType = async (req, res) => {
+    try {
+        const {type, limit = 8} = req.query;
+
+        // Xác định điều kiện lọc dựa trên type
+        let whereCondition = "";
+        let queryParams = [];
+
+        if (type === "domestic") {
+            // Tour trong nước: Miền Bắc, Miền Trung, Miền Nam
+            whereCondition = "r.name IN (?, ?, ?)";
+            queryParams = ["Miền Bắc", "Miền Trung", "Miền Nam"];
+        } else if (type === "international") {
+            // Tour nước ngoài: Châu Á, Châu Âu, Châu Úc, Mỹ, Phi
+            whereCondition = "r.name IN (?, ?, ?)";
+            queryParams = ["Châu Á", "Châu Âu", "Châu Úc, Mỹ, Phi"];
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'Type phải là "domestic" hoặc "international"',
+            });
+        }
+
+        const [tours] = await db.query(
+            `
+            SELECT 
+                t.id,
+                t.title,
+                t.slug,
+                t.price,
+                t.old_price,
+                t.rating,
+                t.rating_count,
+                t.num_day,
+                t.num_night,
+                l.name AS location_name,
+                r.name AS region_name,
+                t.thumbnail_url,
+                (
+                    SELECT DATE_FORMAT(MIN(td.departure_date), '%d-%m-%Y')
+                    FROM tour_departures td
+                    WHERE td.tour_id = t.id
+                ) AS departure_date,
+                (
+                    SELECT td2.departure_city
+                    FROM tour_departures td2
+                    WHERE td2.tour_id = t.id
+                    ORDER BY td2.departure_date ASC
+                    LIMIT 1
+                ) AS departure_city
+            FROM tours t
+            LEFT JOIN locations l ON t.location_id = l.id
+            LEFT JOIN subregions sr ON l.subregion_id = sr.id
+            LEFT JOIN regions r ON sr.region_id = r.id
+            WHERE ${whereCondition}
+            ORDER BY t.created_at DESC
+            LIMIT ?
+        `,
+            [...queryParams, parseInt(limit)]
+        );
+
+        res.json({
+            success: true,
+            data: tours,
+            type: type,
+            count: tours.length,
+        });
+    } catch (error) {
+        console.error("Error getting tours by type:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi khi lấy danh sách tour",
+            error: error.message,
+        });
     }
 };
 
