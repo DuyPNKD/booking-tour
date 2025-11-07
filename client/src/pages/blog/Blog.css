@@ -1,0 +1,320 @@
+.blog {
+    width: 100%;
+    background: #fff;
+}
+
+.blog-container {
+    width: 1170px;
+    margin: 0 auto;
+    padding: 16px 15px;
+    display: grid;
+    grid-template-columns: 3fr 1fr; /* Left content and right sidebar */
+    gap: 24px;
+}
+
+.blog-left {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.blog-right {
+    position: sticky;
+    top: 80px;
+    height: max-content;
+}
+
+.blog-tabs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 24px;
+}
+
+.blog-tab {
+    background: transparent;
+    border: none;
+    text-align: left;
+    padding: 10px 0px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #333;
+}
+
+.blog-tab:hover {
+    color: rgba(31, 80, 234, 1);
+}
+
+.blog-tab.active {
+    color: rgba(31, 80, 234, 1);
+}
+.blog-tabs-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+/* News section */
+.blog-news {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.blog-news-featured {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.featured-image-wrap {
+    width: 100%;
+    height: 320px;
+}
+
+.featured-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.featured-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.featured-title {
+    font-size: 22px;
+    margin: 0;
+    display: -webkit-box;           /* needed for line clamping */
+    -webkit-line-clamp: 2;          /* show max 2 lines */
+    -webkit-box-orient: vertical;   /* vertical box for webkit */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* optional: ensure consistent line-height for clamp calculation */
+    line-height: 1.3;
+    max-height: calc(1.3em * 2);
+    word-break: break-word;
+}
+
+.featured-desc {
+    color: #555;
+    line-height: 1.5;
+}
+
+.featured-btn {
+    width: max-content;
+    background: rgba(31, 80, 234, 1);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.featured-btn:hover {
+    opacity: 0.95;
+}
+
+.blog-news-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.news-card {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.news-thumb-wrap {
+    width: 100%;
+    height: 150px;
+}
+.news-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.news-info {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.news-title {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    display: -webkit-box;           /* needed for line clamping */
+    -webkit-line-clamp: 2;          /* show max 2 lines */
+    -webkit-box-orient: vertical;   /* vertical box for webkit */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* optional: ensure consistent line-height for clamp calculation */
+    line-height: 1.3;
+    max-height: calc(1.3em * 2);
+    word-break: break-word;
+}
+.news-title:hover {
+    color: rgba(31, 80, 234, 1);
+}
+.news-date {
+    color: #828282;
+    font-size: 13px;
+}
+.news-date i {
+    color: rgba(31, 80, 234, 1);
+    margin-right: 4px;
+}
+
+/* Header reuse from home */
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.category-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+}
+.category-header .view-all {
+    font-size: 0.9rem;
+    color: rgba(31, 80, 234, 1);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.category-header .view-all:hover span {
+    text-decoration: underline;
+}
+
+/* Visa/Promotion grid */
+.grid-six {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+.grid-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.grid-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.grid-thumb-wrap {
+    width: 100%;
+    height: 150px;
+}
+.grid-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.grid-info {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.grid-title {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    display: -webkit-box;           /* needed for line clamping */
+    -webkit-line-clamp: 2;          /* show max 2 lines */
+    -webkit-box-orient: vertical;   /* vertical box for webkit */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* optional: ensure consistent line-height for clamp calculation */
+    line-height: 1.3;
+    max-height: calc(1.3em * 2);
+    word-break: break-word;
+}
+.grid-title:hover {
+    color: rgba(31, 80, 234, 1);
+}
+.grid-date {
+    color: #828282;
+    font-size: 13px;
+}
+.grid-date i {
+    color: rgba(31, 80, 234, 1);
+    margin-right: 4px;
+}
+
+/* Section title underline & bottom link */
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(31, 80, 234, 1);
+    border-bottom: 2px solid rgba(31, 80, 234, 1);
+    display: inline-block;
+    padding-bottom: 6px;
+    margin-bottom: 16px;
+}
+.section-footer {
+    margin-top: 12px;
+    text-align: right;
+}
+.view-all-bottom {
+    color: rgba(31, 80, 234, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.view-all-bottom:hover span {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .blog-container {
+        grid-template-columns: 1fr;
+    }
+    .blog-right {
+        position: static;
+    }
+    .blog-news-featured {
+        grid-template-columns: 1fr;
+    }
+    .featured-image-wrap {
+        height: 220px;
+    }
+    .blog-news-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .grid-six {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .blog-news-grid {
+        grid-template-columns: 1fr;
+    }
+    .grid-six {
+        grid-template-columns: 1fr;
+    }
+}

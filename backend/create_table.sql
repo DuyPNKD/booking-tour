@@ -315,6 +315,20 @@ CREATE TABLE IF NOT EXISTS payments (
   FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
 );
 
+CREATE TABLE blogs (
+  id INT NOT NULL AUTO_INCREMENT,
+  title VARCHAR(255) NOT NULL,                -- Tiêu đề bài viết
+  category VARCHAR(100) NOT NULL,             -- Danh mục (news, experience, food, visa, promotion)
+  date DATETIME DEFAULT CURRENT_TIMESTAMP,    -- Ngày đăng
+  image TEXT,                                 -- Ảnh (URL hoặc base64)
+  description TEXT,                           -- Mô tả ngắn
+  content LONGTEXT,                           -- Nội dung chi tiết
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP, 
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 -- Navbar
 -- Bảng Miền/Châu lục
 CREATE TABLE regions (

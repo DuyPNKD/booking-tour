@@ -39,6 +39,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
+app.use("/api/blogs", require("./routes/blogRoutes"));
 
 /* ✅ Cho phép truy cập ảnh trong public/uploads (chỉ khi cần thiết) */
 // app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));

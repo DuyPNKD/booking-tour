@@ -8,6 +8,8 @@ import About from "./pages/about/About";
 import Contact from "./pages/contact/Contact";
 import AuthPage from "./pages/auth/AuthPage";
 import Blog from "./pages/blog/Blog";
+import BlogDetail from "./pages/blog/BlogDetail";
+import BlogCategory from "./pages/blog/BlogCategory";
 import BookingPage from "./pages/booking/BookingPage";
 import PaymentPage from "./pages/payment/PaymentPage";
 import PaymentResult from "./pages/paymentResult/PaymentResultPage";
@@ -24,6 +26,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminTopics from "./pages/admin/AdminTopics";
+import AdminBlog from "./pages/admin/AdminBlog";
 import "./App.css";
 
 function AppRoutes() {
@@ -44,6 +47,10 @@ function AppRoutes() {
 
                 {/* Cẩm nang du lịch */}
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/category/:slug" element={<BlogCategory />} />
+
+                {/* Chi tiết bài viết */}
+                <Route path="/blog/:id" element={<BlogDetail />} />
 
                 {/* Trang giới thiệu */}
                 <Route path="/about" element={<About />} />
@@ -67,6 +74,7 @@ function AppRoutes() {
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="reports" element={<AdminReports />} />
                     <Route path="settings" element={<AdminSettings />} />
+                    <Route path="blog" element={<AdminBlog />} />
                 </Route>
 
                 {/* Trang đặt tour */}

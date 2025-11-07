@@ -41,6 +41,11 @@ const AdminLayout = () => {
                         </NavLink>
                     </li>
                     <li>
+                        <NavLink to="/admin/blog" className="nav-link">
+                            <i className="fa-solid fa-receipt me-2"></i> Quản lý Bài viết
+                        </NavLink>
+                    </li>
+                    <li>
                         <NavLink to="/admin/orders" className="nav-link">
                             <i className="fa-solid fa-receipt me-2"></i> Quản lý Đơn hàng
                         </NavLink>

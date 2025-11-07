@@ -1,0 +1,55 @@
+.admin-blog-page {
+    width: 100%;
+    max-width: 100%;
+}
+
+.admin-card {
+    border-radius: 10px;
+}
+
+.admin-blog-modal .ant-modal-content,
+.admin-blog-modal .ant-modal-header {
+    border-radius: 10px;
+}
+
+.admin-blog-page .ant-card-body {
+    padding: 20px;
+}
+
+.admin-blog-page .table-responsive .ant-table {
+    border-radius: 8px;
+}
+
+.admin-blog-page .ant-table-wrapper .ant-table-thead > tr > th,
+.admin-blog-page .ant-table-wrapper .ant-table-tbody > tr > td {
+    vertical-align: middle;
+}
+
+.admin-blog-page .ant-table-wrapper .ant-table-cell {
+    padding: 12px 12px;
+}
+
+.admin-blog-page .ant-upload,
+.admin-blog-page .img-thumbnail {
+    border-radius: 8px;
+}
+
+/* Center action buttons in table */
+.admin-blog-page .ant-table-cell:has(.d-flex.gap-2) {
+    text-align: center;
+}
+
+/* Spacing between sections */
+.admin-blog-page .mb-3,
+.admin-blog-page .mb-4 {
+    margin-bottom: 24px !important;
+}
+
+@media (max-width: 767.98px) {
+    .admin-blog-page .ant-modal {
+        padding: 0 8px;
+    }
+    .admin-blog-page .ant-card-body {
+        padding: 16px;
+    }
+}

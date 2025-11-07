@@ -5,7 +5,8 @@ const adminTour = require("../controllers/adminTourController");
 const adminTourImport = require("../controllers/adminTourImportController");
 const multer = require("multer");
 const checkRole = require("../middlewares/checkRole");
-const adminTopic = require("../controllers/adminTopicController"); // Thêm dòng này
+const adminTopic = require("../controllers/adminTopicController");
+const adminBlogRoutes = require("./adminBlogRoutes");
 
 // Multer config cho admin uploads
 const upload = multer({
@@ -49,5 +50,8 @@ router.delete("/topics/:id", auth, checkRole(["admin"]), adminTopic.deleteTopic)
 router.get("/topics/feature", auth, checkRole(["admin", "staff"]), adminTopic.listFeaturedTopics);
 router.post("/topics/:id/feature", auth, checkRole(["admin"]), adminTopic.markAsFeatured);
 router.delete("/topics/:id/feature", auth, checkRole(["admin"]), adminTopic.unmarkAsFeatured);
+
+// Quản lý bài viết (Blogs)
+router.use("/blogs", adminBlogRoutes);
 
 module.exports = router;

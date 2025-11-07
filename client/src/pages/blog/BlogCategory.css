@@ -1,0 +1,23 @@
+.category-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.sidebar-card {
+    border-radius: 8px;
+}
+
+/* Tabs custom */
+.nav-tabs .nav-link.active {
+    background-color: #ff6600;
+    color: #fff;
+}
+
+/* Latest/Popular small image */
+.latest-thumb {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}

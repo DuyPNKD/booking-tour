@@ -1,0 +1,19 @@
+.blog-detail-content {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.blog-detail-content img {
+    display: block;
+}
+
+.blog-detail-content p + p {
+    margin-top: 1rem;
+}
+
+.blog-detail-content .btn {
+    margin-top: 0.5rem;
+}
+
+

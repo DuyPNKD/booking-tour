@@ -77,7 +77,12 @@ const Navbar = () => {
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
                                         {domesticRegions.map((region) => (
-                                            <div key={region.displayName} className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredDomestic(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                            <div
+                                                key={region.displayName}
+                                                className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredDomestic(region.displayName)}
+                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                            >
                                                 {region.displayName}
                                             </div>
                                         ))}
@@ -91,12 +96,19 @@ const Navbar = () => {
                                                     currentDomestic &&
                                                     currentDomestic.destinations.map((dest) => (
                                                         <div className="mega-menu-group-container" key={dest.group}>
-                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                            <div
+                                                                className="mega-menu-group"
+                                                                onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
+                                                            >
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
                                                                 {dest.places.map((place) => (
-                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                    <span
+                                                                        key={place.id}
+                                                                        className="mega-menu-place"
+                                                                        onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}
+                                                                    >
                                                                         {place.name}
                                                                     </span>
                                                                 ))}
@@ -117,7 +129,12 @@ const Navbar = () => {
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
                                         {internationalRegions.map((region) => (
-                                            <div key={region.displayName} className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`} onMouseEnter={() => setHoveredInternational(region.displayName)} onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}>
+                                            <div
+                                                key={region.displayName}
+                                                className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredInternational(region.displayName)}
+                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                            >
                                                 {region.displayName}
                                             </div>
                                         ))}
@@ -126,17 +143,26 @@ const Navbar = () => {
                                         <div className="mega-menu-content">
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
-                                                const currentDomestic = internationalRegions.find((region) => region.displayName === hoveredInternational);
+                                                const currentDomestic = internationalRegions.find(
+                                                    (region) => region.displayName === hoveredInternational
+                                                );
                                                 return (
                                                     currentDomestic &&
                                                     currentDomestic.destinations.map((dest) => (
                                                         <div className="mega-menu-group-container" key={dest.group}>
-                                                            <div className="mega-menu-group" onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}>
+                                                            <div
+                                                                className="mega-menu-group"
+                                                                onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
+                                                            >
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
                                                                 {dest.places.map((place) => (
-                                                                    <span key={place.id} className="mega-menu-place" onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}>
+                                                                    <span
+                                                                        key={place.id}
+                                                                        className="mega-menu-place"
+                                                                        onClick={() => navigate(`/danh-muc-tour?location_id=${place.id}`)}
+                                                                    >
                                                                         {place.name}
                                                                     </span>
                                                                 ))}
@@ -150,7 +176,9 @@ const Navbar = () => {
                                 </div>
                             </li>
                             <li>
-                                <span className="navbar-menu-item">Cẩm nang du lịch</span>
+                                <Link to="/blog?category=travel-guide" className="navbar-menu-item">
+                                    Cẩm nang du lịch
+                                </Link>
                             </li>
                             <li>
                                 <span className="navbar-menu-item">Liên hệ</span>
@@ -187,7 +215,11 @@ const Navbar = () => {
                                     // Nếu user.picture có giá trị, kiểm tra xem nó có bắt đầu bằng "/" hay không
                                     // Nếu có, nối API_BASE trước nó, nếu không thì để nguyên (giả sử nó là đường dẫn đầy đủ)
                                     // Nếu không có avatar, dùng ảnh mặc định "/default-avatar.jpg"
-                                    const avatarSrc = user.picture ? (user.picture.startsWith("/") ? API_BASE + user.picture : user.picture) : "/default-avatar.jpg";
+                                    const avatarSrc = user.picture
+                                        ? user.picture.startsWith("/")
+                                            ? API_BASE + user.picture
+                                            : user.picture
+                                        : "/default-avatar.jpg";
                                     // Trả về thẻ img hiển thị avatar và xử lý lỗi nếu ảnh không load được
                                     return (
                                         <img
