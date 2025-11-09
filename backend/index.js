@@ -11,9 +11,30 @@ const cors = require("cors");
 // Cookie parser middleware
 app.use(cookieParser());
 
+// CORS configuration - sử dụng environment variable
+const allowedOrigins =
+    process.env.NODE_ENV === "production"
+        ? [process.env.FRONTEND_URL].filter(Boolean) // Loại bỏ undefined
+        : ["http://localhost:5173", "http://localhost:3000"];
+
 app.use(
     cors({
-        origin: "http://localhost:5173", // cho phép React app gọi
+        origin: function (origin, callback) {
+            // Cho phép requests không có origin (mobile apps, Postman, etc.)
+            if (!origin) return callback(null, true);
+
+            // Development: cho phép tất cả
+            if (process.env.NODE_ENV !== "production") {
+                return callback(null, true);
+            }
+
+            // Production: chỉ cho phép origins trong whitelist
+            if (allowedOrigins.indexOf(origin) !== -1) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true, // cho phép gửi kèm cookie
     })
 );
@@ -30,9 +51,10 @@ app.use("/api/tours", require("./routes/tourRoutes"));
 app.use("/api/booking", require("./routes/bookingRoutes"));
 app.use("/api/momo", require("./routes/momoRoutes"));
 app.get("/payment-result", (req, res) => {
-    // giữ nguyên query string và redirect sang frontend (port dev của bạn)
+    // giữ nguyên query string và redirect sang frontend
     const queryString = new URLSearchParams(req.query).toString();
-    return res.redirect(`http://localhost:5173/payment-result?${queryString}`);
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/payment-result?${queryString}`);
 });
 
 app.use("/api/auth", require("./routes/authRoutes"));
