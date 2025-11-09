@@ -39,7 +39,8 @@ const Navbar = () => {
         // Fetch navbar data from the server
         const fetchNavbarData = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/navbar-menu");
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const response = await axios.get(`${API_BASE}/navbar-menu`);
                 setDomesticRegions(response.data.domestic);
                 setInternationalRegions(response.data.international);
 

@@ -120,7 +120,8 @@ const HeroSearch = () => {
     useEffect(() => {
         const fetchDepartureCities = async () => {
             try {
-                const res = await axios.get("http://localhost:3000/api/tours/departure-cities");
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await axios.get(`${API_BASE}/api/tours/departure-cities`);
                 // API trả về mảng ["Hà Nội", "Hồ Chí Minh", ...]
                 const options = res.data.map((city) => ({
                     value: city,
@@ -150,7 +151,8 @@ const HeroSearch = () => {
         // Set timeout mới: gọi API sau 2.5s
         typingTimeoutRef.current = setTimeout(async () => {
             try {
-                const res = await axios.get(`http://localhost:3000/api/tours/suggest?q=${encodeURIComponent(destination)}`);
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await axios.get(`${API_BASE}/api/tours/suggest?q=${encodeURIComponent(destination)}`);
                 setSuggestions(res.data);
                 setShowDestinationDropdown(true);
             } catch (error) {
@@ -176,7 +178,8 @@ const HeroSearch = () => {
                         return;
                     }
                 }
-                const res = await axios.get("http://localhost:3000/api/tours/hot-destinations");
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await axios.get(`${API_BASE}/api/tours/hot-destinations`);
                 const list = Array.isArray(res.data) ? res.data : [];
                 setHotDestinations(list);
                 try {

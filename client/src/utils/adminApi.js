@@ -7,9 +7,11 @@ import axios from "axios";
  * - Xử lý lỗi 401 (Unauthorized) bằng cách redirect về login
  */
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+
 // Tạo axios instance với base URL cho admin API
 export const adminApi = axios.create({
-    baseURL: "http://localhost:3000/api/admin",
+    baseURL: `${API_BASE}/api/admin`,
     withCredentials: true, // phải bật true để cookie refreshToken được gửi kèm
 });
 

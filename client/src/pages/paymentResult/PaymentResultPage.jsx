@@ -20,7 +20,8 @@ export default function PaymentResult() {
 
         // nếu có orderId, gọi backend để lấy status thực tế (IPN sẽ cập nhật DB)
         if (orderId) {
-            fetch(`http://localhost:3000/api/momo/status?orderId=${orderId}`)
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            fetch(`${API_BASE}/api/momo/status?orderId=${orderId}`)
                 .then((r) => r.json())
                 .then((j) => {
                     const s = j.data?.status;
@@ -76,11 +77,17 @@ export default function PaymentResult() {
     return (
         <div className="payment-result-root">
             <div className="payment-result-card">
-                <div className={`payment-result-icon ${status}`}>{status === "success" ? <div className="icon-success">✓</div> : <div className="icon-failed">✕</div>}</div>
+                <div className={`payment-result-icon ${status}`}>
+                    {status === "success" ? <div className="icon-success">✓</div> : <div className="icon-failed">✕</div>}
+                </div>
 
                 <h1 className={`payment-result-title ${status}`}>{status === "success" ? "Thanh toán thành công!" : "Thanh toán thất bại!"}</h1>
 
-                <p className="payment-result-desc">{status === "success" ? "Giao dịch đã được xử lý thành công. Cảm ơn bạn đã sử dụng dịch vụ!" : "Giao dịch không thể hoàn tất. Vui lòng thử lại hoặc liên hệ hỗ trợ."}</p>
+                <p className="payment-result-desc">
+                    {status === "success"
+                        ? "Giao dịch đã được xử lý thành công. Cảm ơn bạn đã sử dụng dịch vụ!"
+                        : "Giao dịch không thể hoàn tất. Vui lòng thử lại hoặc liên hệ hỗ trợ."}
+                </p>
 
                 {orderInfo && (
                     <div className="order-info-card">

@@ -21,7 +21,8 @@ const PaymentPage = () => {
 
         const fetchBooking = async () => {
             try {
-                const res = await axios.get(`http://localhost:3000/api/booking/${bookingId}`);
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await axios.get(`${API_BASE}/api/booking/${bookingId}`);
                 // console.log("Booking response:", res.data);
                 if (res.data.success) {
                     const {booking, details} = res.data;
@@ -63,7 +64,8 @@ const PaymentPage = () => {
         if (!bookingData) return;
 
         try {
-            const res = await axios.post("http://localhost:3000/api/momo/create", {
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const res = await axios.post(`${API_BASE}/api/momo/create`, {
                 booking_id: bookingId,
                 amount: bookingData.totalPrice,
             });

@@ -27,8 +27,9 @@ const BookingPage = () => {
     const [showPriceDetail, setShowPriceDetail] = useState(true);
 
     useEffect(() => {
+        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
         const fetchTour = async () => {
-            const res = await axios.all([axios.get(`http://localhost:3000/api/tours/${id}`), axios.get(`http://localhost:3000/api/tours/${id}/prices`)]);
+            const res = await axios.all([axios.get(`${API_BASE}/api/tours/${id}`), axios.get(`${API_BASE}/api/tours/${id}/prices`)]);
             const [tourRes, priceRes] = res;
 
             setTour(tourRes.data || {});
@@ -198,7 +199,8 @@ const BookingPage = () => {
         };
 
         try {
-            const res = await axios.post("http://localhost:3000/api/booking", payload);
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const res = await axios.post(`${API_BASE}/api/booking`, payload);
             if (res.data.success) {
                 const bookingId = res.data.bookingId;
 

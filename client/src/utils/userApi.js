@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+
 export const userApi = axios.create({
-    baseURL: "http://localhost:3000/api",
+    baseURL: `${API_BASE}/api`,
     withCredentials: true, // quan trọng để gửi cookie (refreshToken)
 });
 
@@ -22,14 +24,14 @@ userApi.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                const res = await axios.post("/refresh-token", {}, {withCredentials: true});
-                const newAccessToken = res.data.access_token;
+                const res = await axios.post(`${API_BASE}/api/auth/refresh`, {}, {withCredentials: true});
+                const newAccessToken = res.data.token || res.data.access_token;
 
                 localStorage.setItem("token", newAccessToken);
 
                 originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-                return api(originalRequest); // gửi lại request cũ
+                return userApi(originalRequest); // gửi lại request cũ
             } catch (err) {
                 console.error("Refresh token failed", err);
                 // Nếu refresh cũng fail thì logout user

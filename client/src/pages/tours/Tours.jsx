@@ -32,9 +32,10 @@ const Tours = () => {
                 setTours([]);
                 let response;
 
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
                 if (searchParams.get("destination") || searchParams.get("startDate") || searchParams.get("departure")) {
                     // 🔍 Nếu có tham số search thì gọi API search
-                    response = await axios.get("http://localhost:3000/api/tours/search", {
+                    response = await axios.get(`${API_BASE}/api/tours/search`, {
                         params: {
                             destination: searchParams.get("destination"),
                             startDate: searchParams.get("startDate"),
@@ -45,7 +46,7 @@ const Tours = () => {
                     });
                 } else {
                     // 🌍 Nếu chỉ filter theo khu vực thì gọi API tours bình thường
-                    response = await axios.get("http://localhost:3000/api/tours", {
+                    response = await axios.get(`${API_BASE}/api/tours`, {
                         params: {
                             regionId: searchParams.get("region_id"),
                             subregionId: searchParams.get("subregion_id"),

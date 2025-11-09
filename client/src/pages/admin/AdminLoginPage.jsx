@@ -21,7 +21,8 @@ const AdminLoginPage = () => {
 
         setLoading(true);
         try {
-            const response = await axios.post("http://localhost:3000/api/admin/login", {email, password});
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const response = await axios.post(`${API_BASE}/api/admin/login`, {email, password});
             console.log(response.data);
             // BE trả: { access_token, user }
             if (response.data?.access_token) {

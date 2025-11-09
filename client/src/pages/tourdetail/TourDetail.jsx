@@ -17,12 +17,13 @@ import axios from "axios";
 
 // Dữ liệu cho Khám phá Việt Nam
 const vietnamDestinations = [
-    {title: "Hà Giang", image: haGiang, className: "ha-giang"},
-    {title: "Hạ Long", image: haLong, className: "ha-long"},
-    {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be"},
-    {title: "Đà Nẵng", image: daNang, className: "da-nang"},
-    {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan"},
-    {title: "Miền Tây", image: mienTay, className: "mien-tay"},
+    // ví dụ: Hà Giang có location_id = 177 -> sẽ navigate tới ?location_id=177
+    {title: "Hà Giang", image: haGiang, className: "ha-giang", link: "/danh-muc-tour?location_id=177"},
+    {title: "Hạ Long", image: haLong, className: "ha-long", link: "/danh-muc-tour?location_id=35"},
+    {title: "Hồ Ba Bể - Thác Bản Giốc", image: hoBaBe, className: "ho-ba-be", link: "/danh-muc-tour?location_id=27"},
+    {title: "Đà Nẵng", image: daNang, className: "da-nang", link: "/danh-muc-tour?location_id=38"},
+    {title: "Ninh Thuận", image: ninhThuan, className: "ninh-thuan", link: "/danh-muc-tour?location_id=71"},
+    {title: "Miền Tây", image: mienTay, className: "mien-tay", link: "/danh-muc-tour?location_id=90"},
 ];
 
 const domesticTours = [
@@ -222,15 +223,16 @@ export default function TourDetail() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
                 const responses = await axios.all([
-                    axios.get(`http://localhost:3000/api/tours/${id}`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/departures`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/prices`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/overview`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/schedules`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/reviews`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/terms`),
-                    axios.get(`http://localhost:3000/api/tours/${id}/departure-dates`),
+                    axios.get(`${API_BASE}/api/tours/${id}`),
+                    axios.get(`${API_BASE}/api/tours/${id}/departures`),
+                    axios.get(`${API_BASE}/api/tours/${id}/prices`),
+                    axios.get(`${API_BASE}/api/tours/${id}/overview`),
+                    axios.get(`${API_BASE}/api/tours/${id}/schedules`),
+                    axios.get(`${API_BASE}/api/tours/${id}/reviews`),
+                    axios.get(`${API_BASE}/api/tours/${id}/terms`),
+                    axios.get(`${API_BASE}/api/tours/${id}/departure-dates`),
                 ]);
 
                 const [tourRes, depRes, priceRes, overviewRes, scheduleRes, reviewRes, termsRes, departureDatesRes] = responses;
@@ -503,7 +505,12 @@ export default function TourDetail() {
 
             <div className="tour-header">
                 <h1 className="tour-title">{tour.title}</h1>
-                <div className="tour-card-row-rating" title="Click để xem đánh giá" onClick={() => handleTabClick("tour-reviews-section", "reviews")} style={{cursor: "pointer"}}>
+                <div
+                    className="tour-card-row-rating"
+                    title="Click để xem đánh giá"
+                    onClick={() => handleTabClick("tour-reviews-section", "reviews")}
+                    style={{cursor: "pointer"}}
+                >
                     <span className="tour-card-row-rating-badge">{tour.rating}</span>
                     <span className="tour-card-row-rating-text">{getRatingLabel(tour.rating)}</span>
                     <span className="tour-card-row-rating-count">| {tour.ratingCount} đánh giá</span>
@@ -520,7 +527,15 @@ export default function TourDetail() {
                         <div className="img-nav-btn left" onClick={prevImg}>
                             <i className="fa-solid fa-chevron-left"></i>
                         </div>
-                        {tour.images && tour.images.length > 0 ? <img src={tour.images[mainImgIdx].image_url} alt="main" /> : <div style={{width: 400, height: 250, background: "#eee", display: "flex", alignItems: "center", justifyContent: "center"}}>Không có ảnh</div>}
+                        {tour.images && tour.images.length > 0 ? (
+                            <img src={tour.images[mainImgIdx].image_url} alt="main" />
+                        ) : (
+                            <div
+                                style={{width: 400, height: 250, background: "#eee", display: "flex", alignItems: "center", justifyContent: "center"}}
+                            >
+                                Không có ảnh
+                            </div>
+                        )}
                         <div className="img-nav-btn right" onClick={nextImg}>
                             <i className="fa-solid fa-chevron-right"></i>
                         </div>
@@ -529,7 +544,15 @@ export default function TourDetail() {
                     <div className="tour-main-thumbs">
                         {getVisibleThumbnails().map((img, i) => {
                             const realIdx = (mainImgIdx + i) % tour.images.length;
-                            return <img key={img.image_url || realIdx} src={img.image_url} alt={`thumb-${realIdx}`} className={mainImgIdx === realIdx ? "active" : ""} onClick={() => setMainImgIdx(realIdx)} />;
+                            return (
+                                <img
+                                    key={img.image_url || realIdx}
+                                    src={img.image_url}
+                                    alt={`thumb-${realIdx}`}
+                                    className={mainImgIdx === realIdx ? "active" : ""}
+                                    onClick={() => setMainImgIdx(realIdx)}
+                                />
+                            );
                         })}
                     </div>
 
@@ -582,7 +605,11 @@ export default function TourDetail() {
                     </div>
                     <div className="tour-main-tabs">
                         {tabSections.map((t) => (
-                            <button key={t.key} className={"tour-main-tab-btn" + (activeTab === t.key ? " active" : "")} onClick={() => handleTabClick(t.id, t.key)}>
+                            <button
+                                key={t.key}
+                                className={"tour-main-tab-btn" + (activeTab === t.key ? " active" : "")}
+                                onClick={() => handleTabClick(t.id, t.key)}
+                            >
                                 {t.label}
                             </button>
                         ))}
@@ -661,7 +688,9 @@ export default function TourDetail() {
                                                     <div className="tour-program-day">{item.day_text}</div>
                                                     <div className="tour-program-title">{item.title}</div>
                                                 </div>
-                                                <i className={`fa-solid ${showAll || activeIndexes.includes(idx) ? "fa-angle-up" : "fa-angle-down"}`}></i>
+                                                <i
+                                                    className={`fa-solid ${showAll || activeIndexes.includes(idx) ? "fa-angle-up" : "fa-angle-down"}`}
+                                                ></i>
                                             </div>
                                             <div className={`tour-program-content ${showAll || activeIndexes.includes(idx) ? "open" : ""}`}>
                                                 <div className="tour-program-inner" dangerouslySetInnerHTML={{__html: item.content}} />
@@ -731,7 +760,11 @@ export default function TourDetail() {
                             <div className="tour-date-btn-group" style={{position: "relative", display: "flex", flexDirection: "column", gap: 8}}>
                                 <div style={{display: "flex", gap: 8, flexWrap: "wrap"}}>
                                     {visibleDates.map((d) => (
-                                        <button key={d} className={"tour-date-btn" + (selectedDate === d ? " active" : "")} onClick={() => setSelectedDate(d)}>
+                                        <button
+                                            key={d}
+                                            className={"tour-date-btn" + (selectedDate === d ? " active" : "")}
+                                            onClick={() => setSelectedDate(d)}
+                                        >
                                             {formatDateToDDMM(d)}
                                         </button>
                                     ))}

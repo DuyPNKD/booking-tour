@@ -69,7 +69,8 @@ export default function ProfilePage() {
             if (avatarFile) {
                 const formData = new FormData();
                 formData.append("avatar", avatarFile);
-                const resUpload = await fetch("http://localhost:3000/api/auth/upload/avatar", {
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const resUpload = await fetch(`${API_BASE}/api/auth/upload/avatar`, {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
@@ -82,7 +83,8 @@ export default function ProfilePage() {
                 }
             }
             // Cập nhật thông tin text
-            const res = await fetch("http://localhost:3000/api/auth/me", {
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const res = await fetch(`${API_BASE}/api/auth/me`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

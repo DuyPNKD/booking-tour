@@ -29,7 +29,8 @@ function ForgotPasswordForm() {
         setError(err);
         if (!err) {
             try {
-                const res = await fetch("http://localhost:3000/api/auth/forgot-password", {
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify({email}),

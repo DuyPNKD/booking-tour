@@ -1,15 +1,18 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Link, useParams} from "react-router-dom";
 import "./BlogDetail.css";
+
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+
 async function fetchDetail(id) {
-    const res = await fetch(`http://localhost:3000/api/blogs/${encodeURIComponent(id)}`);
+    const res = await fetch(`${API_BASE}/api/blogs/${encodeURIComponent(id)}`);
     if (!res.ok) return null;
     const data = await res.json();
     return data && data.data ? data.data : null;
 }
 
 async function fetchByCategory(categoryOrSlug) {
-    const res = await fetch(`http://localhost:3000/api/blogs/category/${encodeURIComponent(categoryOrSlug)}`);
+    const res = await fetch(`${API_BASE}/api/blogs/category/${encodeURIComponent(categoryOrSlug)}`);
     if (!res.ok) return [];
     const data = await res.json();
     return data && data.data ? data.data : [];

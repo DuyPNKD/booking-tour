@@ -228,7 +228,8 @@ const AdminTours = () => {
             // Lấy token xác thực từ localStorage
             const token = localStorage.getItem("adminToken");
             // Gọi API upload lên cloudinary
-            const {data} = await axios.post("http://localhost:3000/api/upload/cloudinary", formData, {
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     Authorization: token ? `Bearer ${token}` : undefined,
@@ -267,7 +268,8 @@ const AdminTours = () => {
             // Lấy token xác thực từ localStorage
             const token = localStorage.getItem("adminToken");
             // Gọi API upload nhiều file lên cloudinary
-            const {data} = await axios.post("http://localhost:3000/api/upload/cloudinary/multiple", formData, {
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary/multiple`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     Authorization: token ? `Bearer ${token}` : undefined,

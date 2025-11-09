@@ -50,8 +50,9 @@ function ResetPassword() {
         // 👉 Check token còn hạn không
         const checkToken = async () => {
             try {
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
                 const res = await axios.post(
-                    "http://localhost:3000/api/auth/check-reset-token",
+                    `${API_BASE}/api/auth/check-reset-token`,
                     {
                         token: tokenFromUrl,
                     }
@@ -92,8 +93,9 @@ function ResetPassword() {
 
         try {
             setLoading(true);
+            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
             const res = await axios.post(
-                "http://localhost:3000/api/auth/reset-password",
+                `${API_BASE}/api/auth/reset-password`,
                 {
                     token,
                     newPassword: formData.newPassword,

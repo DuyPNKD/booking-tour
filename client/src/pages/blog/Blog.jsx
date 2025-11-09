@@ -19,9 +19,11 @@ const CATEGORY_SLUG = {
     promotion: "khuyen-mai",
 };
 
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+
 // Helper: fetch category posts
 async function fetchCategory(slug) {
-    const res = await fetch(`http://localhost:3000/api/blogs/category/${encodeURIComponent(slug)}`);
+    const res = await fetch(`${API_BASE}/api/blogs/category/${encodeURIComponent(slug)}`);
     if (!res.ok) return [];
     const data = await res.json();
     return data && data.data ? data.data : [];

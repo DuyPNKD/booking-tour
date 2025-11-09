@@ -14,7 +14,8 @@ const CustomCalendarInput = ({tourId, onChange, value}) => {
     useEffect(() => {
         const fetchDates = async () => {
             try {
-                const res = await axios.get(`http://localhost:3000/api/tours/${tourId}/departure-dates`);
+                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const res = await axios.get(`${API_BASE}/api/tours/${tourId}/departure-dates`);
                 setDepartureDates(res.data || []);
                 if (res.data.length > 0) {
                     onChange(res.data[0]); // ✅ Gọi callback để update selectedDate ở component cha
