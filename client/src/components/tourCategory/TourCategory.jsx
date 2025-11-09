@@ -23,7 +23,7 @@ const TourCategory = ({title, link, categoryId}) => {
     const fetchTours = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`http://localhost:3000/api/tours/by-type?type=${categoryId}`);
+            const response = await axios.get(`${import.meta.env.VITE_API_BASE}/api/tours/by-type?type=${categoryId}`);
 
             if (response.data.success) {
                 setTours(response.data.data);
