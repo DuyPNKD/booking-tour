@@ -101,6 +101,7 @@ function AppRoutes() {
     );
 }
 
+// Chính App component
 function App() {
     return (
         <Router>
