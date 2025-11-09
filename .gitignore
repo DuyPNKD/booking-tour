@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production
+/build
+/dist
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
+.env
+.env.production
+backend/.env
+client/.env
+client/.env.production
+
+# PM2
+.pm2
+
+# Database
+*.sql
+!create_table.sql
+
+# Uploads
+backend/public/uploads/*
+!backend/public/uploads/.gitkeep
+
+# OS
+Thumbs.db
+

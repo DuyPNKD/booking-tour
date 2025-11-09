@@ -54,7 +54,7 @@ exports.getNavbarMenu = async (req, res) => {
 
         res.json(result);
     } catch (error) {
-        console.error("Lỗi khi lấy dữ liệu navbar:", error);
+        console.error("❌ Lỗi khi lấy navbar:", error.message);
         res.status(500).json({message: "Lỗi server"});
     }
 };

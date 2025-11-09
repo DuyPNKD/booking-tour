@@ -2,19 +2,21 @@ const express = require("express");
 const app = express();
 const path = require("path");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 // ✅ Parse body JSON & form-urlencoded
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-// CORS middleware
-const cors = require("cors");
-// Cookie parser middleware
 app.use(cookieParser());
 
-// CORS configuration - sử dụng environment variable
+// =======================
+// ⚙️ CORS CONFIG
+// =======================
 const allowedOrigins =
     process.env.NODE_ENV === "production"
-        ? [process.env.FRONTEND_URL].filter(Boolean) // Loại bỏ undefined
+        ? [
+              process.env.FRONTEND_URL, // ví dụ: https://booking-tour-gz2k.vercel.app
+          ].filter(Boolean)
         : ["http://localhost:5173", "http://localhost:3000"];
 
 app.use(
@@ -29,54 +31,57 @@ app.use(
             }
 
             // Production: chỉ cho phép origins trong whitelist
-            if (allowedOrigins.indexOf(origin) !== -1) {
+            if (allowedOrigins.includes(origin)) {
                 callback(null, true);
             } else {
+                console.warn("🚫 CORS blocked origin:", origin);
                 callback(new Error("Not allowed by CORS"));
             }
         },
-        credentials: true, // cho phép gửi kèm cookie
+        credentials: true,
     })
 );
 
+// =======================
+// ⚙️ KẾT NỐI DATABASE
+// =======================
 const db = require("./config/db");
 
 db.query("SELECT 1")
     .then(() => console.log("✅ Kết nối MySQL thành công!"))
     .catch((err) => console.error("❌ Kết nối MySQL thất bại:", err));
 
-// Route chính
+// =======================
+// ⚙️ ROUTES
+// =======================
 app.use("/navbar-menu", require("./routes/navbarRoutes"));
 app.use("/api/tours", require("./routes/tourRoutes"));
 app.use("/api/booking", require("./routes/bookingRoutes"));
 app.use("/api/momo", require("./routes/momoRoutes"));
-app.get("/payment-result", (req, res) => {
-    // giữ nguyên query string và redirect sang frontend
-    const queryString = new URLSearchParams(req.query).toString();
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
-    return res.redirect(`${frontendUrl}/payment-result?${queryString}`);
-});
-
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/upload", require("./routes/uploadRoutes"));
 app.use("/api/blogs", require("./routes/blogRoutes"));
 
-/* ✅ Cho phép truy cập ảnh trong public/uploads (chỉ khi cần thiết) */
-// app.use("/uploads", express.static(path.join(__dirname, "public", "uploads")));
-// console.log("📁 Static path:", path.join(__dirname, "public", "uploads"));
+// ✅ Route xử lý redirect sau thanh toán
+app.get("/payment-result", (req, res) => {
+    const queryString = new URLSearchParams(req.query).toString();
+    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/payment-result?${queryString}`);
+});
 
-// Redirect old image URLs to Cloudinary (nếu cần)
+// ✅ Trả về lỗi 404 cho ảnh cũ (nếu cần)
 app.get("/uploads/*", (req, res) => {
     res.status(404).json({
         message: "Ảnh đã được chuyển lên Cloudinary. Vui lòng cập nhật URL mới.",
-        note: "Sử dụng migration script để cập nhật database với URL Cloudinary mới.",
     });
 });
 
+// =======================
+// ⚙️ KHỞI ĐỘNG SERVER
+// =======================
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
-    console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
+    console.log(`✅ Server đang chạy tại cổng ${PORT}`);
 });
