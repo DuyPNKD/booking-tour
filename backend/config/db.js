@@ -1,24 +1,12 @@
 require("dotenv").config();
-const {Pool} = require("pg");
+const mysql = require("mysql2");
 
-// Convert MySQL-style ? placeholders → Postgres $1, $2, ...
-function convertPlaceholders(sql) {
-    let index = 1;
-    return sql.replace(/\?/g, () => `$${index++}`);
-}
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-        rejectUnauthorized: false, // Neon yêu cầu SSL
-    },
+const pool = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306, // ← thêm dòng này nếu bạn muốn linh hoạt
 });
 
-// Wrapper giống mysql2.promise()
-module.exports = {
-    query: async (sql, params = []) => {
-        const convertedSQL = convertPlaceholders(sql);
-        const result = await pool.query(convertedSQL, params);
-        return [result.rows]; // Giống mysql2: trả về [rows]
-    },
-};
+module.exports = pool.promise();
