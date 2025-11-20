@@ -8,6 +8,9 @@ const cors = require("cors");
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
+require("dotenv").config({
+    path: process.env.NODE_ENV === "production" ? path.join(__dirname, ".env.production") : path.join(__dirname, ".env.development"),
+});
 
 // =======================
 // ⚙️ CORS CONFIG
