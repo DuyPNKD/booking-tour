@@ -54,12 +54,7 @@ const Home = () => {
     useEffect(() => {
         const fetchTours = async (type, setter) => {
             try {
-                let base = "";
-                try {
-                    base = import.meta?.env?.VITE_API_BASE || "";
-                } catch (e) {
-                    base = "";
-                }
+                const base = import.meta.env.VITE_API_BASE; // ✅ DÙNG ĐÚNG TÊN
                 const res = await fetch(`${base}/api/tours/by-type?type=${encodeURIComponent(type)}&limit=8`);
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const json = await res.json();
