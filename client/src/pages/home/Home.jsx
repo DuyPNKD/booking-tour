@@ -56,7 +56,7 @@ const Home = () => {
             try {
                 let base = "";
                 try {
-                    base = import.meta?.env?.VITE_API_URL || "";
+                    base = import.meta?.env?.VITE_API_BASE || "";
                 } catch (e) {
                     base = "";
                 }
