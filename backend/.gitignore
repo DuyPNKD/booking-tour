@@ -3,6 +3,8 @@ node_modules/
 
 # File cấu hình môi trường (chứa mật khẩu, token...)
 .env
+.env.development
+.env.production
 
 # File log, cache
 npm-debug.log*
