@@ -15,31 +15,27 @@ require("dotenv").config({
 // =======================
 // ⚙️ CORS CONFIG
 // =======================
-const allowedOrigins =
-    process.env.NODE_ENV === "production"
-        ? [
-              process.env.FRONTEND_URL, // ví dụ: https://booking-tour-gz2k.vercel.app
-          ].filter(Boolean)
-        : ["http://localhost:5173", "http://localhost:3000"];
+// =======================
+// ⚙️ CORS CONFIG (NEW)
+// =======================
+const allowedOrigins = [
+    "https://booking-tour-gz2k.vercel.app", // frontend Vercel
+    "http://localhost:5173", // Vite dev
+    "http://localhost:3000", // nếu có dùng
+];
 
 app.use(
     cors({
-        origin: function (origin, callback) {
-            // Cho phép requests không có origin (mobile apps, Postman, etc.)
+        origin(origin, callback) {
+            // Cho phép request không có origin (Postman, server-to-server...)
             if (!origin) return callback(null, true);
 
-            // Development: cho phép tất cả
-            if (process.env.NODE_ENV !== "production") {
+            if (allowedOrigins.includes(origin)) {
                 return callback(null, true);
             }
 
-            // Production: chỉ cho phép origins trong whitelist
-            if (allowedOrigins.includes(origin)) {
-                callback(null, true);
-            } else {
-                console.warn("🚫 CORS blocked origin:", origin);
-                callback(new Error("Not allowed by CORS"));
-            }
+            console.warn("🚫 CORS blocked origin:", origin);
+            return callback(new Error("Not allowed by CORS"));
         },
         credentials: true,
     })
