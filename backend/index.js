@@ -15,6 +15,13 @@ app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 
+if (process.env.NODE_ENV !== "production") {
+    require("dotenv").config({path: path.join(__dirname, ".env.development")});
+} else {
+    // production (Render): dùng Environment Variables của Render
+    require("dotenv").config();
+}
+
 // =======================
 // ⚙️ CORS CONFIG
 // =======================
@@ -24,6 +31,7 @@ const allowedOrigins = [
     `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`, // Render URL
 ];
 
+// Cấu hình CORS với đầy đủ options cho preflight và credentials
 app.use(
     cors({
         origin: function (origin, callback) {
@@ -39,17 +47,43 @@ app.use(
         },
         credentials: true,
     }),
-);
+
+
+// Xử lý preflight OPTIONS requests một cách rõ ràng
+app.options("*", (req, res) => {
+    const origin = req.headers.origin;
+    // Khi credentials: true, phải trả về origin cụ thể, không được dùng "*"
+    if (!origin || allowedOrigins.includes(origin)) {
+        if (origin) {
+            res.header("Access-Control-Allow-Origin", origin);
+        }
+        res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, PATCH, OPTIONS");
+        res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin");
+        res.header("Access-Control-Allow-Credentials", "true");
+        res.header("Access-Control-Max-Age", "86400"); // Cache preflight trong 24h
+        res.sendStatus(200);
+    } else {
+        res.sendStatus(403);
+    }
+});
+
+// Middleware logging (đặt trước routes để log tất cả requests)
+app.use((req, res, next) => {
+    console.log("🌍 Origin:", req.headers.origin, "| Method:", req.method, "| Path:", req.path);
+    next();
+});
 
 // =======================
 // ⚙️ KẾT NỐI DATABASE
 // =======================
 const db = require("./config/db");
 
+
 // Test database connection
 db.query("SELECT 1")
     .then(() => console.log("✅ Kết nối MySQL thành công!"))
     .catch((err) => console.error("❌ Kết nối MySQL thất bại:", err.message));
+
 
 // =======================
 // ⚙️ ROUTES (giữ nguyên của bạn)
