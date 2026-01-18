@@ -1,4 +1,3 @@
-# render.yaml - ở thư mục gốc E:\booking-tour\
 services:
     - type: web
       name: booking-tour-api
@@ -21,19 +20,19 @@ services:
           - key: DB_USER
             value: avnadmin
           - key: DB_PASSWORD
-            sync: false # Nhập thủ công: AVNS_TAtT_hg0d7qkk-x1DI8
+            sync: false
           - key: DB_NAME
             value: booking_tour
           - key: DB_SSL
             value: "true"
 
-          # SSL Certificate (QUAN TRỌNG)
+          # SSL Certificate
           - key: SSL_CERTIFICATE
-            sync: false # Dán output từ convert-cert.js
+            sync: false
 
           # JWT
           - key: JWT_SECRET
-            generateValue: true # Render tự tạo
+            generateValue: true
           - key: JWT_REFRESH_SECRET
             generateValue: true
           - key: JWT_EXPIRES_IN
@@ -43,33 +42,33 @@ services:
           - key: EMAIL_USER
             value: phamduy2004zx@gmail.com
           - key: EMAIL_PASS
-            sync: false # Nhập thủ công
+            sync: false
 
-          # Frontend URL (UPDATE thành Vercel URL)
+          # Frontend URL
           - key: FRONTEND_URL
             value: https://booking-tour-gz2k.vercel.app
 
           # Google OAuth
           - key: GOOGLE_CLIENT_ID
-            value: 700918489943-eljt8rvm8fjsbrcvjfnsllugpdut9est.apps.googleusercontent.com
+            sync: false
           - key: GOOGLE_CLIENT_SECRET
-            sync: false # Nhập thủ công
+            sync: false
 
           # Momo Payment
           - key: MOMO_IPN_URL
-            value: https://your-render-url.onrender.com/api/momo/callback # Sẽ update sau
+            value: https://your-render-url.onrender.com/api/momo/callback
 
           # Cloudinary
           - key: CLOUDINARY_CLOUD_NAME
-            value: dlinmbykt
+            sync: false
           - key: CLOUDINARY_API_KEY
-            value: 819394417329145
+            sync: false
           - key: CLOUDINARY_API_SECRET
-            sync: false # Nhập thủ công
+            sync: false
 
-          # MongoDB (nếu dùng)
+          # MongoDB
           - key: MONGODB_URI
-            sync: false # Nhập thủ công
+            sync: false
 
       healthCheckPath: /health
       plan: free

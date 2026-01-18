@@ -38,11 +38,13 @@ lerna-debug.log*
 
 # Environment variables
 .env
-# .env.production
-backend/.env
-client/.env
-client/.env.production
-
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production  # THÊM DÒNG NÀY
+backend/.env*    # ĐÃ CÓ RỒI - TỐT
+client/.env*     # ĐÃ CÓ RỒI - TỐT
 # PM2
 .pm2
 
