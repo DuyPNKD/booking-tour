@@ -38,7 +38,7 @@ lerna-debug.log*
 
 # Environment variables
 .env
-.env.production
+# .env.production
 backend/.env
 client/.env
 client/.env.production
