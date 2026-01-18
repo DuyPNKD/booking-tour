@@ -4,7 +4,7 @@ import "./PaymentPage.css";
 import axios from "axios";
 
 const paymentMethods = [
-    {key: "momo", label: "Ví Momo", icon: "https://upload.wikimedia.org/wikipedia/vi/f/fe/MoMo_Logo.png"},
+    {key: "momo", label: "Ví Momo", icon: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZcQPC-zWVyFOu9J2OGl0j2D220D49D0Z7BQ&s"},
     {key: "zalopay", label: "Ví ZaloPay", icon: "https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-ZaloPay-Square.png"},
     {key: "vnpay", label: "VNPAY: Thẻ ATM - Tài khoản ngân hàng", icon: "https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png"},
 ];
@@ -85,7 +85,8 @@ const PaymentPage = () => {
     }
     console.log("Booking data:", bookingData);
 
-    const {guests, adultTotal, childTotal, tour_name, departure_date, address, full_name, phone_number, email, location_name, num_day, num_night} = bookingData;
+    const {guests, adultTotal, childTotal, tour_name, departure_date, address, full_name, phone_number, email, location_name, num_day, num_night} =
+        bookingData;
     console.log("Guests data:", guests);
     const adults = guests.adult || 0;
     const infants = guests.infant || 0;
@@ -99,7 +100,11 @@ const PaymentPage = () => {
                     <div className="payment-left">
                         <div className="payment-methods">
                             {paymentMethods.map((m) => (
-                                <button key={m.key} className={`payment-method-btn${selected === m.key ? " selected" : ""}`} onClick={() => setSelected(m.key)}>
+                                <button
+                                    key={m.key}
+                                    className={`payment-method-btn${selected === m.key ? " selected" : ""}`}
+                                    onClick={() => setSelected(m.key)}
+                                >
                                     <img src={m.icon} alt={m.label} className="payment-method-icon" />
                                     <span>{m.label}</span>
                                 </button>
@@ -110,8 +115,16 @@ const PaymentPage = () => {
                                 <span>Tổng giá tiền</span>
                                 <span className="payment-total-amount-wrapper">
                                     <span className="payment-total-amount">{bookingData.totalPrice.toLocaleString("vi-VN")} VND</span>
-                                    <button className="price-toggle-btn" onClick={() => setShowPriceDetail((prev) => !prev)} aria-label={showPriceDetail ? "Ẩn chi tiết" : "Xem chi tiết"}>
-                                        {showPriceDetail ? <i className="fa-solid fa-chevron-up" style={{color: "#007aff", fontSize: 18}}></i> : <i className="fa-solid fa-chevron-down" style={{color: "#007aff", fontSize: 12}}></i>}
+                                    <button
+                                        className="price-toggle-btn"
+                                        onClick={() => setShowPriceDetail((prev) => !prev)}
+                                        aria-label={showPriceDetail ? "Ẩn chi tiết" : "Xem chi tiết"}
+                                    >
+                                        {showPriceDetail ? (
+                                            <i className="fa-solid fa-chevron-up" style={{color: "#007aff", fontSize: 18}}></i>
+                                        ) : (
+                                            <i className="fa-solid fa-chevron-down" style={{color: "#007aff", fontSize: 12}}></i>
+                                        )}
                                     </button>
                                 </span>
                             </div>
@@ -133,7 +146,8 @@ const PaymentPage = () => {
                                 Thanh toán
                             </button>
                             <div className="payment-note">
-                                Bằng cách tiếp tục thanh toán, bạn đã đồng ý <a href="#">Điều khoản & Điều kiện</a> và <a href="#">Chính sách quyền riêng tư</a>.
+                                Bằng cách tiếp tục thanh toán, bạn đã đồng ý <a href="#">Điều khoản & Điều kiện</a> và{" "}
+                                <a href="#">Chính sách quyền riêng tư</a>.
                             </div>
                         </div>
                     </div>
@@ -160,7 +174,14 @@ const PaymentPage = () => {
                                 </div>
                                 <div className="payment-summary-row">
                                     <span>Ngày tham quan</span>
-                                    <span>{new Date(departure_date).toLocaleDateString("vi-VN", {weekday: "long", year: "numeric", month: "numeric", day: "numeric"})}</span>
+                                    <span>
+                                        {new Date(departure_date).toLocaleDateString("vi-VN", {
+                                            weekday: "long",
+                                            year: "numeric",
+                                            month: "numeric",
+                                            day: "numeric",
+                                        })}
+                                    </span>
                                 </div>
                                 <div className="payment-summary-row">
                                     <span>Địa điểm</span>

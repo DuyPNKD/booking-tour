@@ -1,0 +1,74 @@
+services:
+    - type: web
+      name: booking-tour-api
+      env: node
+      region: singapore
+      buildCommand: cd backend && npm install
+      startCommand: cd backend && node server.js
+      envVars:
+          # App
+          - key: NODE_ENV
+            value: production
+          - key: PORT
+            value: 10000
+
+          # Database (Aiven MySQL)
+          - key: DB_HOST
+            value: mysql-ff292a6-epu-c1c1.j.aivencloud.com
+          - key: DB_PORT
+            value: 22767
+          - key: DB_USER
+            value: avnadmin
+          - key: DB_PASSWORD
+            sync: false
+          - key: DB_NAME
+            value: booking_tour
+          - key: DB_SSL
+            value: "true"
+
+          # SSL Certificate
+          - key: SSL_CERTIFICATE
+            sync: false
+
+          # JWT
+          - key: JWT_SECRET
+            generateValue: true
+          - key: JWT_REFRESH_SECRET
+            generateValue: true
+          - key: JWT_EXPIRES_IN
+            value: 7d
+
+          # Email
+          - key: EMAIL_USER
+            value: phamduy2004zx@gmail.com
+          - key: EMAIL_PASS
+            sync: false
+
+          # Frontend URL
+          - key: FRONTEND_URL
+            value: https://booking-tour-gz2k.vercel.app
+
+          # Google OAuth
+          - key: GOOGLE_CLIENT_ID
+            sync: false
+          - key: GOOGLE_CLIENT_SECRET
+            sync: false
+
+          # Momo Payment
+          - key: MOMO_IPN_URL
+            value: https://your-render-url.onrender.com/api/momo/callback
+
+          # Cloudinary
+          - key: CLOUDINARY_CLOUD_NAME
+            sync: false
+          - key: CLOUDINARY_API_KEY
+            sync: false
+          - key: CLOUDINARY_API_SECRET
+            sync: false
+
+          # MongoDB
+          - key: MONGODB_URI
+            sync: false
+
+      healthCheckPath: /health
+      plan: free
