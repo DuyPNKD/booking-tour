@@ -276,7 +276,7 @@ const Navbar = () => {
                             // Khi chưa login -> hiện nút Đăng Nhập và Đăng ký
                             <>
                                 <button className="navbar-login-btn" onClick={() => navigate("/auth/login?step=signin")}>
-                                    <i class="fa-solid fa-user"></i> Đăng Nhập
+                                    <i className="fa-solid fa-user"></i> Đăng Nhập
                                 </button>
                                 <button className="navbar-register-btn" onClick={() => navigate("/auth/login?step=signup")}>
                                     Đăng ký

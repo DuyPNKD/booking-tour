@@ -144,7 +144,6 @@ const tabSections = [
     {label: "Chương trình tour", key: "itinerary", id: "tour-itinerary-section"},
     {label: "Lịch khởi hành", key: "departure", id: "tour-departure-section"},
     {label: "Thông tin cần lưu ý", key: "terms", id: "tour-terms-section"},
-    {label: "Đánh giá tour", key: "reviews", id: "tour-reviews-section"},
 ];
 
 const fixImageUrl = (html) => {
@@ -734,7 +733,7 @@ export default function TourDetail() {
                                 }}
                             />
                         </div>
-                        <div id="tour-reviews-section" ref={reviewsSectionRef} style={{scrollMarginTop: 120, marginTop: 40}}>
+                        {/* <div id="tour-reviews-section" ref={reviewsSectionRef} style={{scrollMarginTop: 120, marginTop: 40}}>
                             <h2>Đánh giá tour</h2>
                             <div className="tour-review-list">
                                 {reviews.map((r, idx) => (
@@ -748,7 +747,7 @@ export default function TourDetail() {
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 {/* Right: Price box */}

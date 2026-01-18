@@ -1,0 +1,75 @@
+# render.yaml - ở thư mục gốc E:\booking-tour\
+services:
+    - type: web
+      name: booking-tour-api
+      env: node
+      region: singapore
+      buildCommand: cd backend && npm install
+      startCommand: cd backend && node server.js
+      envVars:
+          # App
+          - key: NODE_ENV
+            value: production
+          - key: PORT
+            value: 10000
+
+          # Database (Aiven MySQL)
+          - key: DB_HOST
+            value: mysql-ff292a6-epu-c1c1.j.aivencloud.com
+          - key: DB_PORT
+            value: 22767
+          - key: DB_USER
+            value: avnadmin
+          - key: DB_PASSWORD
+            sync: false # Nhập thủ công: AVNS_TAtT_hg0d7qkk-x1DI8
+          - key: DB_NAME
+            value: booking_tour
+          - key: DB_SSL
+            value: "true"
+
+          # SSL Certificate (QUAN TRỌNG)
+          - key: SSL_CERTIFICATE
+            sync: false # Dán output từ convert-cert.js
+
+          # JWT
+          - key: JWT_SECRET
+            generateValue: true # Render tự tạo
+          - key: JWT_REFRESH_SECRET
+            generateValue: true
+          - key: JWT_EXPIRES_IN
+            value: 7d
+
+          # Email
+          - key: EMAIL_USER
+            value: phamduy2004zx@gmail.com
+          - key: EMAIL_PASS
+            sync: false # Nhập thủ công
+
+          # Frontend URL (UPDATE thành Vercel URL)
+          - key: FRONTEND_URL
+            value: https://booking-tour-gz2k.vercel.app
+
+          # Google OAuth
+          - key: GOOGLE_CLIENT_ID
+            value: 700918489943-eljt8rvm8fjsbrcvjfnsllugpdut9est.apps.googleusercontent.com
+          - key: GOOGLE_CLIENT_SECRET
+            sync: false # Nhập thủ công
+
+          # Momo Payment
+          - key: MOMO_IPN_URL
+            value: https://your-render-url.onrender.com/api/momo/callback # Sẽ update sau
+
+          # Cloudinary
+          - key: CLOUDINARY_CLOUD_NAME
+            value: dlinmbykt
+          - key: CLOUDINARY_API_KEY
+            value: 819394417329145
+          - key: CLOUDINARY_API_SECRET
+            sync: false # Nhập thủ công
+
+          # MongoDB (nếu dùng)
+          - key: MONGODB_URI
+            sync: false # Nhập thủ công
+
+      healthCheckPath: /health
+      plan: free
