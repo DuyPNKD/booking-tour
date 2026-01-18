@@ -47,7 +47,7 @@ app.use(
         },
         credentials: true,
     }),
-
+);
 
 // Xử lý preflight OPTIONS requests một cách rõ ràng
 app.options("*", (req, res) => {
@@ -78,12 +78,10 @@ app.use((req, res, next) => {
 // =======================
 const db = require("./config/db");
 
-
 // Test database connection
 db.query("SELECT 1")
     .then(() => console.log("✅ Kết nối MySQL thành công!"))
     .catch((err) => console.error("❌ Kết nối MySQL thất bại:", err.message));
-
 
 // =======================
 // ⚙️ ROUTES (giữ nguyên của bạn)
