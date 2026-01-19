@@ -117,7 +117,7 @@ router.post("/callback", async (req, res) => {
                 JOIN tours t ON b.tour_id = t.id
                 LEFT JOIN users u ON b.user_id = u.id
                 WHERE b.id = ?`,
-                [bookingId]
+                [bookingId],
             );
 
             if (bookingRows.length > 0) {
