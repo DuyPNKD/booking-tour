@@ -1,52 +1,95 @@
 import {useEffect, useState} from "react";
+import {useLocation} from "react-router-dom"; // THÊM DÒNG NÀY
 import "./PaymentResultPage.css";
 
 export default function PaymentResult() {
-    const [status, setStatus] = useState("loading"); // loading | success | failed
+    const location = useLocation(); // SỬA: dùng useLocation
+    const [status, setStatus] = useState("loading");
     const [orderInfo, setOrderInfo] = useState(null);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get("orderId");
-        const resultCode = params.get("resultCode");
-        const amount = params.get("amount");
+        // Lấy query params từ URL
+        const searchParams = new URLSearchParams(location.search);
+        const orderId = searchParams.get("orderId");
+        const resultCode = searchParams.get("resultCode");
+        const amount = searchParams.get("amount");
+        const partnerCode = searchParams.get("partnerCode");
+        const message = searchParams.get("message");
 
-        // Simulate order info for demo
+        console.log("💰 Payment Result - URL Params:", {
+            orderId,
+            resultCode,
+            amount,
+            partnerCode,
+            message,
+            fullUrl: window.location.href,
+        });
+
+        // Set thông tin đơn hàng
         setOrderInfo({
-            orderId: orderId || "ORDER_" + Math.random().toString(36).substr(2, 9).toUpperCase(),
-            amount: amount || "299000",
+            orderId: orderId || "N/A",
+            amount: amount ? parseInt(amount) : 0,
+            message: message || "",
             timestamp: new Date().toLocaleString("vi-VN"),
         });
 
-        // nếu có orderId, gọi backend để lấy status thực tế (IPN sẽ cập nhật DB)
-        if (orderId) {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-            fetch(`${API_BASE}/api/momo/status?orderId=${orderId}`)
-                .then((r) => r.json())
-                .then((j) => {
-                    const s = j.data?.status;
-                    if (s === "paid") setStatus("success");
-                    else if (s === "failed") setStatus("failed");
-                    else {
-                        // DB chưa cập nhật IPN — fallback dựa vào resultCode (tạm)
-                        if (String(resultCode) === "0") setStatus("success");
-                        else setStatus("failed");
+        // Xác định trạng thái
+        const checkPaymentStatus = async () => {
+            if (orderId) {
+                try {
+                    const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                    console.log(`📡 Checking payment status for orderId: ${orderId}`);
+
+                    const response = await fetch(`${API_BASE}/api/momo/status?orderId=${orderId}`);
+                    const data = await response.json();
+
+                    console.log("Payment status API response:", data);
+
+                    if (data.data?.status === "paid") {
+                        setStatus("success");
+                        setMessage("Thanh toán đã được xác nhận.");
+                    } else if (data.data?.status === "failed") {
+                        setStatus("failed");
+                        setMessage("Thanh toán thất bại.");
+                    } else {
+                        // Fallback dựa vào resultCode từ MoMo
+                        if (resultCode === "0") {
+                            setStatus("success");
+                            setMessage("Thanh toán thành công! Đang cập nhật thông tin...");
+                        } else {
+                            setStatus("failed");
+                            setMessage(message || "Thanh toán không thành công.");
+                        }
                     }
-                })
-                .catch((e) => {
-                    console.error("Error checking status:", e);
-                    // fallback
-                    setStatus(String(resultCode) === "0" ? "success" : "failed");
-                })
-                .finally(() => {
-                    // gọn URL: xóa query params
-                    window.history.replaceState({}, document.title, "/payment-result");
-                });
-        } else {
-            setStatus(String(resultCode) === "0" ? "success" : "failed");
-            window.history.replaceState({}, document.title, "/payment-result");
-        }
-    }, []);
+                } catch (error) {
+                    console.error("❌ Lỗi khi kiểm tra trạng thái:", error);
+                    // Fallback
+                    if (resultCode === "0") {
+                        setStatus("success");
+                        setMessage("Thanh toán thành công!");
+                    } else {
+                        setStatus("failed");
+                        setMessage(message || "Có lỗi xảy ra khi xử lý thanh toán.");
+                    }
+                }
+            } else {
+                // Không có orderId, dựa vào resultCode
+                if (resultCode === "0") {
+                    setStatus("success");
+                    setMessage("Thanh toán thành công!");
+                } else {
+                    setStatus("failed");
+                    setMessage(message || "Thanh toán thất bại.");
+                }
+            }
+        };
+
+        checkPaymentStatus();
+
+        // Clean URL sau khi xử lý (tùy chọn)
+        // window.history.replaceState({}, document.title, "/payment-result");
+    }, [location.search]); // QUAN TRỌNG: dependency là location.search
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat("vi-VN", {
@@ -73,7 +116,7 @@ export default function PaymentResult() {
             </div>
         );
     }
-
+    // Hello
     return (
         <div className="payment-result-root">
             <div className="payment-result-card">
@@ -83,11 +126,7 @@ export default function PaymentResult() {
 
                 <h1 className={`payment-result-title ${status}`}>{status === "success" ? "Thanh toán thành công!" : "Thanh toán thất bại!"}</h1>
 
-                <p className="payment-result-desc">
-                    {status === "success"
-                        ? "Giao dịch đã được xử lý thành công. Cảm ơn bạn đã sử dụng dịch vụ!"
-                        : "Giao dịch không thể hoàn tất. Vui lòng thử lại hoặc liên hệ hỗ trợ."}
-                </p>
+                <p className="payment-result-desc">{message}</p>
 
                 {orderInfo && (
                     <div className="order-info-card">
@@ -100,6 +139,12 @@ export default function PaymentResult() {
                             <span className="order-info-label">Số tiền:</span>
                             <span className="order-info-value amount">{formatCurrency(orderInfo.amount)}</span>
                         </div>
+                        {orderInfo.message && (
+                            <div className="order-info-item">
+                                <span className="order-info-label">Thông báo:</span>
+                                <span className="order-info-value">{orderInfo.message}</span>
+                            </div>
+                        )}
                         <div className="order-info-item">
                             <span className="order-info-label">Thời gian:</span>
                             <span className="order-info-value">{orderInfo.timestamp}</span>
@@ -109,19 +154,24 @@ export default function PaymentResult() {
 
                 <div className="action-buttons">
                     {status === "failed" && (
-                        <button onClick={() => window.location.reload()} className="btn btn-retry">
-                            🔄 Thử lại
+                        <button onClick={() => window.history.back()} className="btn btn-retry">
+                            🔄 Thử lại thanh toán
                         </button>
                     )}
                     <button onClick={() => (window.location.href = "/")} className={`btn ${status === "success" ? "btn-primary" : "btn-secondary"}`}>
                         🏠 Về trang chủ
                     </button>
+                    {status === "success" && (
+                        <button onClick={() => (window.location.href = "/dashboard/trips")} className="btn btn-secondary">
+                            📋 Xem đơn hàng
+                        </button>
+                    )}
                 </div>
 
                 <div className="payment-result-footer">
                     <p>
                         Nếu có thắc mắc, vui lòng liên hệ{" "}
-                        <a href="#" className="support-link">
+                        <a href="/contact" className="support-link">
                             hỗ trợ khách hàng
                         </a>
                     </p>
