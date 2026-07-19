@@ -30,11 +30,17 @@ lerna-debug.log*
 # Editor directories and files
 .idea
 .vscode
+.vs/
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
+# *.sln - Do not ignore Solution files for .NET
 *.sw?
+*.user
+
+# .NET Build outputs
+[Bb]in/
+[Oo]bj/
 
 # Environment variables
 .env
@@ -45,6 +51,11 @@ lerna-debug.log*
 .env.production  # THÊM DÒNG NÀY
 backend/.env*    # ĐÃ CÓ RỒI - TỐT
 client/.env*     # ĐÃ CÓ RỒI - TỐT
+
+# .NET Secrets
+BookingTourAPI/**/appsettings.json
+BookingTourAPI/**/appsettings.Development.json
+
 # PM2
 .pm2
 
