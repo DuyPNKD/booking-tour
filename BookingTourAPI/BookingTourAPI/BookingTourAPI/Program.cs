@@ -82,6 +82,24 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Cấu hình Bắt lỗi toàn cục (Global Exception Handler) để trả về JSON báo nguyên nhân khi xảy ra lỗi 500
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+        var exceptionFeature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+        var ex = exceptionFeature?.Error;
+        var result = System.Text.Json.JsonSerializer.Serialize(new { 
+            message = "Đã xảy ra lỗi trên máy chủ API.", 
+            error = ex?.Message,
+            innerError = ex?.InnerException?.Message 
+        });
+        await context.Response.WriteAsync(result);
+    });
+});
+
 // Kích hoạt CORS (Phải đặt trước Auth)
 app.UseCors("AllowFrontend");
 
