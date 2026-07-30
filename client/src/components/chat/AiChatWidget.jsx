@@ -9,7 +9,9 @@ const QUICK_PROMPTS = [
   "🏖️ Tìm tour ngắm biển dưới 4 triệu",
 ];
 
-const API_FALLBACK_URL = "http://localhost:5029/api/ai/chat";
+const API_FALLBACK_URL = import.meta.env.VITE_API_BASE 
+  ? `${import.meta.env.VITE_API_BASE}/api/ai/chat` 
+  : "https://booking-tour-api-gpnf.onrender.com/api/ai/chat";
 
 const renderFormattedContent = (text) => {
   if (!text) return "";

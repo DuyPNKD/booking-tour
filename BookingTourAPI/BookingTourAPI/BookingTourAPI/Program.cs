@@ -106,7 +106,10 @@ app.UseAuthentication();
 // Kích hoạt Middleware phân quyền (Kiểm tra xem User có quyền truy cập không)
 app.UseAuthorization();
 
-// Ánh xạ các Controller vào hệ thống Route (Giống việc gán app.use('/api', router))
+// Root endpoint phục vụ kiểm tra trạng thái API (Health check)
+app.MapGet("/", () => "DTravel API is running!");
+
+// Ánh xạ các Controller vào hệ thống Route
 app.MapControllers();
 
 // Bắt đầu lắng nghe các request (Giống app.listen(port))
