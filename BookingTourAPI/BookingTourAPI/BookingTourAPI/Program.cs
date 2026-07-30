@@ -13,13 +13,25 @@ var builder = WebApplication.CreateBuilder(args);
 // Lấy chuỗi kết nối Database từ file appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Cấu hình MySqlConnector linh hoạt hỗ trợ SSL với file chứng chỉ ca.pem cho Aiven Cloud trên Docker Render
-var caPath = Path.Combine(Directory.GetCurrentDirectory(), "ca.pem");
+// Cấu hình chứng chỉ SSL ca.pem cho Aiven MySQL Cloud
+var caPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ca.pem");
+var sslCertEnv = builder.Configuration["SSL_CERTIFICATE"] ?? Environment.GetEnvironmentVariable("SSL_CERTIFICATE");
+if (!string.IsNullOrEmpty(sslCertEnv))
+{
+    try
+    {
+        var certContent = sslCertEnv.Replace("\\n", "\n");
+        File.WriteAllText(caPath, certContent);
+    }
+    catch { }
+}
+
 var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
 {
     SslMode = MySqlConnector.MySqlSslMode.Required,
     AllowPublicKeyRetrieval = true
 };
+
 if (File.Exists(caPath))
 {
     csb.SslCa = caPath;
