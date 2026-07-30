@@ -17,8 +17,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
 {
     SslMode = MySqlConnector.MySqlSslMode.Preferred,
-    AllowPublicKeyRetrieval = true,
-    ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+    AllowPublicKeyRetrieval = true
 };
 
 // Đăng ký Database Context với MySQL
