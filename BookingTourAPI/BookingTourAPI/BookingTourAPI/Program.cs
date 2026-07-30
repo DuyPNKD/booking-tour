@@ -10,12 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- PHẦN 1: ĐĂNG KÝ CÁC DỊCH VỤ (Dependency Injection) ---
 
-// Lấy chuỗi kết nối Database từ file appsettings.json (giống process.env.DB_URL)
+// Lấy chuỗi kết nối Database từ file appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Đăng ký Database Context với MySQL (Giống việc cấu hình kết nối DB trong Sequelize/Mongoose)
+// Cấu hình MySqlConnector để bật mã hóa SSL và chấp nhận chứng chỉ tự ký của Aiven Cloud
+var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
+{
+    SslMode = MySqlConnector.MySqlSslMode.Required,
+    ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+};
+
+// Đăng ký Database Context với MySQL
 builder.Services.AddDbContext<BookingTourContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)),
+    options.UseMySql(csb.ConnectionString, new MySqlServerVersion(new Version(8, 0, 30)),
         mySqlOptions => mySqlOptions.EnableRetryOnFailure(
             maxRetryCount: 5,
             maxRetryDelay: TimeSpan.FromSeconds(30),
