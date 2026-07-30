@@ -1,11 +1,10 @@
-// inspect-db.js
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env.development") });
 const mysql = require("mysql2/promise");
 const fs = require("fs");
-const path = require("path");
 
 async function inspectDatabase() {
-    const sslCert = fs.readFileSync(path.join(__dirname, "../certs/ca.pem"));
+    const sslCert = fs.readFileSync(path.join(__dirname, "ca.pem"));
 
     const pool = mysql.createPool({
         host: process.env.DB_HOST,

@@ -13,10 +13,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Lấy chuỗi kết nối Database từ file appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Cấu hình MySqlConnector để bật mã hóa SSL và chấp nhận chứng chỉ tự ký của Aiven Cloud
+// Cấu hình MySqlConnector linh hoạt hỗ trợ SSL cho Aiven Cloud trên Docker Render
 var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
 {
-    SslMode = MySqlConnector.MySqlSslMode.Required,
+    SslMode = MySqlConnector.MySqlSslMode.Preferred,
+    AllowPublicKeyRetrieval = true,
     ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
 };
 
