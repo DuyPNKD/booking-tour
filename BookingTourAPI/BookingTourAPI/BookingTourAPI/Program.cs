@@ -13,12 +13,17 @@ var builder = WebApplication.CreateBuilder(args);
 // Lấy chuỗi kết nối Database từ file appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Cấu hình MySqlConnector linh hoạt hỗ trợ SSL cho Aiven Cloud trên Docker Render
+// Cấu hình MySqlConnector linh hoạt hỗ trợ SSL với file chứng chỉ ca.pem cho Aiven Cloud trên Docker Render
+var caPath = Path.Combine(Directory.GetCurrentDirectory(), "ca.pem");
 var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
 {
-    SslMode = MySqlConnector.MySqlSslMode.Preferred,
+    SslMode = MySqlConnector.MySqlSslMode.Required,
     AllowPublicKeyRetrieval = true
 };
+if (File.Exists(caPath))
+{
+    csb.SslCa = caPath;
+}
 
 // Đăng ký Database Context với MySQL
 builder.Services.AddDbContext<BookingTourContext>(options =>
