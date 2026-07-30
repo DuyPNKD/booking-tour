@@ -21,13 +21,13 @@ builder.Services.AddDbContext<BookingTourContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(30),
             errorNumbersToAdd: null)));
 
-// Cấu hình CORS (Giống app.use(cors(...)) trong Express)
+// Cấu hình CORS (Cho phép Frontend Vercel & Localhost truy cập API)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173", "http://localhost:5174") // Cho phép Frontend (Vite/React) gọi API
+            policy.SetIsOriginAllowed(origin => true) // Cho phép tất cả các domain (Vercel, Localhost) gửi request
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
