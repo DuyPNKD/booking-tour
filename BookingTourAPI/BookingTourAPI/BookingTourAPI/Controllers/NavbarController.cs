@@ -78,8 +78,8 @@ namespace BookingTourAPI.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[NAVBAR ERROR] {ex.ToString()}");
-                return StatusCode(500, new { message = "Lỗi server khi lấy navbar" });
+                Console.WriteLine($"[NAVBAR ERROR] {ex}");
+                return StatusCode(500, new { message = "Lỗi server khi lấy navbar", error = ex.Message, inner = ex.InnerException?.Message });
             }
         }
     }
