@@ -4,28 +4,39 @@ import axios from "axios";
 import "react-calendar/dist/Calendar.css";
 import "./Calendar.css";
 
-const CustomCalendarInput = ({tourId, onChange, value}) => {
+const CustomCalendarInput = ({tourId, onChange, value, providedDates}) => {
     const [departureDates, setDepartureDates] = useState([]);
     const [showCalendar, setShowCalendar] = useState(false);
 
     const calendarRef = useRef();
 
-    // Lấy danh sách ngày khởi hành từ API
+    // Lấy danh sách ngày khởi hành từ API hoặc dùng từ prop
     useEffect(() => {
+        if (providedDates && providedDates.length > 0) {
+            setDepartureDates(providedDates);
+            return;
+        }
+
+        if (!tourId) return;
+
         const fetchDates = async () => {
             try {
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-                const res = await axios.get(`${API_BASE}/api/tours/${tourId}/departure-dates`);
-                setDepartureDates(res.data || []);
-                if (res.data.length > 0) {
-                    onChange(res.data[0]); // ✅ Gọi callback để update selectedDate ở component cha
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
+                // C# Backend trả về mảng string "yyyy-MM-dd" trong detail tour, 
+                // nhưng nếu gọi lẻ ta nên dùng endpoint chuẩn nếu có.
+                // Ở đây ta ưu tiên dùng providedDates từ parent (TourDetail).
+                const res = await axios.get(`${API_BASE}/api/tours/${tourId}`);
+                const {data} = res.data;
+                if (data && data.departures) {
+                    const dates = data.departures.map(d => d.departure_date);
+                    setDepartureDates(dates);
                 }
             } catch (err) {
                 console.error("Lỗi khi lấy ngày khởi hành:", err);
             }
         };
         fetchDates();
-    }, [tourId]);
+    }, [tourId, providedDates]);
 
     // Đóng lịch khi click ngoài
     useEffect(() => {

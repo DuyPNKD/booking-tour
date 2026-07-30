@@ -7,7 +7,7 @@ import axios from "axios";
  * - Xử lý errors và token refresh
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 // Tạo axios instance chung
 const apiClient = axios.create({

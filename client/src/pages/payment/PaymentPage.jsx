@@ -21,11 +21,11 @@ const PaymentPage = () => {
 
         const fetchBooking = async () => {
             try {
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
                 const res = await axios.get(`${API_BASE}/api/booking/${bookingId}`);
-                // console.log("Booking response:", res.data);
                 if (res.data.success) {
-                    const {booking, details} = res.data;
+                    const booking = res.data.data;
+                    const details = booking.details;
 
                     // Tính tổng số khách theo loại từ details
                     const guests = {adult: 0, child: 0, infant: 0};
@@ -64,7 +64,7 @@ const PaymentPage = () => {
         if (!bookingData) return;
 
         try {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await axios.post(`${API_BASE}/api/momo/create`, {
                 booking_id: bookingId,
                 amount: bookingData.totalPrice,
@@ -85,7 +85,7 @@ const PaymentPage = () => {
     }
     console.log("Booking data:", bookingData);
 
-    const {guests, adultTotal, childTotal, tour_name, departure_date, address, full_name, phone_number, email, location_name, num_day, num_night} =
+    const {guests, adultTotal, childTotal, tour_name, departure_date, address, full_name, phone, email, location_name, num_day, num_night} =
         bookingData;
     console.log("Guests data:", guests);
     const adults = guests.adult || 0;
@@ -205,7 +205,7 @@ const PaymentPage = () => {
                             <div className="payment-summary-section">
                                 <div className="payment-summary-section-title">KHÁCH</div>
                                 <div className="payment-summary-row-1">{full_name}</div>
-                                <div className="payment-summary-row-1">{phone_number}</div>
+                                <div className="payment-summary-row-1">{phone}</div>
                                 <div className="payment-summary-row-1">{email}</div>
                                 <div className="payment-summary-row-1">{address}</div>
                             </div>

@@ -38,7 +38,7 @@ export default function PaymentResult() {
         const checkPaymentStatus = async () => {
             if (orderId) {
                 try {
-                    const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                    const API_BASE = import.meta.env.VITE_API_BASE || "";
                     console.log(`📡 Checking payment status for orderId: ${orderId}`);
 
                     const response = await fetch(`${API_BASE}/api/momo/status?orderId=${orderId}`);

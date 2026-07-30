@@ -88,7 +88,11 @@ const TourCategory = ({title, link, categoryId}) => {
                     {tours.map((tour) => (
                         <SwiperSlide key={tour.id}>
                             <Link to={`/tours/${tour.id}`} className="tourCategory-card">
-                                <img src={tour.thumbnail_url} alt={tour.title} className="tourCategory-image" />
+                                <img 
+                                    src={tour.thumbnail_url?.startsWith('/') ? (import.meta.env.VITE_API_BASE + tour.thumbnail_url) : tour.thumbnail_url} 
+                                    alt={tour.title} 
+                                    className="tourCategory-image" 
+                                />
                                 <div className="tourCategory-content">
                                     <h3 className="tourCategory-title">{tour.title}</h3>
                                     <div className="tourCategory-rating-booked">

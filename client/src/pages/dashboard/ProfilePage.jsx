@@ -69,7 +69,7 @@ export default function ProfilePage() {
             if (avatarFile) {
                 const formData = new FormData();
                 formData.append("avatar", avatarFile);
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
                 const resUpload = await fetch(`${API_BASE}/api/auth/upload/avatar`, {
                     method: "POST",
                     headers: {
@@ -83,7 +83,7 @@ export default function ProfilePage() {
                 }
             }
             // Cập nhật thông tin text
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await fetch(`${API_BASE}/api/auth/me`, {
                 method: "PUT",
                 headers: {

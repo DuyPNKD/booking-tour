@@ -61,6 +61,10 @@ builder.Services.AddControllers()
 // 'AddScoped' nghĩa là tạo một instance mới cho mỗi request HTTP (giống như tạo mới một helper cho mỗi req)
 builder.Services.AddScoped<BookingTourAPI.Services.IMailerService, BookingTourAPI.Services.MailerService>();
 
+// Đăng ký AI Agent & RAG Services
+builder.Services.AddScoped<BookingTourAPI.Services.IRagService, BookingTourAPI.Services.RagService>();
+builder.Services.AddHttpClient<BookingTourAPI.Services.IClaudeService, BookingTourAPI.Services.ClaudeService>();
+
 // Cấu hình Swagger - Công cụ tạo tài liệu API tự động (Giống Swagger-UI trong Node)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

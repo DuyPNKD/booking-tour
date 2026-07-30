@@ -19,7 +19,7 @@ const CATEGORY_SLUG = {
     promotion: "khuyen-mai",
 };
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 // Helper: fetch category posts
 async function fetchCategory(slug) {

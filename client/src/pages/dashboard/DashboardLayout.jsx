@@ -21,7 +21,7 @@ export default function DashboardLayout() {
                     {/* User info item */}
                     <div className="dashboard-sidebar-item dashboard-user-item" onClick={() => navigate("/dashboard/profile")}>
                         {(() => {
-                            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                            const API_BASE = import.meta.env.VITE_API_BASE || "";
                             const avatarSrc = user?.picture
                                 ? user.picture.startsWith("/")
                                     ? API_BASE + user.picture

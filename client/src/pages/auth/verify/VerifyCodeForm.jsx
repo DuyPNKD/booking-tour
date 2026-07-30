@@ -32,7 +32,7 @@ function VerifyCodeForm() {
         console.log("Email: ", email, " Code: ", code);
 
         try {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await fetch(`${API_BASE}/api/auth/verify`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -59,7 +59,7 @@ function VerifyCodeForm() {
 
     const handleResend = async () => {
         try {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await fetch(`${API_BASE}/api/auth/resend-otp`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},

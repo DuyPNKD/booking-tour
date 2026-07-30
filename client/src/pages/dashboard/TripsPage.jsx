@@ -74,7 +74,7 @@ export default function TripsPage() {
 
                                         try {
                                             // Gọi API DELETE để xóa booking theo ID
-                                            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                                            const API_BASE = import.meta.env.VITE_API_BASE || "";
                                             const res = await fetch(`${API_BASE}/api/booking/me/${b.booking_id}`, {
                                                 method: "DELETE", // Phương thức HTTP DELETE
                                                 headers: {

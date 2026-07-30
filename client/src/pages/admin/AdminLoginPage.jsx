@@ -1,40 +1,33 @@
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import {Form, Input, Button, message, Typography} from "antd";
+import {UserOutlined, LockOutlined, CompassOutlined} from "@ant-design/icons";
 import axios from "axios";
 import "./AdminLoginPage.css";
 
+const {Title, Text} = Typography;
+
 const AdminLoginPage = () => {
     const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError("");
-
-        if (!email || !password) {
-            setError("Vui lòng nhập email và mật khẩu");
-            return;
-        }
-
+    const onFinish = async (values) => {
+        const {email, password} = values;
         setLoading(true);
         try {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const response = await axios.post(`${API_BASE}/api/admin/login`, {email, password});
-            console.log(response.data);
-            // BE trả: { access_token, user }
+            
             if (response.data?.access_token) {
                 localStorage.setItem("adminToken", response.data.access_token);
-                alert(`Đăng nhập thành công! Chào mừng bạn trở lại, ${response.data.user?.name || "Admin"}`);
+                message.success(`Chào mừng quay trở lại, ${response.data.user?.name || "Admin"}!`);
                 navigate("/admin/dashboard");
             } else {
-                setError("Đăng nhập thất bại!");
+                message.error("Đăng nhập thất bại!");
             }
         } catch (err) {
             const msg = err.response?.data?.message || "Đăng nhập thất bại!";
-            setError(msg);
+            message.error(msg);
         } finally {
             setLoading(false);
         }
@@ -42,43 +35,73 @@ const AdminLoginPage = () => {
 
     return (
         <div className="admin-login-container">
-            <div className="admin-card">
-                <h3 className="admin-title">Đăng nhập Admin</h3>
-
-                {error && <div className="admin-alert admin-alert-error">{error}</div>}
-
-                <form className="admin-form" onSubmit={handleSubmit} noValidate>
-                    <div className="form-group">
-                        <label htmlFor="email">Email</label>
-                        <input
-                            id="email"
-                            type="email"
-                            className="input"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
+            <div className="admin-card-glass">
+                <div className="admin-logo-wrapper">
+                    <div className="admin-logo-icon">
+                        <CompassOutlined />
                     </div>
+                </div>
+                
+                <div style={{ textAlign: "center", marginBottom: 24 }}>
+                    <Title level={4} style={{ margin: 0, fontWeight: 700, color: "#1f1f1f" }}>
+                        DTravel Admin
+                    </Title>
+                    <Text type="secondary" style={{ fontSize: "13px" }}>
+                        Đăng nhập hệ thống quản lý đặt tour
+                    </Text>
+                </div>
 
-                    <div className="form-group">
-                        <label htmlFor="password">Mật khẩu</label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="input"
-                            placeholder="Mật khẩu"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
+                <Form
+                    name="admin_login"
+                    layout="vertical"
+                    onFinish={onFinish}
+                    autoComplete="off"
+                    size="large"
+                >
+                    <Form.Item
+                        name="email"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập Email!" },
+                            { type: "email", message: "Email không hợp lệ!" }
+                        ]}
+                    >
+                        <Input 
+                            prefix={<UserOutlined style={{ color: "#bfbfbf" }} />} 
+                            placeholder="Nhập email tài khoản" 
                         />
-                    </div>
+                    </Form.Item>
 
-                    <button className="btn btn-primary" type="submit" disabled={loading}>
-                        {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-                    </button>
-                </form>
+                    <Form.Item
+                        name="password"
+                        rules={[
+                            { required: true, message: "Vui lòng nhập Mật khẩu!" },
+                            { min: 6, message: "Mật khẩu tối thiểu 6 ký tự!" }
+                        ]}
+                    >
+                        <Input.Password 
+                            prefix={<LockOutlined style={{ color: "#bfbfbf" }} />} 
+                            placeholder="Nhập mật khẩu" 
+                        />
+                    </Form.Item>
+
+                    <Form.Item style={{ marginBottom: 0 }}>
+                        <Button 
+                            type="primary" 
+                            htmlType="submit" 
+                            loading={loading} 
+                            block
+                            style={{ 
+                                height: "46px", 
+                                borderRadius: "8px", 
+                                fontWeight: 600,
+                                background: "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+                                border: "none"
+                            }}
+                        >
+                            Đăng nhập
+                        </Button>
+                    </Form.Item>
+                </Form>
             </div>
         </div>
     );

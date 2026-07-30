@@ -88,7 +88,7 @@ function SignInForm() {
         e.preventDefault();
 
         try {
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -184,7 +184,7 @@ function SignInForm() {
                                 onSuccess={async (credentialResponse) => {
                                     try {
                                         const tokenGoogle = credentialResponse.credential;
-                                        const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                                        const API_BASE = import.meta.env.VITE_API_BASE || "";
                                         const res = await axios.post(`${API_BASE}/api/auth/google`, {token: tokenGoogle});
 
                                         // Dùng login từ context

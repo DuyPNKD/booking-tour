@@ -324,6 +324,7 @@ const AdminBlog = () => {
                                     columns={columns}
                                     dataSource={posts}
                                     loading={loading}
+                                    scroll={{ x: "max-content" }}
                                     pagination={{
                                         current: pagination.current,
                                         pageSize: pagination.pageSize,

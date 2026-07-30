@@ -27,6 +27,7 @@ import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminTopics from "./pages/admin/AdminTopics";
 import AdminBlog from "./pages/admin/AdminBlog";
+import AiChatWidget from "./components/chat/AiChatWidget";
 import "./App.css";
 
 function AppRoutes() {
@@ -97,6 +98,7 @@ function AppRoutes() {
                 <Route path="*" element={<div>404 - Không tìm thấy trang</div>} />
             </Routes>
             {!isAdminRoute && <Footer />}
+            {!isAdminRoute && <AiChatWidget />}
         </>
     );
 }

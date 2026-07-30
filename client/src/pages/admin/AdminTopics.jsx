@@ -1,11 +1,7 @@
 import React, {useEffect, useState} from "react";
-import {Modal, Input, Popconfirm, message, Tag, Select, Switch} from "antd";
+import {Card, Table, Modal, Form, Input, Button, Popconfirm, message, Tag, Select, Switch, Space} from "antd";
+import {PlusOutlined, EditOutlined, DeleteOutlined, StarFilled, StarOutlined} from "@ant-design/icons";
 import {adminApi} from "../../utils/adminApi";
-
-const statusColors = {
-    active: "green",
-    inactive: "red",
-};
 
 const PAGE_SIZE = 10;
 
@@ -22,7 +18,7 @@ const AdminTopics = () => {
     const loadFeaturedTopics = async () => {
         try {
             const {data} = await adminApi.get("/topics/feature");
-            setFeaturedTopics(data);
+            setFeaturedTopics(data || []);
         } catch (e) {
             setFeaturedTopics([]);
         }
@@ -33,10 +29,11 @@ const AdminTopics = () => {
         setLoading(true);
         try {
             const {data} = await adminApi.get("/topics");
-            setTopics(data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
+            const rawData = data || [];
+            setTopics(rawData.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE));
             setPagination({
                 current: page,
-                total: data.length,
+                total: rawData.length,
             });
         } catch (e) {
             message.error("Không tải được danh sách chủ đề");
@@ -84,7 +81,7 @@ const AdminTopics = () => {
             setForm({name: "", slug: "", status: "active", is_feature: false});
             setEditingTopic(null);
             loadTopics(pagination.current);
-            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
+            loadFeaturedTopics();
         } catch (e) {
             message.error(e.response?.data?.message || "Lỗi thao tác chủ đề");
         }
@@ -96,7 +93,7 @@ const AdminTopics = () => {
             message.success("Đã xóa chủ đề");
             const nextPage = topics.length === 1 && pagination.current > 1 ? pagination.current - 1 : pagination.current;
             loadTopics(nextPage);
-            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
+            loadFeaturedTopics();
         } catch (e) {
             message.error(e.response?.data?.message || "Xóa chủ đề thất bại");
         }
@@ -114,7 +111,8 @@ const AdminTopics = () => {
                 await adminApi.delete(`/topics/${id}/feature`);
                 message.success("Đã tắt hiển thị trang chủ");
             }
-            loadFeaturedTopics(); // cập nhật lại danh sách nổi bật
+            loadTopics(pagination.current);
+            loadFeaturedTopics();
         } catch (e) {
             message.error("Không thể cập nhật trạng thái hiển thị trang chủ");
         }
@@ -122,59 +120,56 @@ const AdminTopics = () => {
 
     // Table columns
     const columns = [
-        {title: "#", dataIndex: "index", key: "index", width: 60, align: "center"},
-        {title: "ID", dataIndex: "id", key: "id", width: 80, align: "center"},
-        {title: "Tên chủ đề", dataIndex: "name", key: "name", render: (v) => <span className="fw-medium">{v}</span>},
-        {title: "Slug", dataIndex: "slug", key: "slug", render: (v) => <span className="text-muted">{v}</span>},
+        {
+            title: "#",
+            key: "index",
+            width: 60,
+            align: "center",
+            render: (_, __, idx) => (pagination.current - 1) * PAGE_SIZE + idx + 1,
+        },
+        {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+            width: 80,
+            align: "center",
+        },
+        {
+            title: "Tên chủ đề",
+            dataIndex: "name",
+            key: "name",
+            render: (v) => <span className="fw-medium">{v}</span>,
+        },
+        {
+            title: "Slug",
+            dataIndex: "slug",
+            key: "slug",
+            render: (v) => <span className="text-muted">{v}</span>,
+        },
         {
             title: "Trạng thái",
             dataIndex: "status",
             key: "status",
             align: "center",
-            render: (status) =>
-                status === "active" ? (
-                    <span
-                        className="badge"
-                        style={{
-                            backgroundColor: "#43a047",
-                            color: "#fff",
-                            fontSize: "1rem",
-                            padding: "0.5em 1.2em",
-                            borderRadius: "1.5em",
-                            fontWeight: 600,
-                            letterSpacing: 1,
-                        }}
-                    >
-                        <i className="fa-solid fa-circle-check me-1"></i> Active
-                    </span>
-                ) : (
-                    <span
-                        className="badge"
-                        style={{
-                            backgroundColor: "#bdbdbd",
-                            color: "#333",
-                            fontSize: "1rem",
-                            padding: "0.5em 1.2em",
-                            borderRadius: "1.5em",
-                            fontWeight: 600,
-                            letterSpacing: 1,
-                        }}
-                    >
-                        <i className="fa-solid fa-circle-xmark me-1"></i> Inactive
-                    </span>
-                ),
+            width: 140,
+            render: (status) => (
+                <Tag color={status === "active" ? "success" : "default"}>
+                    {status === "active" ? "Active" : "Inactive"}
+                </Tag>
+            ),
         },
         {
             title: "Hiển thị trang chủ",
             dataIndex: "is_feature",
             key: "is_feature",
             align: "center",
+            width: 180,
             render: (v, record) => (
                 <Switch
                     checked={!!v}
                     onChange={() => handleToggleFeature(record)}
-                    checkedChildren={<i className="fa-solid fa-star" style={{color: "#fbc02d"}} />}
-                    unCheckedChildren={<i className="fa-regular fa-star" style={{color: "#bdbdbd"}} />}
+                    checkedChildren={<StarFilled style={{color: "#fbc02d"}} />}
+                    unCheckedChildren={<StarOutlined style={{color: "#bdbdbd"}} />}
                 />
             ),
         },
@@ -182,378 +177,150 @@ const AdminTopics = () => {
             title: "Hành động",
             key: "action",
             align: "center",
+            width: 180,
             render: (_, record) => (
-                <div className="d-flex flex-wrap justify-content-center gap-2">
-                    <button
-                        className="btn btn-sm btn-outline-primary"
-                        style={{
-                            color: "#2196f3",
-                            borderColor: "#2196f3",
-                            minWidth: 70,
-                            background: "none",
-                            transition: "background 0.2s, color 0.2s",
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = "#2196f3";
-                            e.currentTarget.style.color = "#fff";
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = "none";
-                            e.currentTarget.style.color = "#2196f3";
-                        }}
-                        onClick={() => showEditModal(record)}
+                <Space>
+                    <Button size="small" icon={<EditOutlined />} onClick={() => showEditModal(record)}>
+                        Sửa
+                    </Button>
+                    <Popconfirm
+                        title="Bạn chắc chắn muốn xóa chủ đề này?"
+                        okText="Xóa"
+                        cancelText="Hủy"
+                        onConfirm={() => handleDelete(record.id)}
                     >
-                        <i className="fa-solid fa-pen me-1"></i> Sửa
-                    </button>
-                    <Popconfirm title="Bạn chắc chắn muốn xóa?" onConfirm={() => handleDelete(record.id)} okText="Xóa" cancelText="Hủy">
-                        <button
-                            className="btn btn-sm btn-outline-danger"
-                            style={{
-                                color: "#e53935",
-                                borderColor: "#e53935",
-                                minWidth: 70,
-                                background: "none",
-                                transition: "background 0.2s, color 0.2s",
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#e53935";
-                                e.currentTarget.style.color = "#fff";
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = "none";
-                                e.currentTarget.style.color = "#e53935";
-                            }}
-                        >
-                            <i className="fa-solid fa-trash me-1"></i> Xóa
-                        </button>
+                        <Button size="small" danger icon={<DeleteOutlined />}>
+                            Xóa
+                        </Button>
                     </Popconfirm>
-                </div>
+                </Space>
             ),
         },
     ];
 
-    // Render table rows
-    const renderRows = () =>
-        topics.map((topic, idx) => (
-            <tr key={topic.id}>
-                <td className="text-center text-muted">{(pagination.current - 1) * PAGE_SIZE + idx + 1}</td>
-                <td className="text-center text-muted">{topic.id}</td>
-                <td className="fw-medium">{topic.name}</td>
-                <td className="text-muted">{topic.slug}</td>
-                <td className="text-center">
-                    {topic.status === "active" ? (
-                        <span
-                            className="badge"
-                            style={{
-                                backgroundColor: "#e8f5e9",
-                                color: "#2e7d32",
-                                fontSize: "0.813rem",
-                                padding: "0.4em 0.9em",
-                                borderRadius: "0.375rem",
-                                fontWeight: 500,
-                                border: "1px solid #c8e6c9",
-                            }}
-                        >
-                            <i className="fa-solid fa-circle-check me-1"></i> Active
-                        </span>
-                    ) : (
-                        <span
-                            className="badge"
-                            style={{
-                                backgroundColor: "#fafafa",
-                                color: "#616161",
-                                fontSize: "0.813rem",
-                                padding: "0.4em 0.9em",
-                                borderRadius: "0.375rem",
-                                fontWeight: 500,
-                                border: "1px solid #e0e0e0",
-                            }}
-                        >
-                            <i className="fa-solid fa-circle-xmark me-1"></i> Inactive
-                        </span>
-                    )}
-                </td>
-                <td className="text-center" onClick={() => handleToggleFeature(topic)} style={{cursor: "pointer"}}>
-                    {topic.is_feature ? (
-                        <span className="badge" style={{backgroundColor: "#fffde7", color: "#fbc02d"}}>
-                            <i className="fa-solid fa-star me-1"></i> Có
-                        </span>
-                    ) : (
-                        <span className="badge" style={{backgroundColor: "#fafafa", color: "#bdbdbd"}}>
-                            <i className="fa-regular fa-star me-1"></i> Không
-                        </span>
-                    )}
-                </td>
-                <td className="text-center">
-                    <div className="d-flex flex-wrap justify-content-center gap-2">
-                        <button
-                            className="btn btn-sm btn-outline-primary"
-                            style={{
-                                color: "#2196f3",
-                                borderColor: "#2196f3",
-                                minWidth: 70,
-                                background: "none",
-                                transition: "background 0.2s, color 0.2s",
-                            }}
-                            onMouseOver={(e) => {
-                                e.currentTarget.style.background = "#2196f3";
-                                e.currentTarget.style.color = "#fff";
-                            }}
-                            onMouseOut={(e) => {
-                                e.currentTarget.style.background = "none";
-                                e.currentTarget.style.color = "#2196f3";
-                            }}
-                            onClick={() => showEditModal(topic)}
-                        >
-                            <i className="fa-solid fa-pen me-1"></i> Sửa
-                        </button>
-                        <Popconfirm title="Bạn chắc chắn muốn xóa?" onConfirm={() => handleDelete(topic.id)} okText="Xóa" cancelText="Hủy">
-                            <button
-                                className="btn btn-sm btn-outline-danger"
-                                style={{
-                                    color: "#e53935",
-                                    borderColor: "#e53935",
-                                    minWidth: 70,
-                                    background: "none",
-                                    transition: "background 0.2s, color 0.2s",
-                                }}
-                                onMouseOver={(e) => {
-                                    e.currentTarget.style.background = "#e53935";
-                                    e.currentTarget.style.color = "#fff";
-                                }}
-                                onMouseOut={(e) => {
-                                    e.currentTarget.style.background = "none";
-                                    e.currentTarget.style.color = "#e53935";
-                                }}
-                            >
-                                <i className="fa-solid fa-trash me-1"></i> Xóa
-                            </button>
-                        </Popconfirm>
-                    </div>
-                </td>
-            </tr>
-        ));
-
-    // Pagination
-    const totalPages = Math.ceil(pagination.total / PAGE_SIZE);
-    const goPage = (p) => {
-        if (p < 1 || p > totalPages) return;
-        loadTopics(p);
-    };
-
     return (
-        <div className="container-fluid">
-            {/* Hiển thị danh sách chủ đề nổi bật */}
-            <div className="mb-3">
-                <h6 className="mb-2">Chủ đề hiển thị trên trang chủ:</h6>
-                {featuredTopics.length > 0 ? (
-                    <div className="d-flex flex-wrap gap-2">
-                        {featuredTopics.map((topic) => (
-                            <span
-                                key={topic.id}
-                                className="badge"
-                                style={{
-                                    backgroundColor: "#fffde7",
-                                    color: "#fbc02d",
-                                    fontSize: "1rem",
-                                    padding: "0.5em 1.2em",
-                                    borderRadius: "1.5em",
-                                    fontWeight: 600,
-                                    border: "1px solid #ffe082",
-                                }}
-                            >
-                                <i className="fa-solid fa-star me-1"></i>
-                                {topic.name}
-                            </span>
-                        ))}
-                    </div>
-                ) : (
-                    <span className="text-muted">Không có chủ đề nào được bật hiển thị trang chủ.</span>
-                )}
-            </div>
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-3">
-                <h5 className="mb-0">Quản lý Chủ đề</h5>
-                <div className="d-flex gap-2">
-                    <button
-                        className="btn btn-primary d-inline-flex align-items-center gap-2 text-nowrap py-2"
+        <div className="admin-topics-page p-3">
+            <Card className="shadow-sm mb-3">
+                {/* Featured Topics Section */}
+                <div className="mb-4">
+                    <h6 className="fw-semibold text-secondary mb-2">Chủ đề hiển thị trên trang chủ:</h6>
+                    {featuredTopics.length > 0 ? (
+                        <Space wrap>
+                            {featuredTopics.map((topic) => (
+                                <Tag
+                                    key={topic.id}
+                                    color="warning"
+                                    style={{
+                                        fontSize: "0.95rem",
+                                        padding: "4px 12px",
+                                        borderRadius: "16px",
+                                        fontWeight: 600,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px"
+                                    }}
+                                >
+                                    <StarFilled style={{color: "#fbc02d"}} />
+                                    {topic.name}
+                                </Tag>
+                            ))}
+                        </Space>
+                    ) : (
+                        <span className="text-muted small">Không có chủ đề nào được bật hiển thị trang chủ.</span>
+                    )}
+                </div>
+
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h5 className="fw-bold mb-0">Quản lý Chủ đề</h5>
+                    <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
                         onClick={showAddModal}
-                        style={{overflow: "visible"}}
                     >
-                        <i className="fa-solid fa-plus"></i>
-                        <span>Thêm chủ đề</span>
-                    </button>
+                        Thêm chủ đề
+                    </Button>
                 </div>
-            </div>
-            <div className="card">
-                {loading ? (
-                    <div className="p-4 text-center text-muted">Đang tải...</div>
-                ) : (
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle mb-0 table-bordered table-striped" style={{tableLayout: "fixed"}}>
-                            <thead className="table-light">
-                                <tr>
-                                    {columns.map((col) => (
-                                        <th
-                                            key={col.key}
-                                            className={col.align ? `text-${col.align}` : ""}
-                                            style={col.width ? {width: col.width} : {}}
-                                        >
-                                            {col.title}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {topics.length > 0 ? (
-                                    renderRows()
-                                ) : (
-                                    <tr>
-                                        <td colSpan={columns.length} className="text-center text-muted py-4">
-                                            Không có chủ đề nào
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-                {/* Pagination */}
-                {!loading && totalPages > 1 && (
-                    <div className="card-footer d-flex justify-content-between align-items-center">
-                        <div className="text-muted small">
-                            Trang {pagination.current}/{totalPages} • Tổng {pagination.total} chủ đề
-                        </div>
-                        <ul className="pagination mb-0">
-                            <li className={`page-item ${pagination.current === 1 ? "disabled" : ""}`}>
-                                <button className="page-link" aria-label="Previous" onClick={() => goPage(pagination.current - 1)}>
-                                    <span aria-hidden="true">&laquo;</span>
-                                </button>
-                            </li>
-                            {(() => {
-                                const pages = [];
-                                const current = pagination.current;
-                                const total = totalPages;
-                                const maxVisible = 5;
-                                let start = Math.max(1, current - 2);
-                                let end = Math.min(total, start + maxVisible - 1);
-                                start = Math.max(1, end - maxVisible + 1);
-                                if (start > 1) {
-                                    pages.push(
-                                        <li key={1} className={`page-item ${current === 1 ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => goPage(1)}>
-                                                1
-                                            </button>
-                                        </li>
-                                    );
-                                    if (start > 2)
-                                        pages.push(
-                                            <li key="start-ellipsis" className="page-item disabled">
-                                                <span className="page-link">…</span>
-                                            </li>
-                                        );
-                                }
-                                for (let p = start; p <= end; p++) {
-                                    pages.push(
-                                        <li key={p} className={`page-item ${p === current ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => goPage(p)}>
-                                                {p}
-                                            </button>
-                                        </li>
-                                    );
-                                }
-                                if (end < total) {
-                                    if (end < total - 1)
-                                        pages.push(
-                                            <li key="end-ellipsis" className="page-item disabled">
-                                                <span className="page-link">…</span>
-                                            </li>
-                                        );
-                                    pages.push(
-                                        <li key={total} className={`page-item ${current === total ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => goPage(total)}>
-                                                {total}
-                                            </button>
-                                        </li>
-                                    );
-                                }
-                                return pages;
-                            })()}
-                            <li className={`page-item ${pagination.current === totalPages ? "disabled" : ""}`}>
-                                <button className="page-link" aria-label="Next" onClick={() => goPage(pagination.current + 1)}>
-                                    <span aria-hidden="true">&raquo;</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                )}
-            </div>
-            {/* Modal */}
-            <div
-                className={`modal fade ${modalVisible ? "show d-block" : ""}`}
-                tabIndex="-1"
-                role="dialog"
-                style={{background: modalVisible ? "rgba(0,0,0,.5)" : "transparent"}}
+
+                <Table
+                    rowKey="id"
+                    columns={columns}
+                    dataSource={topics}
+                    loading={loading}
+                    scroll={{ x: "max-content" }}
+                    pagination={{
+                        current: pagination.current,
+                        pageSize: PAGE_SIZE,
+                        total: pagination.total,
+                        showSizeChanger: false,
+                        showTotal: (total) => `Tổng số: ${total} chủ đề`,
+                        onChange: (page) => loadTopics(page),
+                    }}
+                />
+            </Card>
+
+            {/* Add/Edit Modal */}
+            <Modal
+                title={editingTopic ? "Sửa chủ đề" : "Thêm chủ đề mới"}
+                open={modalVisible}
+                onCancel={() => setModalVisible(false)}
+                onOk={handleOk}
+                okText={editingTopic ? "Lưu" : "Thêm"}
+                cancelText="Hủy"
             >
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h6 className="modal-title mb-0">{editingTopic ? "Sửa chủ đề" : "Thêm chủ đề"}</h6>
-                            <button type="button" className="btn-close" onClick={() => setModalVisible(false)}></button>
-                        </div>
-                        <div className="modal-body">
-                            <Input
-                                placeholder="Tên chủ đề"
-                                value={form.name}
-                                onChange={(e) => {
-                                    const name = e.target.value;
-                                    setForm((prev) => ({
-                                        ...prev,
-                                        name,
-                                        slug:
-                                            prev.slug ||
-                                            name
-                                                .toLowerCase()
-                                                .normalize("NFD")
-                                                .replace(/[\u0300-\u036f]/g, "")
-                                                .replace(/đ/g, "d")
-                                                .replace(/[^a-z0-9]+/g, "-")
-                                                .replace(/^-+|-+$/g, ""),
-                                    }));
-                                }}
-                                style={{marginBottom: 12}}
+                <Form layout="vertical" style={{marginTop: 16}}>
+                    <Form.Item label="Tên chủ đề" required>
+                        <Input
+                            placeholder="Nhập tên chủ đề"
+                            value={form.name}
+                            onChange={(e) => {
+                                const name = e.target.value;
+                                setForm((prev) => ({
+                                    ...prev,
+                                    name,
+                                    slug:
+                                        prev.slug ||
+                                        name
+                                            .toLowerCase()
+                                            .normalize("NFD")
+                                            .replace(/[\u0300-\u036f]/g, "")
+                                            .replace(/đ/g, "d")
+                                            .replace(/[^a-z0-9]+/g, "-")
+                                            .replace(/^-+|-+$/g, ""),
+                                }));
+                            }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Slug" required>
+                        <Input
+                            placeholder="Nhập slug (vd: tin-tuc)"
+                            value={form.slug}
+                            onChange={(e) => setForm((prev) => ({...prev, slug: e.target.value}))}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Trạng thái">
+                        <Select
+                            value={form.status}
+                            onChange={(status) => setForm((prev) => ({...prev, status}))}
+                            options={[
+                                {value: "active", label: "Active"},
+                                {value: "inactive", label: "Inactive"},
+                            ]}
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Tùy chọn hiển thị">
+                        <Space align="center">
+                            <Switch
+                                checked={form.is_feature}
+                                onChange={(checked) => setForm((prev) => ({...prev, is_feature: checked}))}
                             />
-                            <Input
-                                placeholder="Slug"
-                                value={form.slug}
-                                onChange={(e) => setForm((prev) => ({...prev, slug: e.target.value}))}
-                                style={{marginBottom: 12}}
-                            />
-                            <Select
-                                value={form.status}
-                                onChange={(status) => setForm((prev) => ({...prev, status}))}
-                                style={{width: "100%", marginBottom: 12}}
-                                options={[
-                                    {value: "active", label: "active"},
-                                    {value: "inactive", label: "inactive"},
-                                ]}
-                            />
-                            <div className="d-flex align-items-center mb-2">
-                                <Switch checked={form.is_feature} onChange={(checked) => setForm((prev) => ({...prev, is_feature: checked}))} />
-                                <span className="ms-2">Hiển thị ở trang chủ</span>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-outline-secondary" onClick={() => setModalVisible(false)}>
-                                Hủy
-                            </button>
-                            <button type="button" className="btn btn-primary" onClick={handleOk}>
-                                <i className="fa-solid fa-save me-1"></i>
-                                {editingTopic ? "Lưu" : "Thêm"}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            <span>Hiển thị ở trang chủ</span>
+                        </Space>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };

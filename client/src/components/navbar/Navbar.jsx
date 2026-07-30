@@ -39,13 +39,13 @@ const Navbar = () => {
         // Fetch navbar data from the server
         const fetchNavbarData = async () => {
             try {
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
                 const response = await axios.get(`${API_BASE}/navbar-menu`);
                 setDomesticRegions(response.data.domestic);
                 setInternationalRegions(response.data.international);
 
-                if (response.data.domestic.length > 0) setHoveredDomestic(response.data.domestic[0].displayName);
-                if (response.data.international.length > 0) setHoveredInternational(response.data.international[0].displayName);
+                if (response.data.domestic.length > 0) setHoveredDomestic(response.data.domestic[0].display_name);
+                if (response.data.international.length > 0) setHoveredInternational(response.data.international[0].display_name);
             } catch (error) {
                 console.error("Error fetching navbar data:", error);
             }
@@ -79,12 +79,12 @@ const Navbar = () => {
                                     <div className="mega-menu-left">
                                         {domesticRegions.map((region) => (
                                             <div
-                                                key={region.displayName}
-                                                className={`mega-menu-region${hoveredDomestic === region.displayName ? " active" : ""}`}
-                                                onMouseEnter={() => setHoveredDomestic(region.displayName)}
+                                                key={region.id}
+                                                className={`mega-menu-region${hoveredDomestic === region.display_name ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredDomestic(region.display_name)}
                                                 onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
                                             >
-                                                {region.displayName}
+                                                {region.display_name}
                                             </div>
                                         ))}
                                     </div>
@@ -92,7 +92,7 @@ const Navbar = () => {
                                         <div className="mega-menu-content">
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
-                                                const currentDomestic = domesticRegions.find((region) => region.displayName === hoveredDomestic);
+                                                const currentDomestic = domesticRegions.find((region) => region.display_name === hoveredDomestic);
                                                 return (
                                                     currentDomestic &&
                                                     currentDomestic.destinations.map((dest) => (
@@ -124,19 +124,19 @@ const Navbar = () => {
                             </li>
                             {/* Tour nước ngoài */}
                             <li className="navbar-menu-dropdown">
-                                <Link to="/tours?type=international" className="navbar-menu-item">
+                                <Link to="/danh-muc-tour?type=international" className="navbar-menu-item">
                                     Tour nước ngoài
                                 </Link>
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
                                         {internationalRegions.map((region) => (
                                             <div
-                                                key={region.displayName}
-                                                className={`mega-menu-region${hoveredInternational === region.displayName ? " active" : ""}`}
-                                                onMouseEnter={() => setHoveredInternational(region.displayName)}
+                                                key={region.id}
+                                                className={`mega-menu-region${hoveredInternational === region.display_name ? " active" : ""}`}
+                                                onMouseEnter={() => setHoveredInternational(region.display_name)}
                                                 onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
                                             >
-                                                {region.displayName}
+                                                {region.display_name}
                                             </div>
                                         ))}
                                     </div>
@@ -145,7 +145,7 @@ const Navbar = () => {
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
                                                 const currentDomestic = internationalRegions.find(
-                                                    (region) => region.displayName === hoveredInternational
+                                                    (region) => region.display_name === hoveredInternational
                                                 );
                                                 return (
                                                     currentDomestic &&
@@ -182,7 +182,9 @@ const Navbar = () => {
                                 </Link>
                             </li>
                             <li>
-                                <span className="navbar-menu-item">Liên hệ</span>
+                                <Link to="/contact" className="navbar-menu-item">
+                                    Liên hệ
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -211,7 +213,7 @@ const Navbar = () => {
                             <div className="navbar-user-info" onClick={() => setShowUserDropdown(!showUserDropdown)}>
                                 {(() => {
                                     // Lấy base URL của API từ biến môi trường, nếu không có dùng localhost
-                                    const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                                    const API_BASE = import.meta.env.VITE_API_BASE || "";
                                     // Tính toán đường dẫn avatar dựa trên user.picture:
                                     // Nếu user.picture có giá trị, kiểm tra xem nó có bắt đầu bằng "/" hay không
                                     // Nếu có, nối API_BASE trước nó, nếu không thì để nguyên (giả sử nó là đường dẫn đầy đủ)

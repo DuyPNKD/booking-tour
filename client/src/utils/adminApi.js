@@ -7,7 +7,7 @@ import axios from "axios";
  * - Xử lý lỗi 401 (Unauthorized) bằng cách redirect về login
  */
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 // Tạo axios instance với base URL cho admin API
 export const adminApi = axios.create({
@@ -49,7 +49,6 @@ adminApi.interceptors.response.use(
             } catch (refreshError) {
                 // Nếu refresh token không hợp lệ, redirect về login
                 localStorage.removeItem("adminToken");
-                alert("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.");
                 window.location.href = "/admin/login";
             }
         }

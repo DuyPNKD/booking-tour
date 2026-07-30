@@ -149,6 +149,7 @@ const tabSections = [
 const fixImageUrl = (html) => {
     if (!html) return html;
 
+    const API_BASE = import.meta.env.VITE_API_BASE || "";
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
@@ -156,8 +157,15 @@ const fixImageUrl = (html) => {
         const src = img.getAttribute("src");
         const srcset = img.getAttribute("srcset");
 
-        if (src && src.startsWith("/")) {
-            img.setAttribute("src", "https://pystravel.vn" + src);
+        if (src) {
+            if (src.startsWith("/")) {
+                // Ưu tiên trỏ về Backend nếu là folder uploads
+                if (src.startsWith("/uploads")) {
+                    img.setAttribute("src", API_BASE + src);
+                } else {
+                    img.setAttribute("src", "https://pystravel.vn" + src);
+                }
+            }
         }
 
         if (srcset) {
@@ -166,7 +174,15 @@ const fixImageUrl = (html) => {
                 .map((part) => {
                     const trimmed = part.trim();
                     const urlMatch = trimmed.match(/^(\/[^ ]+)/);
-                    return urlMatch ? `https://pystravel.vn${trimmed}` : trimmed;
+                    if (urlMatch) {
+                        const url = urlMatch[1];
+                        const rest = trimmed.substring(url.length);
+                        if (url.startsWith("/uploads")) {
+                            return `${API_BASE}${url}${rest}`;
+                        }
+                        return `https://pystravel.vn${url}${rest}`;
+                    }
+                    return trimmed;
                 })
                 .join(", ");
             img.setAttribute("srcset", fixedSrcset);
@@ -222,42 +238,34 @@ export default function TourDetail() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-                const responses = await axios.all([
-                    axios.get(`${API_BASE}/api/tours/${id}`),
-                    axios.get(`${API_BASE}/api/tours/${id}/departures`),
-                    axios.get(`${API_BASE}/api/tours/${id}/prices`),
-                    axios.get(`${API_BASE}/api/tours/${id}/overview`),
-                    axios.get(`${API_BASE}/api/tours/${id}/schedules`),
-                    axios.get(`${API_BASE}/api/tours/${id}/reviews`),
-                    axios.get(`${API_BASE}/api/tours/${id}/terms`),
-                    axios.get(`${API_BASE}/api/tours/${id}/departure-dates`),
-                ]);
-
-                const [tourRes, depRes, priceRes, overviewRes, scheduleRes, reviewRes, termsRes, departureDatesRes] = responses;
-                setTour(tourRes.data || {});
-                setDepartures(depRes.data || []);
-                const allDates = (departureDatesRes.data || []).sort((a, b) => new Date(a) - new Date(b));
-                setShortDepartures(allDates.slice(0, 3));
-                setSelectedDate(allDates[0]);
-
-                // console.log("Ngày khởi hành trang detail:", departureDatesRes.data);
-
-                setPrices(priceRes.data) || []; // Đảm bảo prices là mảng
-                setOverview({
-                    ...overviewRes.data,
-                    content: fixImageUrl(overviewRes.data?.content),
-                }); // Đảm bảo overview là mảng
-
-                setSchedules(
-                    (scheduleRes.data || []).map((schedule) => ({
-                        ...schedule,
-                        content: fixImageUrl(schedule.content),
-                    }))
-                );
-
-                setReviews(reviewRes.data || []); // Đảm bảo reviews là mảng
-                setTerms(termsRes.data || []); // ✅ Là mảng
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
+                const response = await axios.get(`${API_BASE}/api/tours/${id}`);
+                const {success, data} = response.data;
+                
+                if (success && data) {
+                    setTour(data);
+                    setDepartures(data.departures || []);
+                    setPrices(data.prices || []);
+                    setOverview({
+                        content: fixImageUrl(data.overview),
+                    });
+                    setSchedules(
+                        (data.schedules || []).map((schedule) => ({
+                            ...schedule,
+                            content: fixImageUrl(schedule.content),
+                        }))
+                    );
+                    setReviews(data.reviews || []);
+                    setTerms(data.terms || []);
+                    
+                    if (data.departures && data.departures.length > 0) {
+                        const allDates = data.departures
+                            .map(d => d.departure_date)
+                            .sort((a, b) => new Date(a) - new Date(b));
+                        setShortDepartures(allDates.slice(0, 3));
+                        setSelectedDate(allDates[0]);
+                    }
+                }
             } catch (error) {
                 console.error("Lỗi khi fetch tour details:", error);
             }
@@ -527,7 +535,12 @@ export default function TourDetail() {
                             <i className="fa-solid fa-chevron-left"></i>
                         </div>
                         {tour.images && tour.images.length > 0 ? (
-                            <img src={tour.images[mainImgIdx].image_url} alt="main" />
+                            <img 
+                                src={typeof tour.images[mainImgIdx] === 'string' 
+                                    ? (tour.images[mainImgIdx].startsWith('/') ? (import.meta.env.VITE_API_BASE + tour.images[mainImgIdx]) : tour.images[mainImgIdx])
+                                    : (tour.images[mainImgIdx].image_url?.startsWith('/') ? (import.meta.env.VITE_API_BASE + tour.images[mainImgIdx].image_url) : tour.images[mainImgIdx].image_url)} 
+                                alt="main" 
+                            />
                         ) : (
                             <div
                                 style={{width: 400, height: 250, background: "#eee", display: "flex", alignItems: "center", justifyContent: "center"}}
@@ -545,8 +558,10 @@ export default function TourDetail() {
                             const realIdx = (mainImgIdx + i) % tour.images.length;
                             return (
                                 <img
-                                    key={img.image_url || realIdx}
-                                    src={img.image_url}
+                                    key={i}
+                                    src={typeof img === 'string' 
+                                        ? (img.startsWith('/') ? (import.meta.env.VITE_API_BASE + img) : img)
+                                        : (img.image_url?.startsWith('/') ? (import.meta.env.VITE_API_BASE + img.image_url) : img.image_url)}
                                     alt={`thumb-${realIdx}`}
                                     className={mainImgIdx === realIdx ? "active" : ""}
                                     onClick={() => setMainImgIdx(realIdx)}
@@ -768,7 +783,12 @@ export default function TourDetail() {
                                         </button>
                                     ))}
 
-                                    <CustomCalendarInput tourId={tour.id} value={selectedDate} onChange={handleCalendarChange} />
+                                    <CustomCalendarInput
+                                        tourId={tour.id}
+                                        value={selectedDate}
+                                        onChange={handleCalendarChange}
+                                        providedDates={departures.map((d) => d.departure_date)}
+                                    />
                                 </div>
                                 {/* Hiển thị ngày tham quan đã chọn */}
                                 {selectedDate && (

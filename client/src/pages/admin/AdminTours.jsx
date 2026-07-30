@@ -1,68 +1,8 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
+import {Card, Table, Modal, Form, Input, Button, Upload, Select, Popconfirm, message, Tag, Row, Col, Space, Tabs} from "antd";
+import {PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined, ReloadOutlined, SearchOutlined, ImportOutlined} from "@ant-design/icons";
 import {adminApi} from "../../utils/adminApi";
 import axios from "axios";
-// import ReactQuill from "react-quill";
-// import "react-quill/dist/quill.snow.css";
-// import {Modal} from "antd";
-// import "antd/dist/reset.css";
-
-// Toast Component
-const Toast = ({message, type = "success", onClose}) => {
-    const [progress, setProgress] = useState(100);
-
-    useEffect(() => {
-        const duration = 3000; // 3 seconds
-        const interval = 50; // Update every 50ms
-        const decrement = (interval / duration) * 100;
-
-        const timer = setInterval(() => {
-            setProgress((prev) => {
-                if (prev <= 0) {
-                    onClose();
-                    return 0;
-                }
-                return prev - decrement;
-            });
-        }, interval);
-
-        return () => clearInterval(timer);
-    }, [onClose]);
-
-    const bgColor = type === "success" ? "#28a745" : type === "error" ? "#dc3545" : "#17a2b8";
-
-    return (
-        <div
-            className="toast show position-fixed top-0 end-0 m-3 text-white"
-            style={{zIndex: 9999, backgroundColor: bgColor, borderRadius: "8px", boxShadow: "0 4px 12px rgba(0,0,0,0.15)"}}
-        >
-            <div className="toast-body d-flex justify-content-between align-items-center">
-                <span>{message}</span>
-                <button type="button" className="btn-close btn-close-white" onClick={onClose}></button>
-            </div>
-            {/* Progress bar */}
-            <div
-                className="position-absolute bottom-0 start-0"
-                style={{
-                    height: "3px",
-                    backgroundColor: "rgba(255,255,255,0.3)",
-                    width: "100%",
-                    borderRadius: "0 0 8px 8px",
-                }}
-            >
-                <div
-                    style={{
-                        height: "100%",
-                        backgroundColor: "rgba(255,255,255,0.6)",
-                        width: `${progress}%`,
-                        transition: "width 50ms linear",
-                        borderRadius: "0 0 8px 8px",
-                        marginLeft: "auto",
-                    }}
-                ></div>
-            </div>
-        </div>
-    );
-};
 
 const currency = (v) => new Intl.NumberFormat("vi-VN", {style: "currency", currency: "VND"}).format(v);
 
@@ -107,7 +47,6 @@ const AdminTours = () => {
     const [locationId, setLocationId] = useState("");
     const [locations, setLocations] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
 
     const [showModal, setShowModal] = useState(false);
     const [form, setForm] = useState(emptyForm);
@@ -118,38 +57,64 @@ const AdminTours = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadMsg, setUploadMsg] = useState("");
 
-    const [editingIndex, setEditingIndex] = useState(null);
-    const [editingContent, setEditingContent] = useState("");
-
     const saveTimerRef = useRef(null);
+    const [topicOptions, setTopicOptions] = useState([]);
+    const limit = 10;
 
-    const openScheduleEditor = (idx) => {
-        setEditingIndex(idx);
-        setEditingContent(form.schedules[idx].content || "");
+    // Load locations
+    const loadLocations = async () => {
+        try {
+            const {data} = await adminApi.get("/locations");
+            setLocations(data || []);
+        } catch (e) {
+            console.error("Error loading locations:", e);
+        }
     };
 
-    const saveScheduleContent = () => {
-        onChangeSchedule(editingIndex, "content", editingContent);
-        setEditingIndex(null);
-        setEditingContent("");
+    // Load tours list
+    const loadTours = async (page = 1) => {
+        setLoading(true);
+        try {
+            const params = {page, limit};
+            if (search.trim()) params.q = search.trim();
+            if (locationId) params.locationId = locationId;
+            const {data} = await adminApi.get("/tours", {params});
+            setTours(data.result || []);
+            setPagination(data.pagination || {totalItems: 0, currentPage: 1, totalPages: 1});
+        } catch (e) {
+            message.error(e.response?.data?.message || "Tải danh sách tour thất bại");
+        } finally {
+            setLoading(false);
+        }
     };
 
-    function stripHtml(html) {
-        const div = document.createElement("div");
-        div.innerHTML = html;
-        return div.textContent || div.innerText || "";
-    }
+    // Load topics
+    const loadTopics = async () => {
+        try {
+            const {data} = await adminApi.get("/topics");
+            setTopicOptions(data || []);
+        } catch (e) {
+            console.error("Error loading topics:", e);
+            setTopicOptions([]);
+        }
+    };
 
     useEffect(() => {
-        // Only auto-save when in Add mode (not edit)
+        loadLocations();
+    }, []);
+
+    useEffect(() => {
+        loadTours(1);
+    }, [search, locationId]);
+
+    // Autosave draft draft in Add mode
+    useEffect(() => {
         if (isEdit) return;
-        // Debounce: save 800ms after last change
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
         saveTimerRef.current = setTimeout(() => {
             try {
                 localStorage.setItem("adminTourForm", JSON.stringify(form));
             } catch (e) {
-                // ignore storage errors
                 console.error("Autosave failed:", e);
             }
         }, 800);
@@ -163,7 +128,6 @@ const AdminTours = () => {
     }, [form, isEdit]);
 
     useEffect(() => {
-        // Save immediately when user closes tab / reloads
         const handleBeforeUnload = () => {
             if (!isEdit) {
                 try {
@@ -171,7 +135,6 @@ const AdminTours = () => {
                 } catch (e) {}
             }
         };
-        // Save when tab becomes hidden (user switches tab)
         const handleVisibilityChange = () => {
             if (document.hidden && !isEdit) {
                 try {
@@ -189,184 +152,7 @@ const AdminTours = () => {
         };
     }, [form, isEdit]);
 
-    // Toast state
-    const [toast, setToast] = useState({show: false, message: "", type: "success"});
-
-    const limit = 10;
-
-    // Refs for hidden file inputs
-    const thumbInputRef = useRef(null);
-    const galleryInputRef = useRef(null);
-
-    const [topicOptions, setTopicOptions] = useState([]);
-
-    const showToast = (message, type = "success") => {
-        setToast({show: true, message, type});
-    };
-
-    const hideToast = () => {
-        setToast({show: false, message: "", type: "success"});
-    };
-
-    // Upload single thumbnail to /api/upload/cloudinary
-    /**
-     * handleUploadThumbnailFile
-     * Luồng hoạt động:
-     * - Khi người dùng chọn file thumbnail, hàm này được gọi.
-     * - Upload file lên server qua API, lấy URL trả về và lưu vào form.
-     * - Nếu lỗi thì hiển thị toast thông báo lỗi.
-     * - Reset input file để có thể chọn lại cùng file nếu cần.
-     */
-    const handleUploadThumbnailFile = async (e) => {
-        try {
-            // Lấy file đầu tiên từ input
-            const file = e.target.files?.[0];
-            if (!file) return;
-            // Tạo form data để gửi file lên server
-            const formData = new FormData();
-            formData.append("file", file);
-            // Lấy token xác thực từ localStorage
-            const token = localStorage.getItem("adminToken");
-            // Gọi API upload lên cloudinary
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: token ? `Bearer ${token}` : undefined,
-                },
-            });
-            // Nếu upload thành công và có url, lưu vào form
-            if (data?.success && data?.url) {
-                setForm((prev) => ({...prev, thumbnail_url: data.url}));
-            }
-        } catch (err) {
-            // Nếu lỗi, hiển thị toast thông báo lỗi
-            showToast(err.response?.data?.message || "Upload thumbnail thất bại", "error");
-        } finally {
-            // Reset input file để có thể chọn lại cùng file
-            e.target.value = "";
-        }
-    };
-
-    // Upload multiple images to /api/upload/cloudinary/multiple
-    /**
-     * handleUploadDetailImages
-     * Luồng hoạt động:
-     * - Khi người dùng chọn nhiều file ảnh chi tiết, hàm này được gọi.
-     * - Upload tất cả file lên server qua API, lấy danh sách URL trả về và lưu vào form.
-     * - Nếu lỗi thì hiển thị toast thông báo lỗi.
-     * - Reset input file để có thể chọn lại cùng file nếu cần.
-     */
-    const handleUploadDetailImages = async (e) => {
-        try {
-            // Lấy danh sách file từ input
-            const files = Array.from(e.target.files || []);
-            if (files.length === 0) return;
-            // Tạo form data để gửi nhiều file lên server
-            const formData = new FormData();
-            files.forEach((f) => formData.append("files", f));
-            // Lấy token xác thực từ localStorage
-            const token = localStorage.getItem("adminToken");
-            // Gọi API upload nhiều file lên cloudinary
-            const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
-            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary/multiple`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                    Authorization: token ? `Bearer ${token}` : undefined,
-                },
-            });
-            // Nếu upload thành công và có danh sách file, lấy url và lưu vào form
-            if (data?.success && Array.isArray(data?.files)) {
-                const urls = data.files.map((f) => f.url).filter(Boolean);
-                const appendText = urls.join("\n");
-                setForm((prev) => ({
-                    ...prev,
-                    images_text: prev.images_text ? `${prev.images_text}\n${appendText}` : appendText,
-                }));
-            }
-        } catch (err) {
-            // Nếu lỗi, hiển thị toast thông báo lỗi
-            showToast(err.response?.data?.message || "Upload ảnh thất bại", "error");
-        } finally {
-            // Reset input file để có thể chọn lại cùng file
-            e.target.value = "";
-        }
-    };
-
-    // Remove thumbnail URL
-    /**
-     * handleRemoveThumbnail
-     * Luồng hoạt động:
-     * - Khi người dùng nhấn nút xóa thumbnail, hàm này được gọi.
-     * - Xóa URL thumbnail khỏi form (không xóa trên server).
-     */
-    const handleRemoveThumbnail = () => {
-        // Xóa thumbnail_url trong form
-        setForm((prev) => ({...prev, thumbnail_url: ""}));
-    };
-
-    // Remove one gallery image URL
-    /**
-     * handleRemoveGalleryImage
-     * Luồng hoạt động:
-     * - Khi người dùng nhấn nút xóa ảnh chi tiết, hàm này được gọi.
-     * - Xóa URL ảnh khỏi danh sách images_text trong form (không xóa trên server).
-     */
-    const handleRemoveGalleryImage = (url) => {
-        setForm((prev) => {
-            // Tách danh sách URL, loại bỏ URL cần xóa, ghép lại thành chuỗi
-            const nextList = (prev.images_text || "")
-                .split("\n")
-                .map((s) => s.trim())
-                .filter(Boolean)
-                .filter((u) => u !== url);
-            return {...prev, images_text: nextList.join("\n")};
-        });
-    };
-
-    const loadLocations = async () => {
-        try {
-            const {data} = await adminApi.get("/locations");
-            setLocations(data);
-        } catch (e) {
-            console.error(e);
-        }
-    };
-
-    const loadTours = async (page = 1) => {
-        setLoading(true);
-        setError("");
-        try {
-            const params = {page, limit};
-            if (search) params.q = search;
-            if (locationId) params.locationId = locationId;
-            const {data} = await adminApi.get("/tours", {params});
-            setTours(data.result || []);
-            setPagination(data.pagination || {totalItems: 0, currentPage: 1, totalPages: 1});
-        } catch (e) {
-            setError(e.response?.data?.message || "Tải danh sách thất bại");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Load topics from API
-    const loadTopics = async () => {
-        try {
-            const {data} = await adminApi.get("/topics");
-            setTopicOptions(data || []);
-        } catch (e) {
-            setTopicOptions([]);
-        }
-    };
-
-    useEffect(() => {
-        loadLocations();
-    }, []);
-    useEffect(() => {
-        loadTours(1);
-    }, [search, locationId]);
-
+    // Open add/edit modal
     const openAdd = () => {
         setIsEdit(false);
         const savedForm = localStorage.getItem("adminTourForm");
@@ -387,7 +173,6 @@ const AdminTours = () => {
         try {
             setIsEdit(true);
             loadTopics();
-            // fetch detail for edit
             const {data} = await adminApi.get(`/tours/${t.id}`);
             const images_text = (data.images || []).map((i) => i.image_url).join("\n");
             const prices = data.prices || [];
@@ -432,27 +217,28 @@ const AdminTours = () => {
                     price: d.price ?? "",
                 })),
                 terms: (data.terms || []).map((t) => ({section_title: t.section_title || "", content: t.content || ""})),
-                topics: (data.topics || []).map((topic) => topic.id || topic.slug || topic), // tùy backend trả về
+                topics: (data.topics || []).map((topic) => topic.id || topic.slug || topic),
             });
             setShowModal(true);
         } catch (e) {
-            showToast("Không tải được chi tiết tour", "error");
+            message.error("Không tải được chi tiết tour");
         }
     };
 
     const closeModal = () => {
-        // Save form to localStorage when closing (only for add mode, not edit)
         if (!isEdit) {
             localStorage.setItem("adminTourForm", JSON.stringify(form));
         }
         setShowModal(false);
     };
 
+    // Change fields
     const onChange = (e) => {
         const {name, value} = e.target;
         setForm((prev) => ({...prev, [name]: value}));
     };
 
+    // Schedules methods
     const onChangeSchedule = (index, field, value) => {
         setForm((prev) => {
             const next = {...prev};
@@ -474,7 +260,6 @@ const AdminTours = () => {
     };
 
     const removeSchedule = (index) => {
-        if (!confirm("Xóa lịch ngày này?")) return;
         setForm((prev) => {
             const items = [...(prev.schedules || [])];
             items.splice(index, 1);
@@ -482,6 +267,7 @@ const AdminTours = () => {
         });
     };
 
+    // Departures methods
     const onChangeDeparture = (index, field, value) => {
         setForm((prev) => {
             const next = {...prev};
@@ -491,14 +277,15 @@ const AdminTours = () => {
             return next;
         });
     };
+
     const addDeparture = () => {
         setForm((prev) => ({
             ...prev,
             departures: [...(prev.departures || []), {departure_city: "", departure_date: "", return_date: "", available_seats: "", price: ""}],
         }));
     };
+
     const removeDeparture = (index) => {
-        if (!confirm("Xóa lịch khởi hành này?")) return;
         setForm((prev) => {
             const items = [...(prev.departures || [])];
             items.splice(index, 1);
@@ -506,6 +293,7 @@ const AdminTours = () => {
         });
     };
 
+    // Terms methods
     const onChangeTerm = (index, field, value) => {
         setForm((prev) => {
             const next = {...prev};
@@ -515,11 +303,12 @@ const AdminTours = () => {
             return next;
         });
     };
+
     const addTerm = () => {
         setForm((prev) => ({...prev, terms: [...(prev.terms || []), {section_title: "", content: ""}]}));
     };
+
     const removeTerm = (index) => {
-        if (!confirm("Xóa mục lưu ý này?")) return;
         setForm((prev) => {
             const items = [...(prev.terms || [])];
             items.splice(index, 1);
@@ -527,7 +316,88 @@ const AdminTours = () => {
         });
     };
 
-    // Hàm build payload riêng
+    // Cloudinary Upload Actions
+    const handleUploadThumbnailFile = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        uploadThumbnail(file);
+        e.target.value = "";
+    };
+
+    const uploadThumbnail = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+            const token = localStorage.getItem("adminToken");
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
+            message.loading({content: "Đang tải ảnh đại diện...", key: "upload_thumb"});
+
+            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: token ? `Bearer ${token}` : undefined,
+                },
+            });
+            if (data?.success && data?.url) {
+                setForm((prev) => ({...prev, thumbnail_url: data.url}));
+                message.success({content: "Tải ảnh đại diện thành công!", key: "upload_thumb"});
+            }
+        } catch (err) {
+            message.error({content: err.response?.data?.message || "Upload thumbnail thất bại", key: "upload_thumb"});
+        }
+    };
+
+    const handleUploadDetailImages = async (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        uploadDetailImages(files);
+        e.target.value = "";
+    };
+
+    const uploadDetailImages = async (files) => {
+        try {
+            const formData = new FormData();
+            files.forEach((f) => formData.append("files", f));
+            const token = localStorage.getItem("adminToken");
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
+            message.loading({content: "Đang tải các ảnh chi tiết...", key: "upload_gallery"});
+
+            const {data} = await axios.post(`${API_BASE}/api/upload/cloudinary/multiple`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Authorization: token ? `Bearer ${token}` : undefined,
+                },
+            });
+            if (data?.success && Array.isArray(data?.files)) {
+                const urls = data.files.map((f) => f.url).filter(Boolean);
+                const appendText = urls.join("\n");
+                setForm((prev) => ({
+                    ...prev,
+                    images_text: prev.images_text ? `${prev.images_text}\n${appendText}` : appendText,
+                }));
+                message.success({content: "Tải ảnh chi tiết thành công!", key: "upload_gallery"});
+            }
+        } catch (err) {
+            message.error({content: err.response?.data?.message || "Upload ảnh chi tiết thất bại", key: "upload_gallery"});
+        }
+    };
+
+    const handleRemoveThumbnail = () => {
+        setForm((prev) => ({...prev, thumbnail_url: ""}));
+    };
+
+    const handleRemoveGalleryImage = (url) => {
+        setForm((prev) => {
+            const nextList = (prev.images_text || "")
+                .split("\n")
+                .map((s) => s.trim())
+                .filter(Boolean)
+                .filter((u) => u !== url);
+            return {...prev, images_text: nextList.join("\n")};
+        });
+    };
+
+    // Build payload to match backend
     const buildTourPayload = (form) => {
         return {
             title: form.title,
@@ -603,994 +473,848 @@ const AdminTours = () => {
         };
     };
 
-    // Validate cơ bản
+    // Validate
     const validateForm = (form) => {
         if (!form.title?.trim()) return "Tên tour không được để trống";
         if (!form.location_id) return "Phải chọn địa điểm";
-        if (!form.departures || form.departures.length === 0) return "Phải có ít nhất 1 ngày khởi hành";
+        if (!form.departures || form.departures.filter(d => d.departure_date).length === 0) return "Phải có ít nhất 1 ngày khởi hành hợp lệ";
         if (!form.topics || form.topics.length === 0) return "Phải chọn ít nhất 1 chủ đề tour";
         return null;
     };
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
+    // Submit
+    const onSubmit = async () => {
+        const err = validateForm(form);
+        if (err) {
+            message.error(err);
+            return;
+        }
 
         try {
-            // Check validate
-            const error = validateForm(form);
-            if (error) {
-                showToast(error, "error");
-                return;
-            }
-
             const payload = buildTourPayload(form);
-
             if (isEdit) {
                 await adminApi.put(`/tours/${form.id}`, payload);
-                showToast("Cập nhật tour thành công", "success");
+                message.success("Cập nhật tour thành công!");
             } else {
                 await adminApi.post("/tours", payload);
-                showToast("Thêm tour thành công", "success");
-                // Clear saved draft and reset in-memory form so next "Thêm" opens empty
+                message.success("Thêm tour thành công!");
                 try {
                     localStorage.removeItem("adminTourForm");
-                } catch (e) {
-                    // ignore
-                }
+                } catch (e) {}
                 setForm(emptyForm);
                 if (saveTimerRef.current) {
                     clearTimeout(saveTimerRef.current);
                     saveTimerRef.current = null;
                 }
             }
-
             setShowModal(false);
             loadTours(pagination.currentPage || 1);
         } catch (e) {
-            showToast(e.response?.data?.message || "Lưu tour thất bại", "error");
+            message.error(e.response?.data?.message || "Lưu tour thất bại");
         }
     };
 
+    // Delete
     const onDelete = async (id) => {
-        if (!confirm("Xóa tour này?")) return;
         try {
             await adminApi.delete(`/tours/${id}`);
-            showToast("Đã xóa tour", "success");
-            // reload current page (handle empty page edge-case if needed)
+            message.success("Đã xóa tour thành công!");
             loadTours(pagination.currentPage || 1);
         } catch (e) {
-            showToast(e.response?.data?.message || "Xóa tour thất bại", "error");
+            message.error(e.response?.data?.message || "Xóa tour thất bại");
         }
     };
 
-    const go = (p) => {
-        const page = Math.min(Math.max(1, p), pagination.totalPages || 1);
-        loadTours(page);
+    // Import from Excel/CSV handler
+    const handleImport = async () => {
+        if (!importFile) {
+            message.error("Vui lòng chọn file");
+            return;
+        }
+        try {
+            setUploading(true);
+            setUploadMsg("Đang tải lên...");
+            const formData = new FormData();
+            formData.append("file", importFile);
+            const {data} = await adminApi.post("/tours/import", formData, {
+                onUploadProgress: (p) => {
+                    if (p.total) setUploadMsg(`Đang tải lên ${Math.round((p.loaded / p.total) * 100)}%`);
+                },
+            });
+            setUploadMsg(`Thành công: ${data.success}, Lỗi: ${data.failed}`);
+            message.success(`Import thành công: ${data.success} tour, Lỗi: ${data.failed} tour`);
+            await loadTours(1);
+        } catch (e) {
+            setUploadMsg(e.response?.data?.message || "Import thất bại");
+            message.error(e.response?.data?.message || "Import thất bại");
+        } finally {
+            setUploading(false);
+        }
     };
 
-    // Thêm handler cho ReactQuill (trả về value string)
-    const onChangeOverview = (value) => {
-        setForm((prev) => ({...prev, overview_content: value}));
+    // Ant Design Columns
+    const columns = [
+        {
+            title: "#",
+            key: "index",
+            width: 60,
+            align: "center",
+            render: (_, __, idx) => ((pagination.currentPage || 1) - 1) * limit + idx + 1,
+        },
+        {
+            title: "ID",
+            dataIndex: "id",
+            key: "id",
+            width: 70,
+            align: "center",
+        },
+        {
+            title: "Tên tour",
+            dataIndex: "title",
+            key: "title",
+            ellipsis: true,
+        },
+        {
+            title: "Giá",
+            dataIndex: "price",
+            key: "price",
+            width: 140,
+            align: "right",
+            render: (price) => currency(price),
+        },
+        {
+            title: "Địa điểm",
+            key: "location",
+            width: 140,
+            render: (_, record) => record.location_name || record.location_id,
+        },
+        {
+            title: "Ngày tạo",
+            dataIndex: "created_at",
+            key: "created_at",
+            width: 120,
+            align: "center",
+            render: (date) => date ? new Date(date).toLocaleDateString("vi-VN") : "",
+        },
+        {
+            title: "Trạng thái",
+            dataIndex: "status",
+            key: "status",
+            width: 110,
+            align: "center",
+            render: (status) => {
+                let color = "default";
+                if (status === "active") color = "success";
+                else if (status === "pending") color = "blue";
+                else if (status === "paused") color = "warning";
+                return <Tag color={color}>{status}</Tag>;
+            },
+        },
+        {
+            title: "Hành động",
+            key: "actions",
+            width: 160,
+            align: "center",
+            render: (_, record) => (
+                <Space>
+                    <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
+                        Sửa
+                    </Button>
+                    <Popconfirm
+                        title="Xóa tour"
+                        description={`Bạn chắc chắn muốn xóa tour: ${record.title}?`}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                        onConfirm={() => onDelete(record.id)}
+                    >
+                        <Button size="small" danger icon={<DeleteOutlined />}>
+                            Xóa
+                        </Button>
+                    </Popconfirm>
+                </Space>
+            ),
+        },
+    ];
+
+    // Thumb upload props
+    const uploadThumbProps = {
+        showUploadList: false,
+        beforeUpload: (file) => {
+            uploadThumbnail(file);
+            return false;
+        },
     };
 
     return (
-        <div className="container-fluid">
-            <div className="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mb-3">
-                <h5 className="mb-0">Quản lý Tour</h5>
-                <div className="d-flex gap-2">
-                    <input className="form-control" placeholder="Tìm tour..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                    <select className="form-select" value={locationId} onChange={(e) => setLocationId(e.target.value)} style={{minWidth: 180}}>
-                        <option value="">Tất cả địa điểm</option>
-                        {locations.map((l) => (
-                            <option key={l.id} value={l.id}>
-                                {l.name}
-                            </option>
-                        ))}
-                    </select>
-                    <button
-                        className="btn btn-outline-secondary d-inline-flex align-items-center gap-2 text-nowrap px-3 py-2"
-                        onClick={() => loadTours(pagination.currentPage || 1)}
-                        disabled={loading}
-                        style={{
-                            overflow: "hidden", // ngăn hover box-shadow tràn ra
-                            position: "relative",
-                            zIndex: 1, // không chồng lên nút Thêm
-                            backgroundColor: "#e3f2fd",
-                            borderColor: "#2196f3",
-                            color: "#1976d2",
-                            flex: "0 0 auto", // ngăn button bị co trong flex container
-                            minWidth: 120, // giữ chiều ngang hợp lý
-                        }}
-                    >
-                        <i className="fa-solid fa-rotate-right"></i>
-                        <span>Tải lại</span>
-                    </button>
-                    <button
-                        className="btn btn-primary d-inline-flex align-items-center gap-2 text-nowrap py-2"
-                        onClick={openAdd}
-                        style={{overflow: "visible"}}
-                    >
-                        <i className="fa-solid fa-plus"></i>
-                        <span>Thêm tour mới</span>
-                    </button>
-                    <button
-                        className="btn btn-outline-primary d-inline-flex align-items-center gap-2 px-3 py-2"
-                        onClick={() => {
-                            setShowImport(true);
-                            setImportFile(null);
-                            setUploadMsg("");
-                            // Reset file input
-                            setTimeout(() => {
-                                const fileInput = document.querySelector('input[type="file"]');
-                                if (fileInput) fileInput.value = "";
-                            }, 100);
-                        }}
-                        style={{minWidth: "150px", backgroundColor: "#f3e5f5", borderColor: "#9c27b0", color: "#7b1fa2"}}
-                    >
-                        <i className="fa-solid fa-file-arrow-up"></i>
-                        <span>Import Tour</span>
-                    </button>
+        <div className="admin-tour-page p-3">
+            <Card className="shadow-sm mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 className="fw-bold mb-0">Quản lý Tour</h5>
+                    <Space>
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={() => loadTours(pagination.currentPage || 1)}
+                            loading={loading}
+                        >
+                            Tải lại
+                        </Button>
+                        <Button
+                            type="primary"
+                            icon={<PlusOutlined />}
+                            onClick={openAdd}
+                        >
+                            Thêm tour mới
+                        </Button>
+                        <Button
+                            icon={<ImportOutlined />}
+                            style={{backgroundColor: "#f3e5f5", borderColor: "#9c27b0", color: "#7b1fa2"}}
+                            onClick={() => {
+                                setShowImport(true);
+                                setImportFile(null);
+                                setUploadMsg("");
+                            }}
+                        >
+                            Import Tour
+                        </Button>
+                    </Space>
                 </div>
-            </div>
-            {error && <div className="alert alert-danger">{error}</div>}
-            <div className="card">
-                {loading ? (
-                    <div className="p-4 text-center text-muted">Đang tải...</div>
-                ) : (
-                    <div className="table-responsive">
-                        <table className="table table-hover align-middle mb-0 table-bordered table-striped" style={{tableLayout: "fixed"}}>
-                            <thead className="table-light">
-                                <tr>
-                                    <th className="text-center" style={{width: "5%"}}>
-                                        #
-                                    </th>
-                                    <th className="text-center" style={{width: "5%"}}>
-                                        ID
-                                    </th>
-                                    <th className="text-center" style={{width: "30%"}}>
-                                        Tên tour
-                                    </th>
-                                    <th className="text-center" style={{width: "15%"}}>
-                                        Giá
-                                    </th>
-                                    <th className="text-center" style={{width: "12.5%"}}>
-                                        Địa điểm
-                                    </th>
-                                    <th className="text-center" style={{width: "12.5%"}}>
-                                        Ngày tạo
-                                    </th>
-                                    <th className="text-center" style={{width: "10%"}}>
-                                        Trạng thái
-                                    </th>
-                                    <th className="text-center" style={{width: "10%"}}>
-                                        Hành động
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {tours.map((t, idx) => (
-                                    <tr key={t.id}>
-                                        <td className="text-center text-muted">{((pagination.currentPage || 1) - 1) * limit + idx + 1}</td>
-                                        <td className="text-center text-muted">{t.id}</td>
-                                        <td
-                                            className="fw-medium"
-                                            style={{wordWrap: "break-word", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "0"}}
-                                            title={t.title}
-                                        >
-                                            {t.title}
-                                        </td>
-                                        <td className="text-center">{currency(t.price)}</td>
-                                        <td className="text-center">{t.location_name || t.location_id}</td>
-                                        <td className="text-center">
-                                            {t.created_at
-                                                ? new Date(t.created_at).toLocaleDateString("vi-VN", {
-                                                      day: "2-digit",
-                                                      month: "2-digit",
-                                                      year: "numeric",
-                                                  })
-                                                : ""}
-                                        </td>
-                                        <td className="text-center">
-                                            <span
-                                                className={`badge ${
-                                                    t.status === "active"
-                                                        ? "bg-success"
-                                                        : t.status === "pending"
-                                                        ? "bg-info"
-                                                        : t.status === "paused"
-                                                        ? "bg-warning text-dark"
-                                                        : "bg-secondary"
-                                                }`}
-                                            >
-                                                {t.status || ""}
-                                            </span>
-                                        </td>
-                                        <td className="text-center">
-                                            <div className="d-flex flex-wrap justify-content-center gap-2">
-                                                <button className="btn btn-sm btn-outline-secondary" onClick={() => openEdit(t)}>
-                                                    <i className="fa-solid fa-pen me-1"></i> Sửa
-                                                </button>
-                                                <button className="btn btn-sm btn-outline-danger" onClick={() => onDelete(t.id)}>
-                                                    <i className="fa-solid fa-trash me-1"></i> Xóa
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                                {tours.length === 0 && (
-                                    <tr>
-                                        <td colSpan="7" className="text-center text-muted py-4">
-                                            Không có tour phù hợp
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
 
-                {/* Pagination */}
-                {!loading && pagination.totalPages > 1 && (
-                    <div className="card-footer d-flex justify-content-between align-items-center">
-                        <div className="text-muted small">
-                            Trang {pagination.currentPage}/{pagination.totalPages} • Tổng {pagination.totalItems} tour
-                        </div>
-                        <ul className="pagination mb-0">
-                            <li className={`page-item ${pagination.currentPage === 1 ? "disabled" : ""}`}>
-                                <button className="page-link" aria-label="Previous" onClick={() => go((pagination.currentPage || 1) - 1)}>
-                                    <span aria-hidden="true">&laquo;</span>
-                                </button>
-                            </li>
-                            {(() => {
-                                const pages = [];
-                                const current = pagination.currentPage || 1;
-                                const total = pagination.totalPages || 1;
-                                const maxVisible = 5;
-                                let start = Math.max(1, current - 2);
-                                let end = Math.min(total, start + maxVisible - 1);
-                                start = Math.max(1, end - maxVisible + 1);
-                                if (start > 1) {
-                                    pages.push(
-                                        <li key={1} className={`page-item ${current === 1 ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => go(1)}>
-                                                1
-                                            </button>
-                                        </li>
-                                    );
-                                    if (start > 2)
-                                        pages.push(
-                                            <li key="start-ellipsis" className="page-item disabled">
-                                                <span className="page-link">…</span>
-                                            </li>
-                                        );
-                                }
-                                for (let p = start; p <= end; p++) {
-                                    pages.push(
-                                        <li key={p} className={`page-item ${p === current ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => go(p)}>
-                                                {p}
-                                            </button>
-                                        </li>
-                                    );
-                                }
-                                if (end < total) {
-                                    if (end < total - 1)
-                                        pages.push(
-                                            <li key="end-ellipsis" className="page-item disabled">
-                                                <span className="page-link">…</span>
-                                            </li>
-                                        );
-                                    pages.push(
-                                        <li key={total} className={`page-item ${current === total ? "active" : ""}`}>
-                                            <button className="page-link" onClick={() => go(total)}>
-                                                {total}
-                                            </button>
-                                        </li>
-                                    );
-                                }
-                                return pages;
-                            })()}
-                            <li className={`page-item ${pagination.currentPage === pagination.totalPages ? "disabled" : ""}`}>
-                                <button className="page-link" aria-label="Next" onClick={() => go((pagination.currentPage || 1) + 1)}>
-                                    <span aria-hidden="true">&raquo;</span>
-                                </button>
-                            </li>
-                        </ul>
-                    </div>
-                )}
-            </div>
+                <Row gutter={[16, 16]} className="mb-3">
+                    <Col xs={24} md={12} lg={8}>
+                        <Input.Search
+                            allowClear
+                            placeholder="Tìm kiếm tour..."
+                            enterButton={<SearchOutlined />}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            onSearch={() => loadTours(1)}
+                        />
+                    </Col>
+                    <Col xs={24} md={12} lg={6}>
+                        <Select
+                            allowClear
+                            placeholder="Tất cả địa điểm"
+                            style={{width: "100%"}}
+                            value={locationId || undefined}
+                            onChange={(val) => setLocationId(val || "")}
+                        >
+                            {locations.map((l) => (
+                                <Select.Option key={l.id} value={String(l.id)}>
+                                    {l.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Col>
+                </Row>
 
-            {/* Modal */}
-            <div
-                className={`modal fade ${showModal ? "show d-block" : ""}`}
-                tabIndex="-1"
-                role="dialog"
-                style={{background: showModal ? "rgba(0,0,0,.5)" : "transparent", display: showModal ? "block" : "none"}}
+                <Table
+                    rowKey="id"
+                    columns={columns}
+                    dataSource={tours}
+                    loading={loading}
+                    scroll={{ x: "max-content" }}
+                    pagination={{
+                        current: pagination.currentPage,
+                        pageSize: limit,
+                        total: pagination.totalItems,
+                        showSizeChanger: false,
+                        showTotal: (total) => `Tổng số: ${total} tour`,
+                        onChange: (page) => loadTours(page),
+                    }}
+                />
+            </Card>
+
+            {/* Modal Add/Edit */}
+            <Modal
+                title={isEdit ? "Sửa tour" : "Thêm tour mới"}
+                open={showModal}
+                onCancel={closeModal}
+                width={1100}
+                onOk={onSubmit}
+                okText={isEdit ? "Lưu thay đổi" : "Thêm tour"}
+                cancelText="Hủy"
             >
-                <div className="modal-dialog modal-lg" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h6 className="modal-title mb-0">{isEdit ? "Sửa tour" : "Thêm tour mới"}</h6>
-                            <button type="button" className="btn-close" onClick={closeModal}></button>
-                        </div>
-                        <form onSubmit={onSubmit}>
-                            <div className="modal-body">
-                                <div className="row g-3">
-                                    {/* Thông tin cơ bản */}
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Tên tour</label>
-                                        <input
-                                            name="title"
-                                            className="form-control"
-                                            value={form.title}
-                                            onChange={(e) => {
-                                                onChange(e);
-                                                const autoSlug = e.target.value
-                                                    ?.trim()
-                                                    .toLowerCase()
-                                                    // Chuyển đổi dấu tiếng Việt
-                                                    .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
-                                                    .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
-                                                    .replace(/ì|í|ị|ỉ|ĩ/g, "i")
-                                                    .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
-                                                    .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
-                                                    .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
-                                                    .replace(/đ/g, "d")
-                                                    // Thay thế khoảng trắng bằng dấu gạch ngang
-                                                    .replace(/\s+/g, "-")
-                                                    // Loại bỏ các ký tự đặc biệt không cần thiết, giữ lại chữ cái, số và dấu gạch ngang
-                                                    .replace(/[^a-z0-9-]/g, "")
-                                                    // Loại bỏ nhiều dấu gạch ngang liên tiếp
-                                                    .replace(/-+/g, "-")
-                                                    // Loại bỏ dấu gạch ngang ở đầu và cuối
-                                                    .replace(/^-+|-+$/g, "");
-                                                setForm((prev) => ({...prev, slug: prev.slug ? prev.slug : autoSlug}));
-                                            }}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Slug</label>
-                                        <input
-                                            name="slug"
-                                            className="form-control"
-                                            value={form.slug}
-                                            onChange={onChange}
-                                            placeholder="tu-dong-theo-ten"
-                                        />
-                                    </div>
-                                    <div className="col-6 col-md-3">
-                                        <label className="form-label">Số ngày</label>
-                                        <input
-                                            name="num_day"
-                                            type="number"
-                                            min="0"
-                                            className="form-control"
-                                            value={form.num_day}
-                                            onChange={onChange}
-                                        />
-                                    </div>
-                                    <div className="col-6 col-md-3">
-                                        <label className="form-label">Số đêm</label>
-                                        <input
-                                            name="num_night"
-                                            type="number"
-                                            min="0"
-                                            className="form-control"
-                                            value={form.num_night}
-                                            onChange={onChange}
-                                        />
-                                    </div>
-
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Trạng thái</label>
-                                        <select name="status" className="form-select" value={form.status} onChange={onChange}>
-                                            <option value="pending">pending</option>
-                                            <option value="active">active</option>
-                                            <option value="paused">paused</option>
-                                            <option value="archived">archived</option>
-                                        </select>
-                                    </div>
-
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Địa điểm</label>
-                                        <select name="location_id" className="form-select" value={form.location_id} onChange={onChange} required>
-                                            <option value="">Chọn địa điểm</option>
-                                            {locations.map((l) => (
-                                                <option key={l.id} value={l.id}>
-                                                    {l.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-
-                                    {/* Chủ đề tour */}
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Chủ đề tour</label>
-                                        <div className="d-flex flex-wrap gap-3">
-                                            {topicOptions.map((topic) => (
-                                                <div className="form-check" key={topic.id}>
-                                                    <input
-                                                        className="form-check-input"
-                                                        type="checkbox"
-                                                        id={`topic-${topic.id}`}
-                                                        value={topic.id}
-                                                        checked={(form.topics || []).includes(topic.id)}
-                                                        onChange={(e) => {
-                                                            const checked = e.target.checked;
-                                                            setForm((prev) => {
-                                                                const topics = new Set(prev.topics || []);
-                                                                if (checked) topics.add(topic.id);
-                                                                else topics.delete(topic.id);
-                                                                return {...prev, topics: Array.from(topics)};
-                                                            });
-                                                        }}
-                                                    />
-                                                    <label className="form-check-label" htmlFor={`topic-${topic.id}`}>
-                                                        {topic.name}
-                                                    </label>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="col-12 col-md-6">
-                                        <label className="form-label">Thumbnail</label>
-                                        <div className="d-flex align-items-center gap-3">
-                                            <div
-                                                role="button"
-                                                onClick={() => thumbInputRef.current?.click()}
-                                                className="position-relative d-flex flex-column align-items-center justify-content-center border rounded"
-                                                style={{
-                                                    width: 180,
-                                                    height: 110,
-                                                    cursor: "pointer",
-                                                    backgroundColor: "#fafafa",
-                                                    backgroundImage: form.thumbnail_url ? `url(${form.thumbnail_url})` : "none",
-                                                    backgroundSize: "cover",
-                                                    backgroundPosition: "center",
-                                                    borderRadius: "8px",
-                                                    boxShadow: form.thumbnail_url ? "0 2px 8px rgba(0,0,0,0.08)" : "none",
-                                                    transition: "box-shadow 0.2s",
-                                                }}
-                                            >
-                                                {!form.thumbnail_url && (
-                                                    <>
-                                                        <div style={{fontSize: 22, lineHeight: 1}}>+</div>
-                                                        <div className="text-muted" style={{fontSize: 12}}>
-                                                            Upload
+                <div style={{maxHeight: "68vh", overflowY: "auto", paddingRight: "8px", margin: "16px 0"}}>
+                    <Form layout="vertical">
+                        <Tabs defaultActiveKey="1" items={[
+                            {
+                                key: "1",
+                                label: "Thông tin chung",
+                                children: (
+                                    <Row gutter={16}>
+                                        <Col span={12}>
+                                            <Form.Item label="Tên tour" required>
+                                                <Input
+                                                    name="title"
+                                                    value={form.title}
+                                                    onChange={(e) => {
+                                                        onChange(e);
+                                                        const autoSlug = e.target.value
+                                                            ?.trim()
+                                                            .toLowerCase()
+                                                            .replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a")
+                                                            .replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e")
+                                                            .replace(/ì|í|ị|ỉ|ĩ/g, "i")
+                                                            .replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o")
+                                                            .replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u")
+                                                            .replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y")
+                                                            .replace(/đ/g, "d")
+                                                            .replace(/\s+/g, "-")
+                                                            .replace(/[^a-z0-9-]/g, "")
+                                                            .replace(/-+/g, "-")
+                                                            .replace(/^-+|-+$/g, "");
+                                                        setForm((prev) => ({...prev, slug: prev.slug ? prev.slug : autoSlug}));
+                                                    }}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={12}>
+                                            <Form.Item label="Slug">
+                                                <Input
+                                                    name="slug"
+                                                    value={form.slug}
+                                                    onChange={onChange}
+                                                    placeholder="tự động tạo từ tên tour"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="Số ngày">
+                                                <Input
+                                                    name="num_day"
+                                                    type="number"
+                                                    min="0"
+                                                    value={form.num_day}
+                                                    onChange={onChange}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="Số đêm">
+                                                <Input
+                                                    name="num_night"
+                                                    type="number"
+                                                    min="0"
+                                                    value={form.num_night}
+                                                    onChange={onChange}
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="Trạng thái">
+                                                <Select
+                                                    value={form.status}
+                                                    onChange={(val) => setForm(prev => ({...prev, status: val}))}
+                                                >
+                                                    <Select.Option value="pending">pending</Select.Option>
+                                                    <Select.Option value="active">active</Select.Option>
+                                                    <Select.Option value="paused">paused</Select.Option>
+                                                    <Select.Option value="archived">archived</Select.Option>
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={6}>
+                                            <Form.Item label="Địa điểm" required>
+                                                <Select
+                                                    placeholder="Chọn địa điểm"
+                                                    value={form.location_id ? String(form.location_id) : undefined}
+                                                    onChange={(val) => setForm(prev => ({...prev, location_id: val}))}
+                                                >
+                                                    {locations.map((l) => (
+                                                        <Select.Option key={l.id} value={String(l.id)}>
+                                                            {l.name}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item label="Chủ đề tour" required>
+                                                <div className="d-flex flex-wrap gap-3 mt-1">
+                                                    {topicOptions.map((topic) => (
+                                                        <div className="form-check" key={topic.id}>
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id={`topic-${topic.id}`}
+                                                                value={topic.id}
+                                                                checked={(form.topics || []).includes(topic.id)}
+                                                                onChange={(e) => {
+                                                                    const checked = e.target.checked;
+                                                                    setForm((prev) => {
+                                                                        const topics = new Set(prev.topics || []);
+                                                                        if (checked) topics.add(topic.id);
+                                                                        else topics.delete(topic.id);
+                                                                        return {...prev, topics: Array.from(topics)};
+                                                                    });
+                                                                }}
+                                                            />
+                                                            <label className="form-check-label" htmlFor={`topic-${topic.id}`}>
+                                                                {topic.name}
+                                                            </label>
                                                         </div>
-                                                    </>
-                                                )}
-                                                {form.thumbnail_url && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-sm btn-danger position-absolute"
-                                                        style={{
-                                                            top: 6,
-                                                            right: 6,
-                                                            width: 24,
-                                                            height: 24,
-                                                            padding: 0,
-                                                            fontSize: 16,
-                                                            lineHeight: 1,
-                                                        }}
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleRemoveThumbnail();
-                                                        }}
-                                                        aria-label="Xóa thumbnail"
-                                                        title="Xóa thumbnail"
-                                                    >
-                                                        ×
-                                                    </button>
-                                                )}
-                                            </div>
-                                            <input
-                                                ref={thumbInputRef}
-                                                type="file"
-                                                accept="image/*"
-                                                className="d-none"
-                                                onChange={handleUploadThumbnailFile}
-                                            />
-                                        </div>
-                                        <input
-                                            className="form-control mt-2"
-                                            value={form.thumbnail_url || ""}
-                                            readOnly
-                                            placeholder="URL Cloudinary sẽ hiện ở đây sau khi upload"
-                                        />
-                                    </div>
-
-                                    {/* Ảnh chi tiết */}
-                                    <div className="col-12">
-                                        <label className="form-label">Ảnh chi tiết</label>
-                                        <div className="mb-2 d-flex flex-wrap gap-2">
-                                            {(form.images_text || "")
-                                                .split("\n")
-                                                .map((u) => u.trim())
-                                                .filter(Boolean)
-                                                .map((u, idx) => (
-                                                    <div key={idx} className="position-relative">
-                                                        <img
-                                                            src={u}
-                                                            alt={`img-${idx}`}
-                                                            style={{
-                                                                width: 180,
-                                                                height: 110,
-                                                                objectFit: "cover",
-                                                                borderRadius: 8,
-                                                                boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                                                            }}
-                                                        />
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-danger position-absolute d-flex align-items-center justify-content-center"
-                                                            style={{
-                                                                top: 6,
-                                                                right: 6,
-                                                                width: 24,
-                                                                height: 24,
-                                                                padding: 0,
-                                                                fontSize: 16,
-                                                                lineHeight: 1,
-                                                            }}
-                                                            onClick={() => handleRemoveGalleryImage(u)}
-                                                            aria-label="Xóa ảnh"
-                                                            title="Xóa ảnh"
-                                                        >
-                                                            ×
-                                                        </button>
-                                                    </div>
-                                                ))}
-                                            <div
-                                                role="button"
-                                                onClick={() => galleryInputRef.current?.click()}
-                                                className="d-flex flex-column align-items-center justify-content-center border rounded"
-                                                style={{
-                                                    width: 180,
-                                                    height: 110,
-                                                    cursor: "pointer",
-                                                    backgroundColor: "#fafafa",
-                                                    borderRadius: "8px",
-                                                }}
-                                            >
-                                                <div style={{fontSize: 22, lineHeight: 1}}>+</div>
-                                                <div className="text-muted" style={{fontSize: 12}}>
-                                                    Upload
+                                                    ))}
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <input
-                                            ref={galleryInputRef}
-                                            type="file"
-                                            accept="image/*"
-                                            multiple
-                                            className="d-none"
-                                            onChange={handleUploadDetailImages}
-                                        />
-                                        <textarea
-                                            className="form-control mb-2"
-                                            value={form.images_text || ""}
-                                            readOnly
-                                            rows="3"
-                                            placeholder="Các URL Cloudinary đã upload sẽ hiện ở đây"
-                                        />
-                                    </div>
-
-                                    {/* Giá theo độ tuổi */}
-                                    <div className="col-12">
-                                        <div className="border rounded p-3">
-                                            <div className="fw-semibold mb-2">Giá theo độ tuổi</div>
-                                            <div className="row g-3">
-                                                <div className="col-12 col-md-4">
-                                                    <label className="form-label">Người lớn (adult) - giá</label>
-                                                    <input
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                )
+                            },
+                            {
+                                key: "2",
+                                label: "Ảnh & Giới thiệu",
+                                children: (
+                                    <Row gutter={16}>
+                                        <Col span={24}>
+                                            <Form.Item label="Ảnh đại diện (Thumbnail)">
+                                                <div className="d-flex align-items-center gap-3">
+                                                    <Upload {...uploadThumbProps}>
+                                                        <Button icon={<UploadOutlined />}>Upload Thumbnail</Button>
+                                                    </Upload>
+                                                    {form.thumbnail_url && (
+                                                        <div className="position-relative">
+                                                            <img
+                                                                src={form.thumbnail_url}
+                                                                alt="preview"
+                                                                className="img-thumbnail rounded"
+                                                                style={{width: 120, height: 80, objectFit: "cover"}}
+                                                            />
+                                                            <Button
+                                                                type="primary"
+                                                                danger
+                                                                shape="circle"
+                                                                size="small"
+                                                                icon={<DeleteOutlined />}
+                                                                className="position-absolute"
+                                                                style={{top: -10, right: -10}}
+                                                                onClick={handleRemoveThumbnail}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <Input
+                                                    className="mt-2"
+                                                    value={form.thumbnail_url || ""}
+                                                    readOnly
+                                                    placeholder="URL Cloudinary sẽ hiện ở đây sau khi upload"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item label="Ảnh chi tiết (Gallery)">
+                                                <div className="mb-2 d-flex flex-wrap gap-2 align-items-center">
+                                                    {(form.images_text || "")
+                                                        .split("\n")
+                                                        .map((u) => u.trim())
+                                                        .filter(Boolean)
+                                                        .map((u, idx) => (
+                                                            <div key={idx} className="position-relative">
+                                                                <img
+                                                                    src={u}
+                                                                    alt={`img-${idx}`}
+                                                                    style={{
+                                                                        width: 120,
+                                                                        height: 80,
+                                                                        objectFit: "cover",
+                                                                        borderRadius: 8,
+                                                                        boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                                                                    }}
+                                                                />
+                                                                <Button
+                                                                    type="primary"
+                                                                    danger
+                                                                    shape="circle"
+                                                                    size="small"
+                                                                    icon={<DeleteOutlined />}
+                                                                    className="position-absolute"
+                                                                    style={{top: -10, right: -10}}
+                                                                    onClick={() => handleRemoveGalleryImage(u)}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    <Upload
+                                                        accept="image/*"
+                                                        multiple
+                                                        showUploadList={false}
+                                                        beforeUpload={(file, fileList) => {
+                                                            const index = fileList.indexOf(file);
+                                                            if (index === fileList.length - 1) {
+                                                                uploadDetailImages(fileList);
+                                                            }
+                                                            return false;
+                                                        }}
+                                                    >
+                                                        <div
+                                                            className="d-flex flex-column align-items-center justify-content-center border rounded"
+                                                            style={{
+                                                                width: 120,
+                                                                height: 80,
+                                                                cursor: "pointer",
+                                                                backgroundColor: "#fafafa",
+                                                                borderRadius: "8px",
+                                                            }}
+                                                        >
+                                                            <PlusOutlined style={{fontSize: 18}} />
+                                                            <div className="text-muted" style={{fontSize: 11, marginTop: 4}}>Upload</div>
+                                                        </div>
+                                                    </Upload>
+                                                </div>
+                                                <Input.TextArea
+                                                    rows={3}
+                                                    value={form.images_text || ""}
+                                                    readOnly
+                                                    placeholder="Các URL Cloudinary đã upload sẽ hiện ở đây"
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item label="Giới thiệu (Overview)">
+                                                <Input.TextArea
+                                                    name="overview_content"
+                                                    rows={6}
+                                                    value={form.overview_content}
+                                                    onChange={onChange}
+                                                    placeholder="Mô tả HTML hoặc text giới thiệu tour..."
+                                                />
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+                                )
+                            },
+                            {
+                                key: "3",
+                                label: "Giá vé theo độ tuổi",
+                                children: (
+                                    <Row gutter={16}>
+                                        {/* Người lớn */}
+                                        <Col span={8}>
+                                            <Card title="Người lớn (Adult)" size="small">
+                                                <Form.Item label="Giá vé">
+                                                    <Input
                                                         name="adult_price"
                                                         type="number"
                                                         min="0"
-                                                        className="form-control"
                                                         value={form.adult_price}
                                                         onChange={onChange}
                                                     />
-                                                    <div className="mt-2">
-                                                        <input
-                                                            name="adult_old_price"
-                                                            type="number"
-                                                            min="0"
-                                                            className="form-control"
-                                                            placeholder="Giá gốc (old_price)"
-                                                            value={form.adult_old_price}
-                                                            onChange={onChange}
-                                                        />
-                                                    </div>
-                                                    <div className="row g-2 mt-2">
-                                                        <div className="col-6">
-                                                            <input
+                                                </Form.Item>
+                                                <Form.Item label="Giá gốc (Old Price)">
+                                                    <Input
+                                                        name="adult_old_price"
+                                                        type="number"
+                                                        min="0"
+                                                        value={form.adult_old_price}
+                                                        onChange={onChange}
+                                                    />
+                                                </Form.Item>
+                                                <Row gutter={8}>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối thiểu">
+                                                            <Input
                                                                 name="adult_min_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối thiểu"
                                                                 value={form.adult_min_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                        <div className="col-6">
-                                                            <input
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối đa">
+                                                            <Input
                                                                 name="adult_max_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối đa"
                                                                 value={form.adult_max_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-12 col-md-4">
-                                                    <label className="form-label">Trẻ em (child) - giá</label>
-                                                    <input
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                        </Col>
+                                        {/* Trẻ em */}
+                                        <Col span={8}>
+                                            <Card title="Trẻ em (Child)" size="small">
+                                                <Form.Item label="Giá vé">
+                                                    <Input
                                                         name="child_price"
                                                         type="number"
                                                         min="0"
-                                                        className="form-control"
                                                         value={form.child_price}
                                                         onChange={onChange}
                                                     />
-                                                    <div className="mt-2">
-                                                        <input
-                                                            name="child_old_price"
-                                                            type="number"
-                                                            min="0"
-                                                            className="form-control"
-                                                            placeholder="Giá gốc (old_price)"
-                                                            value={form.child_old_price}
-                                                            onChange={onChange}
-                                                        />
-                                                    </div>
-                                                    <div className="row g-2 mt-2">
-                                                        <div className="col-6">
-                                                            <input
+                                                </Form.Item>
+                                                <Form.Item label="Giá gốc (Old Price)">
+                                                    <Input
+                                                        name="child_old_price"
+                                                        type="number"
+                                                        min="0"
+                                                        value={form.child_old_price}
+                                                        onChange={onChange}
+                                                    />
+                                                </Form.Item>
+                                                <Row gutter={8}>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối thiểu">
+                                                            <Input
                                                                 name="child_min_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối thiểu"
                                                                 value={form.child_min_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                        <div className="col-6">
-                                                            <input
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối đa">
+                                                            <Input
                                                                 name="child_max_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối đa"
                                                                 value={form.child_max_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="col-12 col-md-4">
-                                                    <label className="form-label">Em bé (infant) - giá</label>
-                                                    <input
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                        </Col>
+                                        {/* Em bé */}
+                                        <Col span={8}>
+                                            <Card title="Em bé (Infant)" size="small">
+                                                <Form.Item label="Giá vé">
+                                                    <Input
                                                         name="infant_price"
                                                         type="number"
                                                         min="0"
-                                                        className="form-control"
                                                         value={form.infant_price}
                                                         onChange={onChange}
                                                     />
-                                                    <div className="mt-2">
-                                                        <input
-                                                            name="infant_old_price"
-                                                            type="number"
-                                                            min="0"
-                                                            className="form-control"
-                                                            placeholder="Giá gốc (old_price)"
-                                                            value={form.infant_old_price}
-                                                            onChange={onChange}
-                                                        />
-                                                    </div>
-                                                    <div className="row g-2 mt-2">
-                                                        <div className="col-6">
-                                                            <input
+                                                </Form.Item>
+                                                <Form.Item label="Giá gốc (Old Price)">
+                                                    <Input
+                                                        name="infant_old_price"
+                                                        type="number"
+                                                        min="0"
+                                                        value={form.infant_old_price}
+                                                        onChange={onChange}
+                                                    />
+                                                </Form.Item>
+                                                <Row gutter={8}>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối thiểu">
+                                                            <Input
                                                                 name="infant_min_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối thiểu"
                                                                 value={form.infant_min_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                        <div className="col-6">
-                                                            <input
+                                                        </Form.Item>
+                                                    </Col>
+                                                    <Col span={12}>
+                                                        <Form.Item label="Tuổi tối đa">
+                                                            <Input
                                                                 name="infant_max_age"
                                                                 type="number"
                                                                 min="0"
-                                                                className="form-control form-control-sm"
-                                                                placeholder="Tuổi tối đa"
                                                                 value={form.infant_max_age}
                                                                 onChange={onChange}
                                                             />
-                                                        </div>
-                                                    </div>
+                                                        </Form.Item>
+                                                    </Col>
+                                                </Row>
+                                            </Card>
+                                        </Col>
+                                    </Row>
+                                )
+                            },
+                            {
+                                key: "4",
+                                label: "Lịch trình & Khởi hành",
+                                children: (
+                                    <Row gutter={16}>
+                                        <Col span={24} className="mb-4">
+                                            <Card title={
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <span className="fw-semibold">Lịch trình chi tiết</span>
+                                                    <Button type="dashed" size="small" icon={<PlusOutlined />} onClick={addSchedule}>Thêm ngày</Button>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {}
-                                    {/* Giới thiệu */}
-                                    <div className="col-12">
-                                        <label className="form-label fw-semibold">Giới thiệu</label>
-                                        <textarea
-                                            name="overview_content"
-                                            rows="4"
-                                            className="form-control"
-                                            value={form.overview_content}
-                                            onChange={onChange}
-                                            placeholder="Mô tả HTML hoặc text"
-                                        />
-                                    </div>
-                                    {/* Lịch trình */}
-                                    <div className="col-12">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="fw-semibold">Lịch trình</div>
-                                            <button type="button" className="btn btn-sm btn-outline-primary" onClick={addSchedule}>
-                                                Thêm ngày
-                                            </button>
-                                        </div>
-                                        {(form.schedules || []).map((s, idx) => (
-                                            <div key={idx} className="border rounded p-3 mb-2">
-                                                <div className="row g-2">
-                                                    <div className="col-12 col-md-4">
-                                                        <label className="form-label">Ngày</label>
-                                                        <input
-                                                            className="form-control"
-                                                            value={s.day_text}
-                                                            onChange={(e) => onChangeSchedule(idx, "day_text", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-12 col-md-5">
-                                                        <label className="form-label">Nội dung</label>
-                                                        <textarea
-                                                            rows="2"
-                                                            className="form-control"
-                                                            value={s.content}
-                                                            onChange={(e) => onChangeSchedule(idx, "content", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-auto d-flex align-items-end">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center p-1"
-                                                            style={{width: 35, height: 35}}
-                                                            title="Xóa lịch ngày"
-                                                            aria-label="Xóa lịch ngày"
-                                                            onClick={() => removeSchedule(idx)}
-                                                        >
-                                                            <i className="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </div>
+                                            } size="small">
+                                                {(form.schedules || []).map((s, idx) => (
+                                                    <Card size="small" key={idx} className="mb-2" extra={
+                                                        <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => removeSchedule(idx)} />
+                                                    }>
+                                                        <Row gutter={8} align="middle">
+                                                            <Col span={6}>
+                                                                <Input
+                                                                    value={s.day_text}
+                                                                    onChange={(e) => onChangeSchedule(idx, "day_text", e.target.value)}
+                                                                    placeholder="Tên ngày (vd: Ngày 1)"
+                                                                />
+                                                            </Col>
+                                                            <Col span={18}>
+                                                                <Input.TextArea
+                                                                    rows={2}
+                                                                    value={s.content}
+                                                                    onChange={(e) => onChangeSchedule(idx, "content", e.target.value)}
+                                                                    placeholder="Nội dung chi tiết ngày lịch trình..."
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                    </Card>
+                                                ))}
+                                            </Card>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Card title={
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <span className="fw-semibold">Đợt khởi hành</span>
+                                                    <Button type="dashed" size="small" icon={<PlusOutlined />} onClick={addDeparture}>Thêm lịch</Button>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Ngày khởi hành */}
-                                    <div className="col-12">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="fw-semibold">Ngày khởi hành</div>
-                                            <button type="button" className="btn btn-sm btn-outline-primary" onClick={addDeparture}>
-                                                Thêm lịch
-                                            </button>
-                                        </div>
-                                        {(form.departures || []).map((d, idx) => (
-                                            <div key={idx} className="border rounded p-3 mb-2">
-                                                <div className="row g-2">
-                                                    <div className="col-12 col-md-3">
-                                                        <label className="form-label">Nơi khởi hành</label>
-                                                        <input
-                                                            className="form-control"
-                                                            value={d.departure_city}
-                                                            onChange={(e) => onChangeDeparture(idx, "departure_city", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-6 col-md-2">
-                                                        <label className="form-label">Ngày đi</label>
-                                                        <input
-                                                            type="date"
-                                                            className="form-control"
-                                                            value={d.departure_date}
-                                                            onChange={(e) => onChangeDeparture(idx, "departure_date", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-6 col-md-2">
-                                                        <label className="form-label">Ngày về</label>
-                                                        <input
-                                                            type="date"
-                                                            className="form-control"
-                                                            value={d.return_date}
-                                                            onChange={(e) => onChangeDeparture(idx, "return_date", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-6 col-md-2">
-                                                        <label className="form-label">Số chỗ</label>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            className="form-control"
-                                                            value={d.available_seats}
-                                                            onChange={(e) => onChangeDeparture(idx, "available_seats", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-6 col-md-2">
-                                                        <label className="form-label">Giá</label>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            className="form-control"
-                                                            value={d.price}
-                                                            onChange={(e) => onChangeDeparture(idx, "price", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-auto d-flex align-items-end">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center p-1"
-                                                            style={{width: 35, height: 35}}
-                                                            title="Xóa lịch khởi hành"
-                                                            aria-label="Xóa lịch khởi hành"
-                                                            onClick={() => removeDeparture(idx)}
-                                                        >
-                                                            <i className="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </div>
+                                            } size="small">
+                                                {(form.departures || []).map((d, idx) => (
+                                                    <Card size="small" key={idx} className="mb-2" extra={
+                                                        <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => removeDeparture(idx)} />
+                                                    }>
+                                                        <Row gutter={8}>
+                                                            <Col span={6}>
+                                                                <Form.Item label="Nơi khởi hành" style={{marginBottom: 0}}>
+                                                                    <Input
+                                                                        value={d.departure_city}
+                                                                        onChange={(e) => onChangeDeparture(idx, "departure_city", e.target.value)}
+                                                                        placeholder="Nơi đi (vd: Hà Nội)"
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={5}>
+                                                                <Form.Item label="Ngày đi" style={{marginBottom: 0}}>
+                                                                    <Input
+                                                                        type="date"
+                                                                        value={d.departure_date}
+                                                                        onChange={(e) => onChangeDeparture(idx, "departure_date", e.target.value)}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={5}>
+                                                                <Form.Item label="Ngày về" style={{marginBottom: 0}}>
+                                                                    <Input
+                                                                        type="date"
+                                                                        value={d.return_date}
+                                                                        onChange={(e) => onChangeDeparture(idx, "return_date", e.target.value)}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={4}>
+                                                                <Form.Item label="Số chỗ" style={{marginBottom: 0}}>
+                                                                    <Input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        value={d.available_seats}
+                                                                        onChange={(e) => onChangeDeparture(idx, "available_seats", e.target.value)}
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col span={4}>
+                                                                <Form.Item label="Giá phụ thu" style={{marginBottom: 0}}>
+                                                                    <Input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        value={d.price}
+                                                                        onChange={(e) => onChangeDeparture(idx, "price", e.target.value)}
+                                                                        placeholder="Mặc định"
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                        </Row>
+                                                    </Card>
+                                                ))}
+                                            </Card>
+                                        </Col>
+                                    </Row>
+                                )
+                            },
+                            {
+                                key: "5",
+                                label: "Điều khoản & Lưu ý",
+                                children: (
+                                    <Row gutter={16}>
+                                        <Col span={24}>
+                                            <Card title={
+                                                <div className="d-flex justify-content-between align-items-center">
+                                                    <span className="fw-semibold">Thông tin điều khoản</span>
+                                                    <Button type="dashed" size="small" icon={<PlusOutlined />} onClick={addTerm}>Thêm mục</Button>
                                                 </div>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    {/* Thông tin cần lưu ý */}
-                                    <div className="col-12">
-                                        <div className="d-flex justify-content-between align-items-center mb-2">
-                                            <div className="fw-semibold">Thông tin cần lưu ý</div>
-                                            <button type="button" className="btn btn-sm btn-outline-primary" onClick={addTerm}>
-                                                Thêm mục
-                                            </button>
-                                        </div>
-                                        {(form.terms || []).map((t, idx) => (
-                                            <div key={idx} className="border rounded p-3 mb-2">
-                                                <div className="row g-2">
-                                                    <div className="col-12 col-md-4">
-                                                        <label className="form-label">Tiêu đề mục</label>
-                                                        <input
-                                                            className="form-control"
-                                                            value={t.section_title}
-                                                            onChange={(e) => onChangeTerm(idx, "section_title", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-12 col-md-7">
-                                                        <label className="form-label">Nội dung</label>
-                                                        <textarea
-                                                            rows="2"
-                                                            className="form-control"
-                                                            value={t.content}
-                                                            onChange={(e) => onChangeTerm(idx, "content", e.target.value)}
-                                                        />
-                                                    </div>
-                                                    <div className="col-auto d-flex align-items-end">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center p-1"
-                                                            style={{width: 35, height: 35}}
-                                                            title="Xóa mục lưu ý"
-                                                            aria-label="Xóa mục lưu ý"
-                                                            onClick={() => removeTerm(idx)}
-                                                        >
-                                                            <i className="fa-solid fa-trash"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-outline-secondary" onClick={closeModal}>
-                                    Hủy
-                                </button>
-                                <button type="submit" className="btn btn-primary">
-                                    {isEdit ? "Lưu thay đổi" : "Thêm tour"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                                            } size="small">
+                                                {(form.terms || []).map((t, idx) => (
+                                                    <Card size="small" key={idx} className="mb-2" extra={
+                                                        <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => removeTerm(idx)} />
+                                                    }>
+                                                        <Row gutter={8}>
+                                                            <Col span={6}>
+                                                                <Input
+                                                                    value={t.section_title}
+                                                                    onChange={(e) => onChangeTerm(idx, "section_title", e.target.value)}
+                                                                    placeholder="Tiêu đề mục (vd: Bao gồm)"
+                                                                />
+                                                            </Col>
+                                                            <Col span={18}>
+                                                                <Input.TextArea
+                                                                    rows={2}
+                                                                    value={t.content}
+                                                                    onChange={(e) => onChangeTerm(idx, "content", e.target.value)}
+                                                                    placeholder="Chi tiết nội dung điều khoản lưu ý..."
+                                                                />
+                                                            </Col>
+                                                        </Row>
+                                                    </Card>
+                                                ))}
+                                            </Card>
+                                        </Col>
+                                    </Row>
+                                )
+                            }
+                        ]} />
+                    </Form>
                 </div>
-            </div>
-            {/* Import Modal */}
-            <div
-                className={`modal fade ${showImport ? "show d-block" : ""}`}
-                tabIndex="-1"
-                role="dialog"
-                style={{background: showImport ? "rgba(0,0,0,.5)" : "transparent", display: showImport ? "block" : "none"}}
+            </Modal>
+
+            {/* Modal Import */}
+            <Modal
+                title="Import Tour từ Excel/CSV"
+                open={showImport}
+                onCancel={() => setShowImport(false)}
+                footer={[
+                    <Button key="close" onClick={() => setShowImport(false)} disabled={uploading}>
+                        Đóng
+                    </Button>,
+                    <Button key="submit" type="primary" loading={uploading} onClick={handleImport} disabled={!importFile}>
+                        Bắt đầu import
+                    </Button>
+                ]}
             >
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h6 className="modal-title mb-0">Import Tour từ Excel/CSV</h6>
-                            <button type="button" className="btn-close" onClick={() => setShowImport(false)}></button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="mb-3">
-                                <label className="form-label">Chọn file (.xlsx, .csv)</label>
-                                <input
-                                    type="file"
-                                    accept=".xlsx,.xls,.csv"
-                                    className="form-control"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0] || null;
-                                        console.log("File selected:", file);
-                                        setImportFile(file);
-                                    }}
-                                />
-                                <div className="form-text">
-                                    Các cột: title, slug, num_day, num_night, price, old_price, location_id, overview, schedule, departure_city,
-                                    departure_date, return_date, available_seats, term, price_adult, min_age_adult, max_age_adult, price_child,
-                                    min_age_child, max_age_child, price_infant, min_age_infant, max_age_infant
-                                </div>
-                            </div>
-                            {uploadMsg && <div className="alert alert-info py-2 mb-0">{uploadMsg}</div>}
-                        </div>
-                        <div className="modal-footer">
-                            <button className="btn btn-outline-secondary" onClick={() => setShowImport(false)} disabled={uploading}>
-                                Đóng
-                            </button>
-                            <button
-                                className="btn btn-primary"
-                                onClick={async () => {
-                                    console.log("Import button clicked, importFile:", importFile);
-                                    if (!importFile) {
-                                        showToast("Vui lòng chọn file", "error");
-                                        return;
-                                    }
-                                    try {
-                                        setUploading(true);
-                                        setUploadMsg("Đang tải lên...");
-                                        const formData = new FormData();
-                                        formData.append("file", importFile);
-                                        const {data} = await adminApi.post("/tours/import", formData, {
-                                            onUploadProgress: (p) => {
-                                                if (p.total) setUploadMsg(`Đang tải lên ${Math.round((p.loaded / p.total) * 100)}%`);
-                                            },
-                                        });
-                                        setUploadMsg(`Thành công: ${data.success}, Lỗi: ${data.failed}`);
-                                        showToast(`Import thành công: ${data.success} tour, Lỗi: ${data.failed} tour`, "success");
-                                        await loadTours(1);
-                                    } catch (e) {
-                                        setUploadMsg(e.response?.data?.message || "Import thất bại");
-                                        showToast(e.response?.data?.message || "Import thất bại", "error");
-                                    } finally {
-                                        setUploading(false);
-                                    }
-                                }}
-                                disabled={uploading}
-                            >
-                                {uploading ? "Đang import..." : "Bắt đầu import"}
-                            </button>
-                        </div>
+                <div className="mb-3">
+                    <label className="form-label d-block mb-2">Chọn file (.xlsx, .csv)</label>
+                    <Upload
+                        accept=".xlsx,.xls,.csv"
+                        maxCount={1}
+                        beforeUpload={(file) => {
+                            setImportFile(file);
+                            return false;
+                        }}
+                        onRemove={() => setImportFile(null)}
+                    >
+                        <Button icon={<UploadOutlined />}>Chọn file</Button>
+                    </Upload>
+                    <div className="form-text mt-2 text-muted" style={{fontSize: "12px"}}>
+                        Các cột: title, slug, num_day, num_night, price, old_price, location_id, overview, schedule, departure_city,
+                        departure_date, return_date, available_seats, term, price_adult, min_age_adult, max_age_adult, price_child,
+                        min_age_child, max_age_child, price_infant, min_age_infant, max_age_infant
                     </div>
                 </div>
-            </div>
-            {/* Toast Message */}
-            {toast.show && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
+                {uploadMsg && <div className="alert alert-info py-2 mb-0 mt-2">{uploadMsg}</div>}
+            </Modal>
         </div>
     );
 };
@@ -1621,9 +1345,6 @@ QUY TRÌNH HOẠT ĐỘNG COMPONENT AdminTours
 
 5. Import tour từ file Excel/CSV:
    - Mở modal import, chọn file, upload lên server, nhận kết quả thành công/thất bại.
-
-6. Toast thông báo:
-   - Hiển thị thông báo thành công/thất bại cho các thao tác (thêm/sửa/xóa/import/upload).
 
 ==========================
 */

@@ -32,7 +32,7 @@ const Tours = () => {
                 setTours([]);
                 let response;
 
-                const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:3000";
+                const API_BASE = import.meta.env.VITE_API_BASE || "";
                 if (searchParams.get("destination") || searchParams.get("startDate") || searchParams.get("departure")) {
                     // 🔍 Nếu có tham số search thì gọi API search
                     response = await axios.get(`${API_BASE}/api/tours/search`, {
@@ -162,7 +162,11 @@ const Tours = () => {
                         {!isLoading &&
                             tours.map((tour) => (
                                 <Link to={`/tours/${tour.id}`} className="tour-card-row" key={tour.id}>
-                                    <img src={tour.thumbnail_url} alt={tour.title} className="tour-card-row-img" />
+                                    <img 
+                                        src={tour.thumbnail_url?.startsWith('/') ? (import.meta.env.VITE_API_BASE + tour.thumbnail_url) : tour.thumbnail_url} 
+                                        alt={tour.title} 
+                                        className="tour-card-row-img" 
+                                    />
                                     <div className="tour-card-row-content">
                                         <div className="tour-card-row-header">
                                             <span className="tour-card-row-title">{tour.title}</span>

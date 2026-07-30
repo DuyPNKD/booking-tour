@@ -7,6 +7,7 @@ const multer = require("multer");
 const checkRole = require("../middlewares/checkRole");
 const adminTopic = require("../controllers/adminTopicController");
 const adminBlogRoutes = require("./adminBlogRoutes");
+const adminBooking = require("../controllers/adminBookingController");
 
 // Multer config cho admin uploads
 const upload = multer({
@@ -53,5 +54,17 @@ router.delete("/topics/:id/feature", auth, checkRole(["admin"]), adminTopic.unma
 
 // Quản lý bài viết (Blogs)
 router.use("/blogs", adminBlogRoutes);
+
+// Dashboard Stats
+router.get("/dashboard/stats", auth, checkRole(["admin", "staff"]), adminBooking.getDashboardStats);
+
+// Quản lý đơn hàng (Bookings)
+router.get("/bookings", auth, checkRole(["admin", "staff"]), adminBooking.listBookings);
+router.get("/bookings/:id", auth, checkRole(["admin", "staff"]), adminBooking.getBookingDetail);
+router.put("/bookings/:id/status", auth, checkRole(["admin", "staff"]), adminBooking.updateBookingStatus);
+router.delete("/bookings/:id", auth, checkRole(["admin"]), adminBooking.deleteBooking);
+
+// Quản lý người dùng (Users)
+router.use("/users", require("./userRoutes"));
 
 module.exports = router;

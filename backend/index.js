@@ -28,6 +28,7 @@ if (process.env.NODE_ENV !== "production") {
 const allowedOrigins = [
     "https://booking-tour-gz2k.vercel.app", // frontend Vercel
     "http://localhost:5173", // Vite dev
+    "http://localhost:5174", // Vite dev alternative
     `https://${process.env.RENDER_EXTERNAL_HOSTNAME}`, // Render URL
 ];
 
@@ -38,7 +39,10 @@ app.use(
             // Cho phép request không có origin (Postman, server-to-server)
             if (!origin) return callback(null, true);
 
-            if (allowedOrigins.includes(origin)) {
+            // Cho phép tất cả localhost ports trong môi trường phát triển (development)
+            const isLocalhost = /^http:\/\/localhost:\d+$/.test(origin);
+
+            if (allowedOrigins.includes(origin) || (process.env.NODE_ENV !== "production" && isLocalhost)) {
                 return callback(null, true);
             }
 
@@ -53,7 +57,8 @@ app.use(
 app.options("*", (req, res) => {
     const origin = req.headers.origin;
     // Khi credentials: true, phải trả về origin cụ thể, không được dùng "*"
-    if (!origin || allowedOrigins.includes(origin)) {
+    const isLocalhost = /^http:\/\/localhost:\d+$/.test(origin);
+    if (!origin || allowedOrigins.includes(origin) || (process.env.NODE_ENV !== "production" && isLocalhost)) {
         if (origin) {
             res.header("Access-Control-Allow-Origin", origin);
         }
