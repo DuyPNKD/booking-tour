@@ -1,12 +1,15 @@
 import React, {useState, useEffect} from "react";
 import "./BookingPage.css";
 import ninhThuan from "../../assets/ninh_thuan.webp";
-import {useSearchParams, useParams, Link, useNavigate} from "react-router-dom";
+import {useSearchParams, useParams, Link, useNavigate, useLocation} from "react-router-dom";
 import axios from "axios";
+import {useAuth} from "../../context/AuthContext";
 
 const BookingPage = () => {
+    const {user} = useAuth();
     const {id} = useParams();
     const [searchParams] = useSearchParams();
+    const location = useLocation();
     const [errors, setErrors] = useState({});
     const [errorTimeouts, setErrorTimeouts] = useState({});
 
@@ -27,7 +30,7 @@ const BookingPage = () => {
     const [showPriceDetail, setShowPriceDetail] = useState(true);
 
     useEffect(() => {
-            const API_BASE = import.meta.env.VITE_API_BASE || "";
+        const API_BASE = import.meta.env.VITE_API_BASE || "";
         const fetchTour = async () => {
             const res = await axios.get(`${API_BASE}/api/tours/${id}`);
             const {success, data} = res.data;
@@ -40,12 +43,37 @@ const BookingPage = () => {
         fetchTour();
     }, [id]);
 
-    const departureDate = searchParams.get("date") || "";
+    // Retrieve booking parameters from Location State, SessionStorage, or fallback Query Params
+    const getInitialBookingData = () => {
+        if (location.state && location.state.date !== undefined) {
+            return location.state;
+        }
+
+        try {
+            const stored = sessionStorage.getItem(`booking_draft_${id}`);
+            if (stored) {
+                return JSON.parse(stored);
+            }
+        } catch (e) {
+            console.error("Failed to parse booking draft from sessionStorage", e);
+        }
+
+        return {
+            date: searchParams.get("date") || "",
+            adult: parseInt(searchParams.get("adult") || "1", 10),
+            child58: parseInt(searchParams.get("child58") || "0", 10),
+            child24: parseInt(searchParams.get("child24") || "0", 10),
+            infant: parseInt(searchParams.get("infant") || "0", 10),
+        };
+    };
+
+    const initialBookingData = getInitialBookingData();
+    const departureDate = initialBookingData.date || "";
     const guestCounts = {
-        adult: parseInt(searchParams.get("adult") || "1"),
-        child58: parseInt(searchParams.get("child58") || "0"),
-        child24: parseInt(searchParams.get("child24") || "0"),
-        infant: parseInt(searchParams.get("infant") || "0"),
+        adult: Number(initialBookingData.adult) || 1,
+        child58: Number(initialBookingData.child58) || 0,
+        child24: Number(initialBookingData.child24) || 0,
+        infant: Number(initialBookingData.infant) || 0,
     };
 
     const getPriceByType = (type) => {
@@ -178,39 +206,48 @@ const BookingPage = () => {
     const handleConfirm = async () => {
         setShowModal(false);
 
+        // Sanitize & validate departure_date into valid ISO string
+        let validDepartureDate = departureDate;
+        if (!validDepartureDate || isNaN(new Date(validDepartureDate).getTime())) {
+            // Fallback to 3 days from now
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 3);
+            validDepartureDate = defaultDate.toISOString();
+        } else {
+            validDepartureDate = new Date(validDepartureDate).toISOString();
+        }
+
         // Tạo payload gửi lên backend
         const payload = {
-            tour_id: tour.id,
+            tour_id: Number(id) || tour?.id,
             gender: formData.gender,
             full_name: formData.name,
             phone_number: formData.phone,
             email: formData.email,
             address: formData.address,
             note: formData.note,
-            departure_date: departureDate,
+            departure_date: validDepartureDate,
             total_price: totalPrice,
             details: [
-                {target_type: "adult", quantity: guestCounts.adult},
-                // Giả sử child58 + child24 là loại child, gộp lại
-                {target_type: "child", quantity: guestCounts.child58 + guestCounts.child24},
-                {target_type: "infant", quantity: guestCounts.infant},
-            ].filter((item) => item.quantity > 0), // loại bỏ loại 0 khách
+                {target_type: "adult", quantity: Number(guestCounts.adult) || 1},
+                {target_type: "child", quantity: (Number(guestCounts.child58) || 0) + (Number(guestCounts.child24) || 0)},
+                {target_type: "infant", quantity: Number(guestCounts.infant) || 0},
+            ].filter((item) => item.quantity > 0),
         };
 
         try {
-                const API_BASE = import.meta.env.VITE_API_BASE || "";
+            const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await axios.post(`${API_BASE}/api/booking`, payload);
             if (res.data.success) {
                 const bookingId = res.data.bookingId || res.data.booking_id;
-
-                // Chuyển trang sang Payment, truyền bookingId
                 navigate(`/payment/${bookingId}`);
             } else {
-                showToast("Đặt chỗ thất bại, vui lòng thử lại.");
+                showToast(res.data.message || "Đặt chỗ thất bại, vui lòng thử lại.");
             }
         } catch (error) {
-            console.error(error);
-            showToast("Lỗi mạng hoặc server, vui lòng thử lại.");
+            console.error("Booking submission error:", error.response?.data || error);
+            const errMsg = error.response?.data?.message || "Đặt chỗ thất bại, vui lòng kiểm tra lại thông tin!";
+            showToast(errMsg);
         }
     };
 
@@ -225,20 +262,37 @@ const BookingPage = () => {
         setToastMessage(""); // đóng thủ công
     };
 
+    // Helper function for robust image resolution
+    const getTourImageSrc = (t) => {
+        if (!t) return ninhThuan;
+        let url = "";
+        if (t.images && Array.isArray(t.images) && t.images.length > 0) {
+            const first = t.images[0];
+            url = typeof first === "string" ? first : (first.image_url || first.image_path || first.url || "");
+        }
+        if (!url) {
+            url = t.thumbnail_url || t.thumbnail || "";
+        }
+        if (!url) return ninhThuan;
+        if (url.startsWith("/")) {
+            const base = import.meta.env.VITE_API_BASE || "";
+            return base + url;
+        }
+        return url;
+    };
+
     if (!tour) {
         return <div style={{padding: 40, fontSize: 18}}>Đang tải thông tin tour...</div>;
     }
     return (
-        <div className="booking-bg">
+        <div className="booking-page">
             <div className="booking-container">
-                <h1 className="booking-form-h1">Đặt chỗ của tôi</h1>
-                <p className="booking-form-p">Điền thông tin và xem lại đặt chỗ</p>
-                <div style={{display: "flex", gap: 24}}>
-                    {/* Left: Form */}
+                <div className="booking-content">
+                    {/* Left Form */}
                     <div className="booking-form">
-                        {/* Hiển thị thông báo nếu chưa đăng nhập */}
-
-                        {!isLoggedIn && (
+                        <div className="booking-form-h1">Đặt chỗ của bạn</div>
+                        <div className="booking-form-p">Điền thông tin người liên hệ bên dưới</div>
+                        {!user && (
                             <div className="booking-login-alert">
                                 <div className="booking-login-alert-img">
                                     <img src="https://d1785e74lyxkqq.cloudfront.net/_next/static/v4.6.0/3/334a43706b543daaa27995a60d895f2a.png" alt="login" />
@@ -252,11 +306,11 @@ const BookingPage = () => {
                                         </div>
                                         <div>
                                             <i className="fa-solid fa-gift" style={{marginRight: 6}}></i>
-                                            Tận hưởng các ưu đãi độc quyền, kiếm Điểm Traveloka và quản lý đặt phòng của bạn một cách dễ dàng
+                                            Tận hưởng các ưu đãi độc quyền, kiếm Điểm DTravel và quản lý đặt chỗ dễ dàng
                                         </div>
                                     </div>
                                     <div className="booking-login-alert-action">
-                                        <Link to="/login" className="booking-login-alert-link">
+                                        <Link to="/auth/login?step=signin" className="booking-login-alert-link">
                                             Đăng nhập hoặc Đăng ký
                                         </Link>
                                     </div>
@@ -308,151 +362,164 @@ const BookingPage = () => {
                         <div className="booking-extra-info">
                             <div className="booking-extra-info-title">Thông tin thêm</div>
                             <div className="booking-extra-info-desc">
-                                Vui lòng cung cấp địa chỉ để sắp xếp cho việc đón tour
+                                Vui lòng cung cấp địa chỉ để sắp xếp đón tour
                                 <span className="booking-required">*</span>
                             </div>
                             <input name="address" type="text" className={`booking-input ${errors.address ? "input-error" : ""}`} placeholder="" value={formData.address} onChange={handleChange} />
                             {errors.address ? <div className="input-error-text">{errors.address}</div> : <span className="input-hint">VD: Số nhà 1, Ngách 37, Ngõ 66 An Hồng, Phường Hồng An, Hải Phòng</span>}
                         </div>
                     </div>
-                    {/* Right: Room Info */}
-                    <div className="booking-room-info">
-                        <div className="booking-room-info-header">
-                            <img src="https://d1785e74lyxkqq.cloudfront.net/_next/static/v4.6.0/a/a1499965ef30506d8df751cd6e62b0ff.svg" alt="" />
-                            <h3>Tóm tắt đặt chỗ</h3>
-                        </div>
-                        <div className="booking-room-info-group">
-                            <div className="booking-room-tour-title custom-room-title">{tour?.title}</div>
-                            <img src={tour?.images[0].image_url} alt={tour?.title} className="booking-room-img" />
-                        </div>
-                        <div className="booking-room-info-group" style={{background: "#ecf8ff", padding: "8px 4px"}}>
-                            <table style={{width: "fit-content", borderSpacing: "8px"}}>
-                                <tbody>
-                                    <tr>
-                                        <td className="booking-room-info-group-title">
-                                            <span className="booking-room-info-icon">
-                                                <i class="fa-regular fa-calendar tour-price-icon"></i>
-                                            </span>
-                                            Ngày tham quan
-                                        </td>
-                                        <td className="booking-room-info-group-value">
-                                            <div>
-                                                {(() => {
-                                                    const date = new Date(departureDate);
-                                                    const days = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
-                                                    return `${days[date.getDay()]}, ${date.getDate()} thg ${date.getMonth() + 1} ${date.getFullYear()}`;
-                                                })()}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td className="booking-room-info-group-title">
-                                            <span className="booking-room-info-icon">
-                                                <i className="fa-solid fa-location-dot tour-price-icon"></i>
-                                            </span>
-                                            Địa điểm
-                                        </td>
-                                        <td className="booking-room-info-group-value">{tour?.location_name}</td>
-                                    </tr>
-                                    <tr>
-                                        <td className="booking-room-info-group-title">
-                                            <span className="booking-room-info-icon">
-                                                <i className="fa-regular fa-clock tour-price-icon"></i>
-                                            </span>
-                                            Thời gian
-                                        </td>
-                                        <td className="booking-room-info-group-value">
-                                            {tour?.num_day} ngày {tour?.num_night} đêm
-                                        </td>
-                                    </tr>
 
-                                    <tr>
-                                        <td className="booking-room-info-group-title">
-                                            <span className="booking-room-info-icon">
-                                                <i class="fa-solid fa-user-group tour-price-icon"></i>
-                                            </span>
-                                            Áp dụng cho
-                                        </td>
-                                        <td className="booking-room-info-group-value">
-                                            Người lớn: {guestCounts.adult}, Trẻ em: {guestCounts.child58 + guestCounts.child24}, Em bé: {guestCounts.infant}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                    {/* Right: Redesigned Booking Summary Card */}
+                    <div className="booking-room-info-card">
+                        <div className="booking-summary-header">
+                            <i className="fa-solid fa-receipt summary-icon"></i>
+                            <h3>Tóm Tắt Đặt Chỗ</h3>
                         </div>
-                        <div className="booking-room-total-row booking-room-total-row-custom">
-                            <span>Giá bạn trả</span>
-                            <span className="booking-room-total-amount-wrapper">
-                                <span className="booking-room-total-amount">{totalPrice.toLocaleString("vi-VN")} VND </span>
-                                <button
-                                    className="price-toggle-btn"
-                                    onClick={() => setShowPriceDetail((prev) => !prev)}
-                                    style={{
-                                        background: "none",
-                                        border: "none",
-                                        cursor: "pointer",
-                                        marginLeft: 8,
-                                        verticalAlign: "middle",
-                                        padding: 0,
-                                    }}
-                                    aria-label={showPriceDetail ? "Ẩn chi tiết" : "Xem chi tiết"}
-                                >
-                                    {showPriceDetail ? <i className="fa-solid fa-chevron-up" style={{color: "#007aff", fontSize: 18}}></i> : <i className="fa-solid fa-chevron-down" style={{color: "#007aff", fontSize: 18}}></i>}
-                                </button>
-                            </span>
-                        </div>
-                        {showPriceDetail && (
-                            <div className="booking-room-price-detail">
-                                <div className="booking-room-price-detail-row">
-                                    <span>Người lớn ({guestCounts.adult}x)</span>
-                                    <span>{(getPriceByType("adult") * guestCounts.adult).toLocaleString()} VND</span>
-                                </div>
-                                {guestCounts.child58 + guestCounts.child24 > 0 && (
-                                    <div className="booking-room-price-detail-row">
-                                        <span>Trẻ em ({guestCounts.child58 + guestCounts.child24}x)</span>
-                                        <span>{(getPriceByType("child") * guestCounts.child58).toLocaleString()} VND</span>
-                                    </div>
+
+                        {/* Image & Title Header */}
+                        <div className="booking-tour-media">
+                            <img
+                                src={getTourImageSrc(tour)}
+                                alt={tour?.title || "Tour image"}
+                                className="booking-tour-thumb"
+                                onError={(e) => {
+                                    e.target.src = ninhThuan;
+                                }}
+                            />
+                            <div className="booking-tour-title-wrap">
+                                <h4 className="booking-tour-name">{tour?.title || "Đang tải thông tin tour..."}</h4>
+                                {tour?.location_name && (
+                                    <span className="booking-tour-location">
+                                        <i className="fa-solid fa-location-dot"></i> {tour.location_name}
+                                    </span>
                                 )}
                             </div>
-                        )}
-                        <div className="booking-room-info-group">
+                        </div>
+
+                        {/* Summary Details List */}
+                        <div className="booking-details-box">
+                            <div className="booking-detail-item">
+                                <div className="detail-icon"><i className="fa-regular fa-calendar-days"></i></div>
+                                <div className="detail-info">
+                                    <span className="detail-label">Ngày tham quan</span>
+                                    <span className="detail-value">
+                                        {departureDate ? (() => {
+                                            const date = new Date(departureDate);
+                                            const days = ["Chủ nhật", "Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7"];
+                                            return `${days[date.getDay()]}, ${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+                                        })() : "Chưa chọn ngày"}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="booking-detail-item">
+                                <div className="detail-icon"><i className="fa-regular fa-clock"></i></div>
+                                <div className="detail-info">
+                                    <span className="detail-label">Thời gian chuyến đi</span>
+                                    <span className="detail-value">
+                                        {tour?.num_day ? `${tour.num_day} ngày ${tour.num_night || 0} đêm` : "Theo chương trình tour"}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="booking-detail-item">
+                                <div className="detail-icon"><i className="fa-solid fa-users"></i></div>
+                                <div className="detail-info">
+                                    <span className="detail-label">Số lượng khách</span>
+                                    <span className="detail-value">
+                                        {guestCounts.adult} Người lớn
+                                        {guestCounts.child58 + guestCounts.child24 > 0 && `, ${guestCounts.child58 + guestCounts.child24} Trẻ em`}
+                                        {guestCounts.infant > 0 && `, ${guestCounts.infant} Em bé`}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pricing Total Header */}
+                        <div className="booking-price-summary-box">
+                            <div className="price-summary-main">
+                                <div className="price-label-wrap">
+                                    <span className="price-title">Giá bạn trả</span>
+                                    <span className="price-subtitle">Đã gồm thuế & phí</span>
+                                </div>
+                                <div className="price-amount-wrap">
+                                    <span className="price-amount">{totalPrice.toLocaleString("vi-VN")} đ</span>
+                                    <button
+                                        className="price-detail-toggle-btn"
+                                        onClick={() => setShowPriceDetail((prev) => !prev)}
+                                        aria-label="Toggle price detail"
+                                    >
+                                        <i className={`fa-solid ${showPriceDetail ? "fa-chevron-up" : "fa-chevron-down"}`}></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Detailed Price Breakdown */}
+                            {showPriceDetail && (
+                                <div className="price-breakdown-list">
+                                    <div className="price-breakdown-item">
+                                        <span>Người lớn ({guestCounts.adult}x)</span>
+                                        <span>{(getPriceByType("adult") * guestCounts.adult).toLocaleString("vi-VN")} đ</span>
+                                    </div>
+                                    {guestCounts.child58 + guestCounts.child24 > 0 && (
+                                        <div className="price-breakdown-item">
+                                            <span>Trẻ em ({guestCounts.child58 + guestCounts.child24}x)</span>
+                                            <span>{(getPriceByType("child") * (guestCounts.child58 + guestCounts.child24)).toLocaleString("vi-VN")} đ</span>
+                                        </div>
+                                    )}
+                                    {guestCounts.infant > 0 && (
+                                        <div className="price-breakdown-item">
+                                            <span>Em bé ({guestCounts.infant}x)</span>
+                                            <span>{(getPriceByType("infant") * guestCounts.infant).toLocaleString("vi-VN")} đ</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="booking-room-info-group" style={{ marginTop: 20 }}>
                             <button className="booking-submit-btn" onClick={handleContinue}>
                                 Tiếp tục
                             </button>
                         </div>
-                        {toastMessage && (
-                            <div className="toast-container">
-                                <div className="toast-message">
-                                    <span>{toastMessage}</span>
-                                    <button className="toast-close-btn" onClick={closeToast}>
-                                        Đóng
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                        {showModal && (
-                            <div className="modal-overlay">
-                                <div className="modal-confirm">
-                                    <h3>Tất cả thông tin đặt chỗ của bạn đều đã chính xác?</h3>
-                                    <p>
-                                        Bạn sẽ không thể thay đổi thông tin đặt chỗ sau khi tiến hành thanh toán.
-                                        <br />
-                                        Bạn có muốn tiếp tục?
-                                    </p>
-                                    <div className="modal-confirm-actions">
-                                        <button className="btn-outline" onClick={() => setShowModal(false)}>
-                                            Kiểm tra lại
-                                        </button>
-                                        <button className="btn-filled" onClick={handleConfirm}>
-                                            Tiếp tục
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
+
+            {toastMessage && (
+                <div className="toast-container">
+                    <div className="toast-message">
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <i className="fa-solid fa-circle-exclamation" style={{ fontSize: "1.2rem", color: "#ffffff" }}></i>
+                            <span>{toastMessage}</span>
+                        </div>
+                        <button className="toast-close-btn" onClick={closeToast} aria-label="Đóng thông báo">
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+            )}
+            {showModal && (
+                <div className="modal-overlay">
+                    <div className="modal-confirm">
+                        <h3>Tất cả thông tin đặt chỗ của bạn đều đã chính xác?</h3>
+                        <p>
+                            Bạn sẽ không thể thay đổi thông tin đặt chỗ sau khi tiến hành thanh toán.
+                            <br />
+                            Bạn có muốn tiếp tục?
+                        </p>
+                        <div className="modal-confirm-actions">
+                            <button className="btn-outline" onClick={() => setShowModal(false)}>
+                                Kiểm tra lại
+                            </button>
+                            <button className="btn-filled" onClick={handleConfirm}>
+                                Tiếp tục
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

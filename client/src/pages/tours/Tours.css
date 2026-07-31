@@ -78,7 +78,9 @@
 .tour-card-info-container {
     padding: 14px 12px;
     flex: 1;
-    width: 665px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .tour-card-info-wrap {
@@ -509,4 +511,42 @@
 .pagination .pg-ellipsis {
     padding: 0 4px;
     color: #888;
+}
+
+/* Responsive media queries for Tours page */
+@media (max-width: 992px) {
+    .tour-list-container {
+        padding: 16px 12px;
+    }
+
+    .tour-list-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .tour-card {
+        flex-direction: column;
+    }
+
+    .tour-card-img {
+        width: 100%;
+        height: 200px;
+        min-height: auto;
+    }
+
+    .tour-card-info-container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .tour-card-info-wrap {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .tour-card-action {
+        width: 100%;
+        align-items: flex-start;
+        margin-top: 12px;
+    }
 }

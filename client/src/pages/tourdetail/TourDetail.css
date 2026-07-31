@@ -1142,3 +1142,44 @@
     position: absolute;
     left: 0;
 }
+
+/* Responsive media queries for TourDetail page */
+@media (max-width: 992px) {
+    .tour-detail-container {
+        padding: 16px 12px;
+    }
+
+    .tour-main {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .tour-main-left,
+    .tour-main-right {
+        width: 100%;
+        flex: none;
+    }
+
+    .price-box-sticky {
+        position: static !important;
+        width: 100% !important;
+    }
+
+    .tour-gallery-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-sub-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .tour-title {
+        font-size: 1.3rem;
+    }
+
+    .gallery-sub-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -15,7 +15,9 @@
 .vietnam-section,
 .foreign-section,
 .travel-guide-section {
-    width: 1170px;
+    max-width: 1170px;
+    width: 100%;
+    box-sizing: border-box;
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
@@ -160,7 +162,9 @@
 
 /* Limit inner content width while keeping full-bleed background */
 .trending-tours-section .container {
-    width: 1170px;
+    max-width: 1170px;
+    width: 100%;
+    box-sizing: border-box;
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
@@ -505,48 +509,48 @@
     color: #828282;
 }
 
-/* Responsive cho màn hình nhỏ hơn */
-@media (max-width: 768px) {
-    .vietnam-grid {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: auto;
-        gap: 10px;
+/* Multi-device Responsive Design for Homepage */
+@media (max-width: 992px) {
+    .travel-guide-container {
+        display: grid;
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
     }
 
-    .vietnam-card {
-        grid-column: span 1 !important; /* Reset tất cả card về 1 cột trên mobile */
-        grid-row: auto !important;
-        height: 150px;
+    .travel-guide,
+    .foods {
+        width: 100% !important;
     }
 
-    .ha-giang,
-    .da-nang {
-        grid-column: span 2 !important; /* Cho 2 card lớn chiếm trọn hàng */
+    .trending-tours-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .home-content {
         padding: 0 15px;
     }
 
     .banner-content h1 {
-        font-size: 2rem;
+        font-size: 1.75rem;
     }
 
     .banner-content p {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .category-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .category-header h2 {
-        font-size: 20px;
+        font-size: 1.25rem;
     }
 
     .tour-grid,
@@ -557,6 +561,99 @@
     .tour-card,
     .guide-card {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-header h2 {
+        font-size: 1.15rem;
+    }
+
+    .view-all {
+        font-size: 0.9rem;
+    }
+
+    .trending-tour-card {
+        width: calc(50% - 8px);
+        height: 120px;
+    }
+
+    /* Tin du lịch mobile layout */
+    .travel-guide-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .travel-guide-card {
+        display: flex;
+        flex-direction: row;
+        gap: 12px;
+        height: 95px;
+        align-items: center;
+        border: none;
+        border-radius: 8px;
+        background: #ffffff;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        padding: 4px;
+    }
+
+    .travel-guide-image {
+        width: 110px;
+        height: 87px;
+        flex-shrink: 0;
+        border-radius: 6px;
+        margin-bottom: 0;
+    }
+
+    .travel-guide-content {
+        flex: 1;
+        padding: 4px 6px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .travel-guide-title {
+        font-size: 0.88rem;
+        line-height: 1.35;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Ẩm thực mobile layout */
+    .foods-item {
+        height: auto;
+        min-height: 85px;
+        gap: 12px;
+        padding: 6px 0;
+        border-bottom: 1px dashed #eef2f6;
+    }
+
+    .foods-image {
+        width: 110px;
+        height: 80px;
+        flex-shrink: 0;
+        border-radius: 8px;
+    }
+
+    .foods-content {
+        height: auto;
+        justify-content: center;
+    }
+
+    .foods-title {
+        font-size: 0.88rem;
+        line-height: 1.35;
+        font-weight: 600;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 }
 

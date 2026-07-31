@@ -547,43 +547,56 @@ label {
 
 .toast-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
+    top: 90px;
+    right: 24px;
+    z-index: 99999;
 }
 
 .toast-message {
-    background-color: #f44336;
+    background-color: #ef4444;
     color: white;
-    padding: 16px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-    min-width: 400px;
-    font-weight: 500;
-    animation: slide-up 0.4s ease-out;
+    padding: 14px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+    min-width: 320px;
+    max-width: 450px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    animation: slideDownToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    flex-direction: column;
+    gap: 14px;
 }
 
 .toast-close-btn {
-    background: none;
+    background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
-    font-weight: bold;
-    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
     cursor: pointer;
-    text-align: right;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    flex-shrink: 0;
 }
 
-@keyframes slide-up {
+.toast-close-btn:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+@keyframes slideDownToast {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(-20px) scale(0.95);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 }
 
@@ -690,4 +703,199 @@ label {
 
 .price-toggle-btn:focus {
     outline: none;
+}
+
+/* Redesigned Booking Summary Card */
+.booking-room-info-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    padding: 24px;
+    position: sticky;
+    top: 90px;
+    height: max-content;
+}
+
+.booking-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 18px;
+}
+
+.booking-summary-header .summary-icon {
+    font-size: 1.3rem;
+    color: #1f50ea;
+}
+
+.booking-summary-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #183153;
+    margin: 0;
+}
+
+.booking-tour-media {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.booking-tour-thumb {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.booking-tour-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #183153;
+    line-height: 1.4;
+    margin: 0 0 6px 0;
+}
+
+.booking-tour-location {
+    font-size: 0.85rem;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.booking-tour-location i {
+    color: #ef4444;
+}
+
+/* Details Box */
+.booking-details-box {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.booking-detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detail-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #1f50ea;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+.detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.detail-label {
+    font-size: 0.78rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.detail-value {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+/* Price Box */
+.booking-price-summary-box {
+    background: linear-gradient(135deg, #f0f4ff, #e6eeef);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #dbeabe;
+}
+
+.price-summary-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #183153;
+    display: block;
+}
+
+.price-subtitle {
+    font-size: 0.78rem;
+    color: #64748b;
+    display: block;
+}
+
+.price-amount-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-amount {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ff5722;
+}
+
+.price-detail-toggle-btn {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #1f50ea;
+    font-size: 0.8rem;
+    transition: background 0.2s ease;
+}
+
+.price-detail-toggle-btn:hover {
+    background: #f1f5f9;
+}
+
+.price-breakdown-list {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.price-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: #475569;
+    font-weight: 500;
 }

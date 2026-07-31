@@ -288,16 +288,90 @@ const Navbar = () => {
                     </div>
                 )}
 
-                <button className="mobile-menu-button" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                    ☰
+                <button 
+                    className="mobile-menu-toggle" 
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    aria-label="Toggle Navigation"
+                >
+                    <i className={isMobileMenuOpen ? "fa-solid fa-xmark" : "fa-solid fa-bars"}></i>
                 </button>
 
-                <div className={`mobile-menu ${isMobileMenuOpen ? "active" : ""}`}>
-                    {menuItems.map((item) => (
-                        <Link key={item.text} to={item.path} className="mobile-menu-item" onClick={() => setIsMobileMenuOpen(false)}>
-                            {item.text}
+                {/* Mobile Menu Backdrop */}
+                {isMobileMenuOpen && (
+                    <div className="mobile-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)}></div>
+                )}
+
+                {/* Mobile Menu Drawer */}
+                <div className={`mobile-menu-drawer ${isMobileMenuOpen ? "open" : ""}`}>
+                    <div className="mobile-menu-header">
+                        <img src="/logo.png" alt="DTravel Logo" className="mobile-menu-logo" />
+                        <button className="mobile-menu-close" onClick={() => setIsMobileMenuOpen(false)}>
+                            <i className="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div className="mobile-menu-links">
+                        <Link to="/danh-muc-tour?type=domestic" className="mobile-menu-link" onClick={() => setIsMobileMenuOpen(false)}>
+                            <i className="fa-solid fa-map-location-dot"></i> Tour trong nước
                         </Link>
-                    ))}
+                        <Link to="/danh-muc-tour?type=international" className="mobile-menu-link" onClick={() => setIsMobileMenuOpen(false)}>
+                            <i className="fa-solid fa-earth-americas"></i> Tour nước ngoài
+                        </Link>
+                        <Link to="/blog?category=travel-guide" className="mobile-menu-link" onClick={() => setIsMobileMenuOpen(false)}>
+                            <i className="fa-solid fa-book-open"></i> Cẩm nang du lịch
+                        </Link>
+                        <Link to="/contact" className="mobile-menu-link" onClick={() => setIsMobileMenuOpen(false)}>
+                            <i className="fa-solid fa-headset"></i> Liên hệ
+                        </Link>
+                    </div>
+
+                    <div className="mobile-menu-auth">
+                        {user ? (
+                            <div className="mobile-user-box">
+                                <div className="mobile-user-profile">
+                                    <img
+                                        src={
+                                            user.picture
+                                                ? user.picture.startsWith("/")
+                                                    ? (import.meta.env.VITE_API_BASE || "") + user.picture
+                                                    : user.picture
+                                                : "/default-avatar.jpg"
+                                        }
+                                        alt="avatar"
+                                        className="mobile-user-avatar"
+                                        onError={(e) => (e.target.src = "/default-avatar.jpg")}
+                                    />
+                                    <div className="mobile-user-details">
+                                        <span className="mobile-user-name">{user.name}</span>
+                                        <span className="mobile-user-email">{user.email}</span>
+                                    </div>
+                                </div>
+                                <div className="mobile-user-links">
+                                    <Link to="/dashboard/trips" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <i className="fa-solid fa-suitcase"></i> Kỳ nghỉ của tôi
+                                    </Link>
+                                    <Link to="/dashboard/voucher" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <i className="fa-solid fa-ticket"></i> Voucher của tôi
+                                    </Link>
+                                    <Link to="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <i className="fa-solid fa-user-gear"></i> Hồ sơ của tôi
+                                    </Link>
+                                    <button className="mobile-logout-btn" onClick={() => { logout(); setIsMobileMenuOpen(false); }}>
+                                        <i className="fa-solid fa-right-from-bracket"></i> Đăng xuất
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mobile-auth-btns">
+                                <button className="mobile-login-btn" onClick={() => { navigate("/auth/login?step=signin"); setIsMobileMenuOpen(false); }}>
+                                    <i className="fa-solid fa-right-to-bracket"></i> Đăng Nhập
+                                </button>
+                                <button className="mobile-register-btn" onClick={() => { navigate("/auth/login?step=signup"); setIsMobileMenuOpen(false); }}>
+                                    Đăng Ký
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </nav>

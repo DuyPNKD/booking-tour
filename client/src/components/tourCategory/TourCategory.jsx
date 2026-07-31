@@ -92,6 +92,12 @@ const TourCategory = ({title, link, categoryId}) => {
                     modules={[Navigation]}
                     spaceBetween={20}
                     slidesPerView={3.5}
+                    breakpoints={{
+                        320: { slidesPerView: 1.15, spaceBetween: 12 },
+                        576: { slidesPerView: 2.1, spaceBetween: 16 },
+                        768: { slidesPerView: 2.8, spaceBetween: 16 },
+                        992: { slidesPerView: 3.5, spaceBetween: 20 },
+                    }}
                     grabCursor={true}
                     navigation={{
                         prevEl: `.custom-prev-${categoryId}`, // Sử dụng class riêng cho từng danh mục

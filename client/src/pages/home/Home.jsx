@@ -392,40 +392,48 @@ const Home = () => {
                                 <i className="fa-solid fa-circle-chevron-right"></i>
                             </Link>
                         </div>
-                        <Swiper
-                            modules={[Autoplay, Pagination]}
-                            spaceBetween={20}
-                            slidesPerView={3}
-                            loop={true}
-                            autoplay={{
-                                delay: 2800,
-                                disableOnInteraction: false,
-                            }}
-                            pagination={{ clickable: true }}
-                            breakpoints={{
-                                320: { slidesPerView: 1 },
-                                640: { slidesPerView: 2 },
-                                992: { slidesPerView: 3 },
-                            }}
-                            className="promotions-slider"
-                        >
-                            {promotions.map((promo) => (
-                                <SwiperSlide key={promo.id}>
-                                    <Link
-                                        to={`/blog/${promo.id}`}
-                                        state={{ fromSection: "promotions-section" }}
-                                        onClick={() => saveHomeScroll("promotions-section")}
-                                        className="promotion-card"
-                                    >
-                                        <img src={promo.image} alt={promo.title} className="promotion-image" />
-                                        <div className="promotion-overlay">
-                                            <span className="promotion-badge">Ưu đãi HOT</span>
-                                            <h4 className="promotion-title">{promo.title}</h4>
-                                        </div>
-                                    </Link>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
+                        {blogsLoading ? (
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20 }}>
+                                {[1, 2, 3].map((n) => (
+                                    <div key={n} className="promotion-card skeleton-box" style={{ height: 220, borderRadius: 12 }}></div>
+                                ))}
+                            </div>
+                        ) : (
+                            <Swiper
+                                modules={[Autoplay, Pagination]}
+                                spaceBetween={20}
+                                slidesPerView={3}
+                                loop={true}
+                                autoplay={{
+                                    delay: 2800,
+                                    disableOnInteraction: false,
+                                }}
+                                pagination={{ clickable: true }}
+                                breakpoints={{
+                                    320: { slidesPerView: 1 },
+                                    640: { slidesPerView: 2 },
+                                    992: { slidesPerView: 3 },
+                                }}
+                                className="promotions-slider"
+                            >
+                                {promotions.map((promo) => (
+                                    <SwiperSlide key={promo.id}>
+                                        <Link
+                                            to={`/blog/${promo.id}`}
+                                            state={{ fromSection: "promotions-section" }}
+                                            onClick={() => saveHomeScroll("promotions-section")}
+                                            className="promotion-card"
+                                        >
+                                            <img src={promo.image} alt={promo.title} className="promotion-image" />
+                                            <div className="promotion-overlay">
+                                                <span className="promotion-badge">Ưu đãi HOT</span>
+                                                <h4 className="promotion-title">{promo.title}</h4>
+                                            </div>
+                                        </Link>
+                                    </SwiperSlide>
+                                ))}
+                            </Swiper>
+                        )}
                     </div>
 
                     {/* Tour Trending */}
@@ -433,12 +441,18 @@ const Home = () => {
                         <div className="container">
                             <h2>Tour Đang Xu Hướng</h2>
                             <div className="trending-tours-grid">
-                                {trendingTours.map((tour) => (
-                                    <Link key={tour.id} to={tour.link} className="trending-tour-card">
-                                        <img src={tour.image} alt={tour.title} className="trending-tour-image" />
-                                        <div className="trending-tour-title">{tour.title}</div>
-                                    </Link>
-                                ))}
+                                {blogsLoading ? (
+                                    [1, 2, 3, 4, 5].map((n) => (
+                                        <div key={n} className="trending-tour-card skeleton-box" style={{ height: 160, borderRadius: 12 }}></div>
+                                    ))
+                                ) : (
+                                    trendingTours.map((tour) => (
+                                        <Link key={tour.id} to={tour.link} className="trending-tour-card">
+                                            <img src={tour.image} alt={tour.title} className="trending-tour-image" />
+                                            <div className="trending-tour-title">{tour.title}</div>
+                                        </Link>
+                                    ))
+                                )}
                             </div>
                         </div>
                     </div>

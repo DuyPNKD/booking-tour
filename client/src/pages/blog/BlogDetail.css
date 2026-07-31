@@ -6,6 +6,15 @@
 
 .blog-detail-content img {
     display: block;
+    max-width: 100% !important;
+    height: auto !important;
+    border-radius: 8px;
+}
+
+.blog-detail-content iframe,
+.blog-detail-content video {
+    max-width: 100% !important;
+    height: auto !important;
 }
 
 .blog-detail-content p + p {
@@ -154,6 +163,30 @@
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+/* Mobile Responsive Media Queries for BlogDetail */
+@media (max-width: 768px) {
+    .blog-detail-content h1 {
+        font-size: 1.35rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .blog-detail-content p {
+        font-size: 0.98rem;
+        line-height: 1.65;
+    }
+
+    .blog-detail-content blockquote {
+        font-size: 0.92rem !important;
+        padding: 12px 14px !important;
+        margin: 16px 0 !important;
+    }
+
+    .related-posts-section {
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
+    }
 }
 
 

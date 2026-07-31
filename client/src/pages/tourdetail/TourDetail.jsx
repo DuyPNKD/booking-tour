@@ -502,15 +502,21 @@ export default function TourDetail() {
     };
 
     const handleBooking = () => {
-        const query = new URLSearchParams({
+        const bookingData = {
             date: selectedDate,
-            adult: guestCounts.adult,
-            child58: guestCounts.child58,
-            child24: guestCounts.child24,
-            infant: guestCounts.infant,
-        }).toString();
+            adult: Number(guestCounts.adult) || 1,
+            child58: Number(guestCounts.child58) || 0,
+            child24: Number(guestCounts.child24) || 0,
+            infant: Number(guestCounts.infant) || 0,
+        };
 
-        navigate(`/booking/${tour.id}?${query}`);
+        try {
+            sessionStorage.setItem(`booking_draft_${id}`, JSON.stringify(bookingData));
+        } catch (e) {
+            console.error("Failed to save booking draft to sessionStorage", e);
+        }
+
+        navigate(`/booking/${id}`, { state: bookingData });
     };
 
     // Di chuyển vào trong component để dùng được biến prices

@@ -203,9 +203,22 @@
     border-radius: 6px;
 }
 
-@media (max-width: 992px) {
-    .tour-category-skeleton-container {
-        grid-template-columns: repeat(2, 1fr) !important;
+@media (max-width: 1200px) {
+    .custom-prev {
+        left: 5px;
+    }
+    .custom-next {
+        right: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-prev,
+    .custom-next {
+        display: none !important;
+    }
+    .tours-slider {
+        padding: 6px 0 !important;
     }
 }
 
