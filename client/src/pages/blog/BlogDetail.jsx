@@ -232,6 +232,28 @@ const FALLBACK_ARTICLES = {
             <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Bali" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
         `,
     },
+    "15": {
+        id: 15,
+        title: "Khuyến mãi Tour Châu Âu mùa thu vàng - Giảm 15% cho nhóm từ 4 người",
+        category: "Khuyến mãi",
+        date: "24/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Trải nghiệm mùa thu vàng tại Châu Âu với ưu đãi giảm giá 15% khi đăng ký nhóm từ 4 khách trở lên.</p>
+            
+            <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Châu Âu" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
+    "16": {
+        id: 16,
+        title: "Săn Deal Tour Nhật Bản ngắm hoa anh đào - Đặt sớm chiết khấu 2.000.000đ",
+        category: "Khuyến mãi",
+        date: "22/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Đặt sớm tour Nhật Bản 6 ngày 5 đêm ngắm hoa anh đào rực rỡ để nhận ngay chiết khấu trực tiếp 2.000.000đ/khách.</p>
+            
+            <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Nhật Bản" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
 };
 
 const BlogDetail = () => {

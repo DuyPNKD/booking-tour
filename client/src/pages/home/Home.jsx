@@ -146,6 +146,40 @@ const Home = () => {
         },
     ];
 
+    const defaultPromotions = [
+        {
+            id: 12,
+            title: "Khám phá bãi biển Maldives - Chương trình khuyến mãi giảm ngay 20%",
+            image: km1,
+            date: "30/07/2026",
+        },
+        {
+            id: 13,
+            title: "Ưu đãi đặc biệt khi đặt Tour Hawaii mùa hè 2026",
+            image: km2,
+            date: "28/07/2026",
+        },
+        {
+            id: 14,
+            title: "Tour biển Bali giá cực sốc - Tặng ngay Voucher 1.000.000đ",
+            image: km3,
+            date: "26/07/2026",
+        },
+        {
+            id: 15,
+            title: "Khuyến mãi Tour Châu Âu mùa thu vàng - Giảm 15% cho nhóm từ 4 người",
+            image: "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=800&q=80",
+            date: "24/07/2026",
+        },
+        {
+            id: 16,
+            title: "Săn Deal Tour Nhật Bản ngắm hoa anh đào - Đặt sớm chiết khấu 2.000.000đ",
+            image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=800&q=80",
+            date: "22/07/2026",
+        },
+    ];
+
+    const [promotions, setPromotions] = useState(defaultPromotions);
     const [travelGuides, setTravelGuides] = useState([]);
     const [foods, setFoods] = useState([]);
     const [blogsLoading, setBlogsLoading] = useState(true);
@@ -155,13 +189,15 @@ const Home = () => {
             setBlogsLoading(true);
             try {
                 const base = import.meta.env.VITE_API_BASE || "";
-                const [newsRes, foodRes] = await Promise.all([
+                const [newsRes, foodRes, promoRes] = await Promise.all([
                     fetch(`${base}/api/blogs/category/tin-du-lich`),
                     fetch(`${base}/api/blogs/category/am-thuc`),
+                    fetch(`${base}/api/blogs/category/khuyen-mai`),
                 ]);
 
                 let finalGuides = defaultTravelGuides;
                 let finalFoods = defaultFoods;
+                let finalPromos = defaultPromotions;
 
                 if (newsRes.ok) {
                     const json = await newsRes.json();
@@ -189,12 +225,27 @@ const Home = () => {
                     }
                 }
 
+                if (promoRes.ok) {
+                    const json = await promoRes.json();
+                    const list = json?.data || [];
+                    if (Array.isArray(list) && list.length > 0) {
+                        finalPromos = list.slice(0, 5).map((p, idx) => ({
+                            id: p.id,
+                            title: p.title,
+                            image: p.image || defaultPromotions[idx % defaultPromotions.length].image,
+                            date: p.date || (p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : "30/07/2026"),
+                        }));
+                    }
+                }
+
                 setTravelGuides(finalGuides);
                 setFoods(finalFoods);
+                setPromotions(finalPromos);
             } catch (err) {
                 console.error("Fetch blogs error:", err);
                 setTravelGuides(defaultTravelGuides);
                 setFoods(defaultFoods);
+                setPromotions(defaultPromotions);
             } finally {
                 setBlogsLoading(false);
             }
@@ -241,24 +292,7 @@ const Home = () => {
         }
     }, [location]);
 
-    // Mock data for khuyến mãi
-    const promotions = [
-        {
-            id: 12,
-            image: km1,
-            title: "Khám phá bãi biển Maldives - Giảm ngay 20%",
-        },
-        {
-            id: 13,
-            image: km2,
-            title: "Ưu đãi đặc biệt khi đặt Tour Hawaii mùa hè",
-        },
-        {
-            id: 14,
-            image: km3,
-            title: "Tour biển Bali giá cực sốc - Tặng Voucher 1.000.000đ",
-        },
-    ];
+
 
     // Mock data for promotions
     const trendingTours = [
@@ -266,26 +300,31 @@ const Home = () => {
             id: 1,
             title: "Tour Biển Đảo",
             image: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            link: "/danh-muc-tour?search=Cát+Bà",
         },
         {
             id: 2,
-            title: "Tour Nhật Bản",
-            image: "https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            title: "Tour Đà Nẵng",
+            image: daNang,
+            link: "/danh-muc-tour?location_id=38",
         },
         {
             id: 3,
-            title: "Tour Trung Quốc",
-            image: "https://plus.unsplash.com/premium_photo-1661962892760-5e50359c5123?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            title: "Tour Thái Lan",
+            image: "https://images.unsplash.com/photo-1707817280692-2c711ff06073?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            link: "/danh-muc-tour?location_id=129",
         },
         {
             id: 4,
             title: "Tour Hà Giang",
             image: haGiang,
+            link: "/danh-muc-tour?location_id=177",
         },
         {
             id: 5,
             title: "Tour Hạ Long",
             image: haLong,
+            link: "/danh-muc-tour?location_id=35",
         },
     ];
 
@@ -354,12 +393,19 @@ const Home = () => {
                             </Link>
                         </div>
                         <Swiper
-                            modules={[Autoplay]}
+                            modules={[Autoplay, Pagination]}
                             spaceBetween={20}
                             slidesPerView={3}
+                            loop={true}
                             autoplay={{
-                                delay: 3000,
+                                delay: 2800,
                                 disableOnInteraction: false,
+                            }}
+                            pagination={{ clickable: true }}
+                            breakpoints={{
+                                320: { slidesPerView: 1 },
+                                640: { slidesPerView: 2 },
+                                992: { slidesPerView: 3 },
                             }}
                             className="promotions-slider"
                         >
@@ -372,6 +418,10 @@ const Home = () => {
                                         className="promotion-card"
                                     >
                                         <img src={promo.image} alt={promo.title} className="promotion-image" />
+                                        <div className="promotion-overlay">
+                                            <span className="promotion-badge">Ưu đãi HOT</span>
+                                            <h4 className="promotion-title">{promo.title}</h4>
+                                        </div>
                                     </Link>
                                 </SwiperSlide>
                             ))}
@@ -384,10 +434,10 @@ const Home = () => {
                             <h2>Tour Đang Xu Hướng</h2>
                             <div className="trending-tours-grid">
                                 {trendingTours.map((tour) => (
-                                    <div key={tour.id} className="trending-tour-card">
+                                    <Link key={tour.id} to={tour.link} className="trending-tour-card">
                                         <img src={tour.image} alt={tour.title} className="trending-tour-image" />
                                         <div className="trending-tour-title">{tour.title}</div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
