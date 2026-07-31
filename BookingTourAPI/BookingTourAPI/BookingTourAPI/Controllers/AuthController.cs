@@ -2,6 +2,7 @@ using BookingTourAPI.Data;
 using BookingTourAPI.DTOs;
 using BookingTourAPI.Models;
 using BookingTourAPI.Services;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -396,6 +397,71 @@ namespace BookingTourAPI.Controllers
             }
         }
 
+        [HttpPost("google")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(dto?.Token))
+                {
+                    return BadRequest(new { success = false, message = "Token không được để trống" });
+                }
+
+                var settings = new GoogleJsonWebSignature.ValidationSettings();
+                var googleClientId = _configuration["Google:ClientId"] ?? _configuration["GOOGLE_CLIENT_ID"];
+                if (!string.IsNullOrEmpty(googleClientId))
+                {
+                    settings.Audience = new[] { googleClientId };
+                }
+
+                var payload = await GoogleJsonWebSignature.ValidateAsync(dto.Token, settings);
+                if (payload == null || string.IsNullOrEmpty(payload.Email))
+                {
+                    return BadRequest(new { success = false, message = "Token Google không hợp lệ" });
+                }
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == payload.Email);
+                if (user == null)
+                {
+                    user = new User
+                    {
+                        Name = payload.Name ?? payload.Email.Split('@')[0],
+                        Email = payload.Email,
+                        Avatar = payload.Picture,
+                        IsActive = 1,
+                        Role = "user",
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+
+                var token = GenerateJwtToken(user);
+                var refreshToken = GenerateRefreshToken(user);
+                SetRefreshTokenCookie(refreshToken);
+
+                return Ok(new
+                {
+                    success = true,
+                    token = token,
+                    accessToken = token,
+                    user = new
+                    {
+                        id = user.Id,
+                        name = user.Name,
+                        email = user.Email,
+                        role = user.Role,
+                        avatar = user.Avatar
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GOOGLE LOGIN ERROR] {ex}");
+                return BadRequest(new { success = false, message = "Token Google không hợp lệ hoặc đã hết hạn" });
+            }
+        }
+
         [HttpPost("logout")]
         public IActionResult Logout()
         {
@@ -505,6 +571,7 @@ namespace BookingTourAPI.Controllers
         }
     }
 
+    public class GoogleLoginDto { public string Token { get; set; } = null!; }
     public class VerifyDto { public string Email { get; set; } = null!; public string Code { get; set; } = null!; }
     public class ResendOtpDto { public string Email { get; set; } = null!; }
     public class ForgotPasswordDto { public string Email { get; set; } = null!; }

@@ -10,8 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // --- PHẦN 1: ĐĂNG KÝ CÁC DỊCH VỤ (Dependency Injection) ---
 
-// Lấy chuỗi kết nối Database từ file appsettings.json
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Lấy chuỗi kết nối Database từ Configuration (appsettings.json hoặc Environment Variable)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Server=localhost;Port=3306;Database=booking_tour;User=root;Password=;";
 
 // Cấu hình chứng chỉ SSL ca.pem cho Aiven MySQL Cloud
 var caPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ca.pem");
@@ -28,13 +29,17 @@ if (!string.IsNullOrEmpty(sslCertEnv))
 
 var csb = new MySqlConnector.MySqlConnectionStringBuilder(connectionString)
 {
-    SslMode = MySqlConnector.MySqlSslMode.Required,
     AllowPublicKeyRetrieval = true
 };
 
 if (File.Exists(caPath))
 {
+    csb.SslMode = MySqlConnector.MySqlSslMode.Required;
     csb.SslCa = caPath;
+}
+else
+{
+    csb.SslMode = MySqlConnector.MySqlSslMode.Preferred;
 }
 
 // Đăng ký Database Context với MySQL

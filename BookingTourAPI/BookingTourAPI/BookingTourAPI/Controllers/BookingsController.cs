@@ -27,116 +27,178 @@ namespace BookingTourAPI.Controllers
                 return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
             }
 
+            int totalSeatsNeeded = request.Passengers.Sum(p => p.Quantity);
+            if (totalSeatsNeeded <= 0)
+            {
+                return BadRequest(new { success = false, message = "Số lượng hành khách phải lớn hơn 0" });
+            }
+
             var strategy = _context.Database.CreateExecutionStrategy();
 
-            return await strategy.ExecuteAsync(async () =>
+            return await strategy.ExecuteAsync<IActionResult>(async () =>
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
-                try
+                int maxRetries = 3;
+                int retryCount = 0;
+
+                while (true)
                 {
-                    var tour = await _context.Tours
-                        .Include(t => t.Prices)
-                        .FirstOrDefaultAsync(t => t.Id == request.TourId);
-
-                    if (tour == null)
-                        return NotFound(new { success = false, message = "Tour không tồn tại" });
-
-                    // Tính tổng tiền dựa trên loại khách (adult, child, infant)
-                    int totalPrice = 0;
-                    foreach (var passenger in request.Passengers)
+                    using var transaction = await _context.Database.BeginTransactionAsync();
+                    try
                     {
-                        var priceConfig = tour.Prices.FirstOrDefault(p => p.TargetType == passenger.TargetType);
-                        if (priceConfig != null)
-                        {
-                            totalPrice += priceConfig.Price * passenger.Quantity;
-                        }
-                        else
-                        {
-                            return BadRequest(new { success = false, message = $"Giá chưa được cấu hình cho đối tượng {passenger.TargetType}" });
-                        }
-                    }
+                        var tour = await _context.Tours
+                            .Include(t => t.Prices)
+                            .FirstOrDefaultAsync(t => t.Id == request.TourId);
 
-                    // Kiểm tra xem User đã đăng nhập hay Guest
-                    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                    int finalUserId;
+                        if (tour == null)
+                            return NotFound(new { success = false, message = "Tour không tồn tại" });
 
-                    if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int loggedInUserId))
-                    {
-                        finalUserId = loggedInUserId;
-                    }
-                    else
-                    {
-                        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.FullName))
-                        {
-                            return BadRequest(new { success = false, message = "Khách hàng phải cung cấp Email và Họ tên để liên lạc." });
-                        }
+                        // 1. Kiểm tra & Trừ số lượng chỗ trống (AvailableSeats) trong TourDeparture (Optimistic Concurrency)
+                        var departure = await _context.TourDepartures
+                            .FirstOrDefaultAsync(d => d.TourId == request.TourId && d.DepartureDate.Date == request.DepartureDate.Date);
 
-                        var existingGuest = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-                        if (existingGuest != null)
+                        int defaultMaxSeats = 20; // Giới hạn chỗ mặc định cho mỗi chuyến đi nếu chưa cấu hình
+
+                        if (departure == null)
                         {
-                            finalUserId = existingGuest.Id;
-                        }
-                        else
-                        {
-                            var newGuest = new User
+                            departure = new TourDeparture
                             {
-                                Name = request.FullName,
-                                Email = request.Email,
-                                Phone = request.Phone,
-                                Gender = request.Gender,
-                                Address = request.Address,
-                                Role = "user",
-                                IsActive = 1,
-                                CreatedAt = DateTime.UtcNow
+                                TourId = request.TourId,
+                                DepartureDate = request.DepartureDate.Date,
+                                ReturnDate = request.DepartureDate.Date.AddDays(tour.NumDay > 0 ? tour.NumDay : 1),
+                                Price = tour.Price,
+                                AvailableSeats = defaultMaxSeats,
+                                DepartureCity = "Hồ Chí Minh"
                             };
-
-                            _context.Users.Add(newGuest);
-                            await _context.SaveChangesAsync();
-                            finalUserId = newGuest.Id;
+                            _context.TourDepartures.Add(departure);
                         }
+
+                        int currentAvailableSeats = departure.AvailableSeats ?? defaultMaxSeats;
+
+                        if (currentAvailableSeats < totalSeatsNeeded)
+                        {
+                            return BadRequest(new { 
+                                success = false, 
+                                message = $"Ngày khởi hành {request.DepartureDate:dd/MM/yyyy} chỉ còn {currentAvailableSeats} chỗ trống, không đủ cho {totalSeatsNeeded} khách." 
+                            });
+                        }
+
+                        departure.AvailableSeats = currentAvailableSeats - totalSeatsNeeded;
+                        if (departure.Id > 0)
+                        {
+                            _context.Entry(departure).State = EntityState.Modified;
+                        }
+
+                        // 2. Tính tổng tiền dựa trên loại khách (adult, child, infant)
+                        int totalPrice = 0;
+                        foreach (var passenger in request.Passengers)
+                        {
+                            var priceConfig = tour.Prices.FirstOrDefault(p => p.TargetType == passenger.TargetType);
+                            if (priceConfig != null)
+                            {
+                                totalPrice += priceConfig.Price * passenger.Quantity;
+                            }
+                            else
+                            {
+                                return BadRequest(new { success = false, message = $"Giá chưa được cấu hình cho đối tượng {passenger.TargetType}" });
+                            }
+                        }
+
+                        // 3. Kiểm tra xem User đã đăng nhập hay Guest
+                        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                        int finalUserId;
+
+                        if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out int loggedInUserId))
+                        {
+                            finalUserId = loggedInUserId;
+                        }
+                        else
+                        {
+                            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.FullName))
+                            {
+                                return BadRequest(new { success = false, message = "Khách hàng phải cung cấp Email và Họ tên để liên lạc." });
+                            }
+
+                            var existingGuest = await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+                            if (existingGuest != null)
+                            {
+                                finalUserId = existingGuest.Id;
+                            }
+                            else
+                            {
+                                var newGuest = new User
+                                {
+                                    Name = request.FullName,
+                                    Email = request.Email,
+                                    Phone = request.Phone,
+                                    Gender = request.Gender,
+                                    Address = request.Address,
+                                    Role = "user",
+                                    IsActive = 1,
+                                    CreatedAt = DateTime.UtcNow
+                                };
+
+                                _context.Users.Add(newGuest);
+                                await _context.SaveChangesAsync();
+                                finalUserId = newGuest.Id;
+                            }
+                        }
+
+                        // 4. Tạo Booking
+                        var booking = new Booking
+                        {
+                            UserId = finalUserId,
+                            TourId = request.TourId,
+                            Status = "pending",
+                            DepartureDate = request.DepartureDate,
+                            TotalPrice = totalPrice,
+                            Note = request.Note,
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        _context.Bookings.Add(booking);
+                        await _context.SaveChangesAsync();
+
+                        // 5. Tạo Booking Details
+                        var bookingDetails = request.Passengers.Select(p => new BookingDetail
+                        {
+                            BookingId = booking.Id,
+                            TargetType = p.TargetType,
+                            Quantity = p.Quantity
+                        }).ToList();
+
+                        _context.BookingDetails.AddRange(bookingDetails);
+                        await _context.SaveChangesAsync();
+
+                        await transaction.CommitAsync();
+
+                        return Ok(new
+                        {
+                            success = true,
+                            message = "Đặt tour thành công!",
+                            bookingId = booking.Id
+                        });
                     }
-
-                    // Tạo Booking
-                    var booking = new Booking
+                    catch (DbUpdateConcurrencyException ex)
                     {
-                        UserId = finalUserId,
-                        TourId = request.TourId,
-                        Status = "pending",
-                        DepartureDate = request.DepartureDate,
-                        TotalPrice = totalPrice,
-                        Note = request.Note,
-                        CreatedAt = DateTime.UtcNow
-                    };
-
-                    _context.Bookings.Add(booking);
-                    await _context.SaveChangesAsync();
-
-                    // Tạo Booking Details
-                    var bookingDetails = request.Passengers.Select(p => new BookingDetail
+                        await transaction.RollbackAsync();
+                        retryCount++;
+                        if (retryCount >= maxRetries)
+                        {
+                            Console.WriteLine($"[CONCURRENCY CONFLICT] Over {maxRetries} attempts failed: {ex.Message}");
+                            return StatusCode(409, new { 
+                                success = false, 
+                                message = "Hệ thống đang xử lý nhiều lượt đặt chỗ cùng lúc. Vui lòng thực hiện lại yêu cầu." 
+                            });
+                        }
+                        await Task.Delay(50 * retryCount);
+                    }
+                    catch (Exception ex)
                     {
-                        BookingId = booking.Id,
-                        TargetType = p.TargetType,
-                        Quantity = p.Quantity
-                    }).ToList();
-
-                    _context.BookingDetails.AddRange(bookingDetails);
-                    await _context.SaveChangesAsync();
-
-                    await transaction.CommitAsync();
-
-                    return Ok(new
-                    {
-                        success = true,
-                        message = "Đặt tour thành công!",
-                        bookingId = booking.Id
-                    });
-                }
-                catch (Exception ex)
-                {
-                    await transaction.RollbackAsync();
-                    Console.WriteLine($"[CREATE BOOKING ERROR] {ex.ToString()}");
-                    var innerMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    return StatusCode(500, new { success = false, message = "Lỗi hệ thống khi đặt tour", error = innerMsg, detail = ex.ToString() });
+                        await transaction.RollbackAsync();
+                        Console.WriteLine($"[CREATE BOOKING ERROR] {ex.ToString()}");
+                        var innerMsg = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                        return StatusCode(500, new { success = false, message = "Lỗi hệ thống khi đặt tour", error = innerMsg, detail = ex.ToString() });
+                    }
                 }
             });
         }

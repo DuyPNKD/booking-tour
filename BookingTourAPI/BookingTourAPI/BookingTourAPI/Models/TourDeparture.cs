@@ -27,6 +27,7 @@ namespace BookingTourAPI.Models
         public int Price { get; set; }
 
         [Column("available_seats")]
+        [ConcurrencyCheck]
         public int? AvailableSeats { get; set; }
 
         [Column("departure_city")]
