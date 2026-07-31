@@ -275,20 +275,26 @@ namespace BookingTourAPI.Controllers
                 int userId = int.Parse(userIdClaim);
 
                 var bookings = await _context.Bookings
-                    .Include(b => b.Tour)
+                    .Include(b => b.Tour!)
                         .ThenInclude(t => t.Images)
+                    .Include(b => b.Tour!)
+                        .ThenInclude(t => t.Location)
                     .Where(b => b.UserId == userId)
                     .OrderByDescending(b => b.CreatedAt)
                     .Select(b => new MyBookingDto
                     {
                         Id = b.Id,
-                        TourTitle = b.Tour!.Title,
-                        TourSlug = b.Tour.Slug,
-                        ThumbnailUrl = b.Tour.Images.OrderBy(i => i.Id).Select(i => i.ImageUrl).FirstOrDefault() ?? b.Tour.ThumbnailUrl ?? "",
+                        TourId = b.Tour != null ? b.Tour.Id : 0,
+                        TourTitle = b.Tour != null ? b.Tour.Title : "",
+                        TourSlug = b.Tour != null ? b.Tour.Slug : "",
+                        LocationName = b.Tour != null && b.Tour.Location != null ? b.Tour.Location.Name : "",
+                        NumDay = b.Tour != null ? b.Tour.NumDay : 0,
+                        NumNight = b.Tour != null ? b.Tour.NumNight : 0,
+                        ThumbnailUrl = b.Tour != null && b.Tour.Images != null && b.Tour.Images.Any() ? b.Tour.Images.OrderBy(i => i.Id).Select(i => i.ImageUrl).FirstOrDefault() ?? b.Tour.ThumbnailUrl ?? "" : (b.Tour != null ? b.Tour.ThumbnailUrl ?? "" : ""),
                         Status = b.Status,
-                        DepartureDate = b.DepartureDate.ToString("dd-MM-yyyy"),
+                        DepartureDate = b.DepartureDate.ToString("yyyy-MM-dd"),
                         TotalPrice = b.TotalPrice,
-                        CreatedAt = b.CreatedAt.HasValue ? b.CreatedAt.Value.ToString("dd-MM-yyyy HH:mm:ss") : null
+                        CreatedAt = b.CreatedAt.HasValue ? b.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null
                     })
                     .ToListAsync();
 
@@ -326,6 +332,13 @@ namespace BookingTourAPI.Controllers
                 if (booking.UserId != userId && roleClaim != "admin")
                 {
                     return StatusCode(403, new { success = false, message = "Không có quyền xoá booking này" });
+                }
+
+                // Xoá các BookingDetails thuộc về booking này trước
+                var details = await _context.BookingDetails.Where(d => d.BookingId == id).ToListAsync();
+                if (details.Any())
+                {
+                    _context.BookingDetails.RemoveRange(details);
                 }
 
                 _context.Bookings.Remove(booking);

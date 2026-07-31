@@ -89,8 +89,12 @@ namespace BookingTourAPI.DTOs
     public class MyBookingDto
     {
         public int Id { get; set; }
+        public int TourId { get; set; }
         public string TourTitle { get; set; } = string.Empty;
         public string TourSlug { get; set; } = string.Empty;
+        public string LocationName { get; set; } = string.Empty;
+        public int NumDay { get; set; }
+        public int NumNight { get; set; }
         public string ThumbnailUrl { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string DepartureDate { get; set; } = string.Empty;

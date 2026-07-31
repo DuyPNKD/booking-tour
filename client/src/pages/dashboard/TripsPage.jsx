@@ -59,63 +59,65 @@ export default function TripsPage() {
             ) : (
                 <div className="trips-grid">
                     {items.slice((currentPage - 1) * pageSize, currentPage * pageSize).map((b) => {
-                        const isNew = orderId && String(b.order_id) === String(orderId);
+                        const bookingId = b.id ?? b.booking_id ?? b.bookingId;
+                        const tourId = b.tourId ?? b.tour_id ?? b.tour?.id;
+                        const title = b.tourTitle ?? b.tour_title ?? b.tour?.title ?? "Chuyến đi";
+                        const imageUrl = b.thumbnailUrl ?? b.thumbnail_url ?? b.tour?.image_url ?? "/assets/default-avatar.jpg";
+                        const locationName = b.locationName ?? b.location_name ?? b.tour?.location_name;
+                        const numDay = b.numDay ?? b.num_day ?? b.tour?.num_day;
+                        const numNight = b.numNight ?? b.num_night ?? b.tour?.num_night;
+                        const departureDate = b.departureDate ?? b.departure_date;
+                        const totalPrice = b.totalPrice ?? b.total_price ?? 0;
+
+                        const isNew = orderId && String(b.order_id || b.orderId) === String(orderId);
+
                         return (
-                            <div key={b.booking_id} className="trip-card" onClick={() => navigate(`/tours/${b.tour?.id}`)}>
+                            <div key={bookingId} className="trip-card" onClick={() => tourId && navigate(`/tours/${tourId}`)}>
                                 <button
                                     className="trip-delete-btn"
-                                    aria-label="Xóa booking" // Hỗ trợ accessibility (screen reader)
-                                    title="Xóa" // Tooltip khi hover
+                                    aria-label="Xóa booking"
+                                    title="Xóa"
                                     onClick={async (e) => {
-                                        e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài (tránh điều hướng tour)
+                                        e.stopPropagation();
 
-                                        // Hiện hộp thoại xác nhận trước khi xóa
+                                        if (!bookingId) {
+                                            alert("Không tìm thấy ID chuyến đi để xóa.");
+                                            return;
+                                        }
+
                                         if (!confirm("Xóa chuyến đi này?")) return;
 
                                         try {
-                                            // Gọi API DELETE để xóa booking theo ID
-                                            const API_BASE = import.meta.env.VITE_API_BASE || "";
-                                            const res = await fetch(`${API_BASE}/api/booking/me/${b.booking_id}`, {
-                                                method: "DELETE", // Phương thức HTTP DELETE
-                                                headers: {
-                                                    // Gắn token vào header để xác thực người dùng
-                                                    Authorization: token ? `Bearer ${token}` : undefined,
-                                                },
-                                                credentials: "include", // Cho phép gửi cookie nếu backend cần
-                                            });
+                                            const res = await userApi.delete(`/booking/me/${bookingId}`);
 
-                                            // Chuyển kết quả về dạng JSON
-                                            const json = await res.json();
-
-                                            // Nếu xóa thành công → cập nhật lại danh sách bằng cách lọc bỏ item vừa xóa
-                                            if (json?.success) {
-                                                setItems((prev) => prev.filter((it) => it.booking_id !== b.booking_id));
+                                            if (res.data?.success) {
+                                                setItems((prev) => prev.filter((it) => (it.id ?? it.booking_id ?? it.bookingId) !== bookingId));
                                             } else {
-                                                // Nếu API trả về lỗi → hiển thị thông báo
-                                                alert(json?.error || "Xóa không thành công");
+                                                alert(res.data?.message || res.data?.error || "Xóa không thành công");
                                             }
                                         } catch (err) {
-                                            // Nếu có lỗi khi gọi API → log ra và hiển thị thông báo
-                                            console.error(err);
-                                            alert("Có lỗi xảy ra khi xóa");
+                                            console.error("Lỗi khi xóa booking:", err);
+                                            alert(err.response?.data?.message || "Có lỗi xảy ra khi xóa");
                                         }
                                     }}
                                 >
                                     ×
                                 </button>
-                                <img className="trip-image" src={b.tour?.image_url || "/assets/default-avatar.jpg"} alt={b.tour?.title} />
+                                <img className="trip-image" src={imageUrl} alt={title} />
                                 <div className="trip-content">
                                     <div className="trip-header">
-                                        <h3 className="trip-title">{b.tour?.title}</h3>
+                                        <h3 className="trip-title">{title}</h3>
                                         {isNew && <span className="badge-new">Mới</span>}
                                     </div>
                                     <div className="trip-location">
-                                        Điểm đi: {b.tour?.location_name} · {b.tour?.num_day}N{b.tour?.num_night}Đ
+                                        {locationName ? `Điểm đi: ${locationName}` : ""} {numDay ? `· ${numDay}N${numNight || 0}Đ` : ""}
                                     </div>
                                     <div className="trip-meta">
-                                        <span className="trip-departure">Khởi hành: {new Date(b.departure_date).toLocaleDateString("vi-VN")}</span>
-                                        <strong className="trip-price" title={`${Number(b.total_price).toLocaleString("vi-VN")} đ`}>
-                                            <span className="trip-price-number">{Number(b.total_price).toLocaleString("vi-VN")}</span>
+                                        <span className="trip-departure">
+                                            Khởi hành: {departureDate ? (new Date(departureDate).toString() !== "Invalid Date" ? new Date(departureDate).toLocaleDateString("vi-VN") : departureDate) : "Chưa xác định"}
+                                        </span>
+                                        <strong className="trip-price" title={`${Number(totalPrice).toLocaleString("vi-VN")} đ`}>
+                                            <span className="trip-price-number">{Number(totalPrice).toLocaleString("vi-VN")}</span>
                                             <span className="trip-price-currency"> đ</span>
                                         </strong>
                                     </div>

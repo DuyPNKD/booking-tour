@@ -201,7 +201,7 @@ const BookingPage = () => {
                 const API_BASE = import.meta.env.VITE_API_BASE || "";
             const res = await axios.post(`${API_BASE}/api/booking`, payload);
             if (res.data.success) {
-                const bookingId = res.data.booking_id;
+                const bookingId = res.data.bookingId || res.data.booking_id;
 
                 // Chuyển trang sang Payment, truyền bookingId
                 navigate(`/payment/${bookingId}`);
