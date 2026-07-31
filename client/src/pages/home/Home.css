@@ -527,3 +527,20 @@
         max-width: 100%;
     }
 }
+
+/* Skeleton animation for Home page blogs */
+@keyframes homeSkeletonShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.home .skeleton-box {
+    background: linear-gradient(90deg, #eef2f6 25%, #f7f9fc 37%, #eef2f6 63%);
+    background-size: 400% 100%;
+    animation: homeSkeletonShimmer 1.4s ease infinite;
+    border-radius: 6px;
+}

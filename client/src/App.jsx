@@ -103,10 +103,26 @@ function AppRoutes() {
     );
 }
 
+import {useEffect} from "react";
+
+function ScrollToTop() {
+    const {pathname, hash} = useLocation();
+
+    useEffect(() => {
+        if (pathname === "/" && (sessionStorage.getItem("lastHomeSection") || sessionStorage.getItem("lastHomeScrollY") || hash)) {
+            return;
+        }
+        window.scrollTo(0, 0);
+    }, [pathname, hash]);
+
+    return null;
+}
+
 // Chính App component
 function App() {
     return (
         <Router>
+            <ScrollToTop />
             <AppRoutes />
         </Router>
     );

@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import {Link, useParams} from "react-router-dom";
+import {Link, useParams, useLocation, useNavigate} from "react-router-dom";
 import "./BlogDetail.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "";
@@ -156,36 +156,130 @@ const FALLBACK_ARTICLES = {
             <p style="line-height: 1.8; color: #444;">Tận hưởng tiệc nướng hải sản ngoài trời ngắm sóng biển róc rách và thưởng thức cua biển, ghẹ hấp sả gừng tươi giòn ngọt.</p>
         `,
     },
+    "9": {
+        id: 9,
+        title: "Dịch vụ Visa Hàn Quốc trọn gói, thủ tục đơn giản, tỷ lệ đậu 99.9%",
+        category: "Dịch vụ Visa",
+        date: "25/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Dịch vụ làm Visa Hàn Quốc du lịch và thăm thân uy tín hàng đầu. Hỗ trợ dịch thuật hồ sơ, chứng minh tài chính và nộp hồ sơ nhanh chóng tại Trung tâm KVAC.</p>
+            
+            <img src="https://images.unsplash.com/photo-1601900245655-7719650f5b7a?auto=format&fit=crop&w=1000&q=80" alt="Visa Hàn Quốc" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+            <p style="text-align: center; font-size: 0.9rem; color: #666; font-style: italic; margin-bottom: 24px;">Khám phá Seoul và đảo Nami dễ dàng hơn với dịch vụ Visa trọn gói</p>
+
+            <h3 style="margin-top: 28px; color: #183153; font-weight: 700; font-size: 1.4rem;">1. Hồ sơ xin Visa Hàn Quốc gồm những gì?</h3>
+            <ul style="line-height: 1.8; color: #444; font-size: 1rem;">
+                <li>Hộ chiếu còn hạn trên 6 tháng</li>
+                <li>Hình thẻ 3.5 x 4.5 nền trắng</li>
+                <li>Chứng minh công việc: Hợp đồng lao động, bảng lương</li>
+                <li>Chứng minh tài chính: Sổ tiết kiệm tối thiểu 100 triệu VNĐ</li>
+            </ul>
+        `,
+    },
+    "10": {
+        id: 10,
+        title: "Hướng dẫn xin Visa Nhật Bản tự túc chi tiết từ A-Z năm 2026",
+        category: "Dịch vụ Visa",
+        date: "23/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Chia sẻ kinh nghiệm chuẩn bị hồ sơ xin Visa du lịch Nhật Bản ngắn hạn tự túc giúp du khách nâng cao tỷ lệ đậu Visa nhanh chóng.</p>
+            
+            <img src="https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?auto=format&fit=crop&w=1000&q=80" alt="Du lịch Nhật Bản" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+            <p style="text-align: center; font-size: 0.9rem; color: #666; font-style: italic; margin-bottom: 24px;">Mùa hoa anh đào Nhật Bản tuyệt đẹp thu hút hàng ngàn du khách</p>
+        `,
+    },
+    "11": {
+        id: 11,
+        title: "Dịch vụ làm Visa Châu Âu Schengen nhanh chóng, uy tín",
+        category: "Dịch vụ Visa",
+        date: "21/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Chuyên tư vấn Visa Schengen đi 27 quốc gia Châu Âu như Pháp, Ý, Đức, Hà Lan. Tối ưu hồ sơ cá nhân giúp bạn có cơ hội đậu Visa cao nhất.</p>
+            
+            <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1000&q=80" alt="Visa Châu Âu Schengen" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
+    "12": {
+        id: 12,
+        title: "Khám phá bãi biển Maldives - Chương trình khuyến mãi giảm ngay 20%",
+        category: "Khuyến mãi",
+        date: "30/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Đón mùa hè thiên đường tại resort biệt thự trên biển Maldives với chương trình ưu đãi hấp dẫn giảm 20% cho nhóm đăng ký sớm.</p>
+            
+            <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Maldives" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
+    "13": {
+        id: 13,
+        title: "Ưu đãi đặc biệt khi đặt Tour Hawaii mùa hè 2026",
+        category: "Khuyến mãi",
+        date: "28/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Trải nghiệm Hawaii rực rỡ với combo trọn gói vé máy bay, khách sạn 4 sao và vé tham quan các điểm du lịch nổi tiếng với mức giá tiết kiệm đến 30%.</p>
+            
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Hawaii" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
+    "14": {
+        id: 14,
+        title: "Tour biển Bali giá cực sốc - Tặng ngay Voucher 1.000.000đ",
+        category: "Khuyến mãi",
+        date: "26/07/2026",
+        content: `
+            <p style="font-size: 1.1rem; line-height: 1.8; color: #333; margin-bottom: 20px;">Khám phá đảo thiên đường Bali Indonesia với chi phí ưu đãi hấp dẫn. Nhận ngay Voucher 1.000.000đ cho khách hàng đặt tour online trong tuần này.</p>
+            
+            <img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=1000&q=80" alt="Khuyến mãi Bali" style="width: 100%; border-radius: 12px; margin: 20px 0; max-height: 450px; object-fit: cover;" />
+        `,
+    },
 };
 
 const BlogDetail = () => {
     const {id} = useParams();
+    const location = useLocation();
+    const navigate = useNavigate();
+    const fromSection = location.state?.fromSection;
+
+    const handleBack = () => {
+        if (fromSection) {
+            navigate(`/#${fromSection}`);
+        } else {
+            navigate(-1);
+        }
+    };
+
     const [item, setItem] = useState(null);
     const [related, setRelated] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         let mounted = true;
         setLoading(true);
         (async () => {
             try {
-                const detail = await fetchDetail(id);
-                if (!mounted) return;
-                if (detail) {
-                    setItem(detail);
-                    const rel = await fetchByCategory(detail.category);
-                    if (!mounted) return;
-                    setRelated((rel || []).filter((b) => String(b.id) !== String(detail.id)).slice(0, 3));
-                } else if (FALLBACK_ARTICLES[String(id)]) {
+                if (FALLBACK_ARTICLES[String(id)]) {
                     setItem(FALLBACK_ARTICLES[String(id)]);
+                    const rel = await fetchByCategory(FALLBACK_ARTICLES[String(id)].category);
+                    if (!mounted) return;
+                    setRelated((rel || []).filter((b) => String(b.id) !== String(id)).slice(0, 3));
                 } else {
-                    setItem({
-                        id: id,
-                        title: `Bài viết thông tin chi tiết #${id}`,
-                        category: "Cẩm nang du lịch",
-                        date: "06/05/2025",
-                        content: `<p>Nội dung chi tiết của bài viết số ${id} đang được cập nhật thêm. Bạn vui lòng quay lại sau nhé!</p>`,
-                    });
+                    const detail = await fetchDetail(id);
+                    if (!mounted) return;
+                    if (detail) {
+                        setItem(detail);
+                        const rel = await fetchByCategory(detail.category);
+                        if (!mounted) return;
+                        setRelated((rel || []).filter((b) => String(b.id) !== String(detail.id)).slice(0, 3));
+                    } else {
+                        setItem({
+                            id: id,
+                            title: `Bài viết thông tin chi tiết #${id}`,
+                            category: "Cẩm nang du lịch",
+                            date: "06/05/2025",
+                            content: `<p>Nội dung chi tiết của bài viết số ${id} đang được cập nhật thêm. Bạn vui lòng quay lại sau nhé!</p>`,
+                        });
+                    }
                 }
             } catch (err) {
                 console.error("Fetch blog detail error:", err);
@@ -197,6 +291,18 @@ const BlogDetail = () => {
             mounted = false;
         };
     }, [id]);
+
+    // Helper to get guaranteed 3 related articles with fallbacks
+    const displayRelated = useMemo(() => {
+        let list = (related || []).filter((b) => String(b.id) !== String(id));
+        if (list.length < 3) {
+            const fallbackList = Object.values(FALLBACK_ARTICLES).filter(
+                (art) => String(art.id) !== String(id) && !list.some((r) => String(r.id) === String(art.id))
+            );
+            list = [...list, ...fallbackList].slice(0, 3);
+        }
+        return list;
+    }, [related, id]);
 
     if (loading) {
         return (
@@ -268,7 +374,7 @@ const BlogDetail = () => {
             <nav aria-label="breadcrumb" className="mb-4">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item">
-                        <Link to="/">Trang chủ</Link>
+                        <Link to={fromSection ? `/#${fromSection}` : "/"}>Trang chủ</Link>
                     </li>
                     <li className="breadcrumb-item">
                         <Link to="/blog">Blog</Link>
@@ -291,28 +397,49 @@ const BlogDetail = () => {
                     {item.content ? <div dangerouslySetInnerHTML={{__html: item.content}} /> : <p className="lh-lg">Nội dung đang cập nhật.</p>}
                 </div>
 
-                <Link to="/blog" className="btn btn-outline-primary mt-3">
-                    Quay lại
-                </Link>
+                <button type="button" onClick={handleBack} className="btn btn-outline-primary mt-3">
+                    <i className="fa-solid fa-arrow-left me-1"></i> Quay lại
+                </button>
             </div>
 
             {/* Related posts */}
-            <div className="mt-5">
-                <h5 className="mb-3">Bài viết liên quan</h5>
-                <div className="row row-cols-1 row-cols-md-3 g-4">
-                    {related.map((r) => (
-                        <div className="col" key={r.id}>
-                            <div className="card h-100">
-                                {r.image && <img src={r.image} className="card-img-top" alt={r.title} />}
-                                <div className="card-body">
-                                    <h6 className="card-title">{r.title}</h6>
-                                    <Link to={`/blog/${r.id}`} className="stretched-link" />
-                                </div>
-                            </div>
+            {displayRelated.length > 0 && (
+                <div className="related-posts-section">
+                    <div className="related-section-header">
+                        <div className="related-title-wrap">
+                            <h3>Bài Viết Liên Quan</h3>
+                            <div className="related-title-bar" />
                         </div>
-                    ))}
+                    </div>
+                    <div className="row row-cols-1 row-cols-md-3 g-4">
+                        {displayRelated.map((r) => (
+                            <div className="col" key={r.id}>
+                                <Link to={`/blog/${r.id}`} className="related-card">
+                                    <div className="related-img-wrap">
+                                        <img
+                                            src={r.image || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80"}
+                                            className="related-img"
+                                            alt={r.title}
+                                        />
+                                        {r.category && <span className="related-badge">{r.category}</span>}
+                                    </div>
+                                    <div className="related-card-body">
+                                        <div className="related-card-date">
+                                            <i className="fa-regular fa-clock" />
+                                            <span>{r.date || "25/07/2026"}</span>
+                                        </div>
+                                        <h4 className="related-card-title">{r.title}</h4>
+                                        <div className="related-card-footer">
+                                            <span>Xem chi tiết</span>
+                                            <i className="fa-solid fa-arrow-right" />
+                                        </div>
+                                    </div>
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };

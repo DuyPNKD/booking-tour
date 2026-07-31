@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useLocation} from "react-router-dom";
 import TourCategory from "../../components/tourCategory/TourCategory";
 import haGiang from "../../assets/ha_giang.webp";
 import haLong from "../../assets/ha_long.webp";
@@ -146,11 +146,13 @@ const Home = () => {
         },
     ];
 
-    const [travelGuides, setTravelGuides] = useState(defaultTravelGuides);
-    const [foods, setFoods] = useState(defaultFoods);
+    const [travelGuides, setTravelGuides] = useState([]);
+    const [foods, setFoods] = useState([]);
+    const [blogsLoading, setBlogsLoading] = useState(true);
 
     useEffect(() => {
         const fetchBlogs = async () => {
+            setBlogsLoading(true);
             try {
                 const base = import.meta.env.VITE_API_BASE || "";
                 const [newsRes, foodRes] = await Promise.all([
@@ -158,16 +160,19 @@ const Home = () => {
                     fetch(`${base}/api/blogs/category/am-thuc`),
                 ]);
 
+                let finalGuides = defaultTravelGuides;
+                let finalFoods = defaultFoods;
+
                 if (newsRes.ok) {
                     const json = await newsRes.json();
                     const list = json?.data || [];
                     if (Array.isArray(list) && list.length > 0) {
-                        setTravelGuides(list.slice(0, 4).map((g, idx) => ({
+                        finalGuides = list.slice(0, 4).map((g, idx) => ({
                             id: g.id,
                             title: g.title,
                             image: g.image || defaultTravelGuides[idx % defaultTravelGuides.length].image,
                             date: g.date || (g.createdAt ? new Date(g.createdAt).toLocaleDateString("vi-VN") : "30/07/2026"),
-                        })));
+                        }));
                     }
                 }
 
@@ -175,39 +180,83 @@ const Home = () => {
                     const json = await foodRes.json();
                     const list = json?.data || [];
                     if (Array.isArray(list) && list.length > 0) {
-                        setFoods(list.slice(0, 4).map((f, idx) => ({
+                        finalFoods = list.slice(0, 4).map((f, idx) => ({
                             id: f.id,
                             title: f.title,
                             image: f.image || defaultFoods[idx % defaultFoods.length].image,
                             date: f.date || (f.createdAt ? new Date(f.createdAt).toLocaleDateString("vi-VN") : "29/07/2026"),
-                        })));
+                        }));
                     }
                 }
+
+                setTravelGuides(finalGuides);
+                setFoods(finalFoods);
             } catch (err) {
                 console.error("Fetch blogs error:", err);
+                setTravelGuides(defaultTravelGuides);
+                setFoods(defaultFoods);
+            } finally {
+                setBlogsLoading(false);
             }
         };
 
         fetchBlogs();
     }, []);
 
-    // Mock data for khuyến mãi
+    const location = useLocation();
 
+    const saveHomeScroll = (sectionId) => {
+        if (sectionId) sessionStorage.setItem("lastHomeSection", sectionId);
+        sessionStorage.setItem("lastHomeScrollY", window.scrollY.toString());
+    };
+
+    useEffect(() => {
+        const lastSection = sessionStorage.getItem("lastHomeSection");
+        const lastScrollY = sessionStorage.getItem("lastHomeScrollY");
+        const hash = window.location.hash || location.hash;
+
+        const targetSection = lastSection || (hash ? hash.replace("#", "") : null);
+
+        if (targetSection || lastScrollY) {
+            sessionStorage.removeItem("lastHomeSection");
+            sessionStorage.removeItem("lastHomeScrollY");
+
+            const timer = setTimeout(() => {
+                if (targetSection) {
+                    const element = document.getElementById(targetSection);
+                    if (element) {
+                        element.scrollIntoView({ behavior: "smooth", block: "center" });
+                        return;
+                    }
+                }
+                if (lastScrollY) {
+                    window.scrollTo({
+                        top: parseInt(lastScrollY, 10),
+                        behavior: "smooth",
+                    });
+                }
+            }, 250);
+
+            return () => clearTimeout(timer);
+        }
+    }, [location]);
+
+    // Mock data for khuyến mãi
     const promotions = [
         {
-            id: 1,
+            id: 12,
             image: km1,
-            title: "Khám phá bãi biển Maldives",
+            title: "Khám phá bãi biển Maldives - Giảm ngay 20%",
         },
         {
-            id: 2,
+            id: 13,
             image: km2,
-            title: "Ưu đãi đặc biệt tại Hawaii",
+            title: "Ưu đãi đặc biệt khi đặt Tour Hawaii mùa hè",
         },
         {
-            id: 3,
+            id: 14,
             image: km3,
-            title: "Tour biển Bali giá cực sốc",
+            title: "Tour biển Bali giá cực sốc - Tặng Voucher 1.000.000đ",
         },
     ];
 
@@ -296,10 +345,10 @@ const Home = () => {
                 <div className="home-container">
                     <HeroSearch />
                     {/* Promotions Section */}
-                    <div className="promotions-section">
+                    <div id="promotions-section" className="promotions-section">
                         <div className="category-header">
                             <h2>Chương Trình Khuyến Mãi</h2>
-                            <Link to="/travel-guide?category=promotion" className="view-all">
+                            <Link to="/blog?category=promotion" className="view-all">
                                 <span>Xem thêm</span>
                                 <i className="fa-solid fa-circle-chevron-right"></i>
                             </Link>
@@ -317,11 +366,9 @@ const Home = () => {
                             {promotions.map((promo) => (
                                 <SwiperSlide key={promo.id}>
                                     <Link
-                                        to={
-                                            promo.id === 1 || promo.id === 3
-                                                ? "/danh-muc-tour?type=domestic" // Link đến trang trong nước
-                                                : "/danh-muc-tour?type=international" // Link đến trang nước ngoài
-                                        }
+                                        to={`/blog/${promo.id}`}
+                                        state={{ fromSection: "promotions-section" }}
+                                        onClick={() => saveHomeScroll("promotions-section")}
                                         className="promotion-card"
                                     >
                                         <img src={promo.image} alt={promo.title} className="promotion-image" />
@@ -381,7 +428,7 @@ const Home = () => {
                     <div className="travel-guide-section">
                         <div className="travel-guide-container">
                             {/* Tin Du Lịch */}
-                            <div className="travel-guide">
+                            <div id="news-section" className="travel-guide">
                                 <div className="category-header">
                                     <h2>Tin Du Lịch</h2>
                                     <Link to="/blog?category=news" className="view-all">
@@ -389,23 +436,43 @@ const Home = () => {
                                         <i className="fa-solid fa-circle-chevron-right"></i>
                                     </Link>
                                 </div>
-                                <div className="travel-guide-grid">
-                                    {travelGuides.map((guide) => (
-                                        <Link key={guide.id} to={`/blog/${guide.id}`} className="travel-guide-card">
-                                            <img src={guide.image} alt={guide.title} className="travel-guide-image" />
-                                            <div className="travel-guide-content">
-                                                <p className="travel-guide-title">{guide.title}</p>
-                                                <p className="travel-guide-date">
-                                                    <i className="fa-regular fa-clock"></i> {guide.date || "06/05/2025"}
-                                                </p>
+                                {blogsLoading ? (
+                                    <div className="travel-guide-grid">
+                                        {[1, 2, 3, 4].map((n) => (
+                                            <div key={n} className="travel-guide-card" style={{border: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.04)"}}>
+                                                <div className="skeleton-box" style={{width: "100%", height: 160, borderRadius: 8}} />
+                                                <div className="travel-guide-content" style={{padding: "12px 0"}}>
+                                                    <div className="skeleton-box mb-2" style={{width: "90%", height: 18}} />
+                                                    <div className="skeleton-box" style={{width: "40%", height: 14}} />
+                                                </div>
                                             </div>
-                                        </Link>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="travel-guide-grid">
+                                        {travelGuides.map((guide) => (
+                                            <Link
+                                                key={guide.id}
+                                                to={`/blog/${guide.id}`}
+                                                state={{ fromSection: "news-section" }}
+                                                onClick={() => saveHomeScroll("news-section")}
+                                                className="travel-guide-card"
+                                            >
+                                                <img src={guide.image} alt={guide.title} className="travel-guide-image" />
+                                                <div className="travel-guide-content">
+                                                    <p className="travel-guide-title">{guide.title}</p>
+                                                    <p className="travel-guide-date">
+                                                        <i className="fa-regular fa-clock"></i> {guide.date || "06/05/2025"}
+                                                    </p>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Ẩm thực */}
-                            <div className="foods">
+                            <div id="foods-section" className="foods">
                                 <div className="category-header">
                                     <h2>Ẩm thực</h2>
                                     <Link to="/blog?category=food" className="view-all">
@@ -413,17 +480,37 @@ const Home = () => {
                                         <i className="fa-solid fa-circle-chevron-right"></i>
                                     </Link>
                                 </div>
-                                <div className="foods-list">
-                                    {foods.map((food) => (
-                                        <Link key={food.id} to={`/blog/${food.id}`} className="foods-item">
-                                            <img src={food.image} alt={food.title} className="foods-image" />
-                                            <div className="foods-content">
-                                                <p className="foods-title">{food.title}</p>
-                                                <p className="foods-date">{food.date || "06/05/2025"}</p>
+                                {blogsLoading ? (
+                                    <div className="foods-list">
+                                        {[1, 2, 3, 4].map((n) => (
+                                            <div key={n} className="foods-item" style={{gap: "1rem"}}>
+                                                <div className="skeleton-box" style={{width: 120, height: 80, borderRadius: 8, flexShrink: 0}} />
+                                                <div style={{flex: 1, display: "flex", flexDirection: "column", justifyContent: "center"}}>
+                                                    <div className="skeleton-box mb-2" style={{width: "85%", height: 16}} />
+                                                    <div className="skeleton-box" style={{width: "35%", height: 14}} />
+                                                </div>
                                             </div>
-                                        </Link>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="foods-list">
+                                        {foods.map((food) => (
+                                            <Link
+                                                key={food.id}
+                                                to={`/blog/${food.id}`}
+                                                state={{ fromSection: "foods-section" }}
+                                                onClick={() => saveHomeScroll("foods-section")}
+                                                className="foods-item"
+                                            >
+                                                <img src={food.image} alt={food.title} className="foods-image" />
+                                                <div className="foods-content">
+                                                    <p className="foods-title">{food.title}</p>
+                                                    <p className="foods-date">{food.date || "06/05/2025"}</p>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
