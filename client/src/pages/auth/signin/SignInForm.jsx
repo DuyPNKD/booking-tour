@@ -181,6 +181,8 @@ function SignInForm() {
                         {/* Google */}
                         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
                             <GoogleLogin
+                                useOneTap={false}
+                                ux_mode="popup"
                                 onSuccess={async (credentialResponse) => {
                                     try {
                                         const tokenGoogle = credentialResponse.credential;
@@ -188,16 +190,18 @@ function SignInForm() {
                                         const res = await axios.post(`${API_BASE}/api/auth/google`, {token: tokenGoogle});
 
                                         // Dùng login từ context
-                                        login(res.data.accessToken, res.data.user);
+                                        login(res.data.accessToken || res.data.token, res.data.user);
 
                                         // Điều hướng
                                         navigate("/");
                                     } catch (err) {
                                         console.error("Login failed:", err);
+                                        alert(err.response?.data?.message || "Đăng nhập Google thất bại!");
                                     }
                                 }}
                                 onError={() => {
-                                    console.log("Login Failed");
+                                    console.log("Google Login Failed");
+                                    alert("Đăng nhập Google không thành công. Vui lòng thử lại!");
                                 }}
                             />
                         </GoogleOAuthProvider>
