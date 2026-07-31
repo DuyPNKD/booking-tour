@@ -84,61 +84,112 @@ const Home = () => {
 
     // Mock data for international tours
 
-    // Mock data for travel guides
-    const travelGuides = [
+    const defaultTravelGuides = [
         {
             id: 1,
-            title: "Checkin tại Bãi Sao biển Phú Quốc: Bữa tiệc thiên nhiên đang gọi mời",
-            image: camNang1,
-            category: "Cẩm nang du lịch",
+            title: "Ngành du lịch Việt Nam đón lượt khách quốc tế kỷ lục trong năm 2025 - 2026",
+            image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=800&q=80",
+            category: "Tin du lịch",
+            date: "30/07/2026",
         },
         {
             id: 2,
-            title: "Thành phố Phan Thiết và những thông tin cần biết trước khi du lịch",
-            image: camNang2,
-            category: "Cẩm nang du lịch",
+            title: "Khai mạc lễ hội văn hóa và ẩm thực biển Mũi Né Phan Thiết",
+            image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+            category: "Tin du lịch",
+            date: "28/07/2026",
         },
         {
             id: 3,
-            title: "Đảo Ngọc Phú Quốc thiên đường du lịch biển đảo Việt Nam",
-            image: camNang3,
-            category: "Cẩm nang du lịch",
+            title: "Phú Quốc vào top 10 hòn đảo hàng đầu Châu Á do du khách toàn cầu bình chọn",
+            image: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80",
+            category: "Tin du lịch",
+            date: "25/07/2026",
         },
         {
             id: 4,
-            title: "Review khu du lịch Hồ Tràm chi tiết cho team mê xê dịch",
-            image: camNang4,
-            category: "Cẩm nang du lịch",
+            title: "Trải nghiệm tuyến tàu hỏa di sản nối liền Đà Nẵng và Huế",
+            image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80",
+            category: "Tin du lịch",
+            date: "20/07/2026",
         },
     ];
 
-    // Mock data for foods
-    const foods = [
+    const defaultFoods = [
         {
-            id: 1,
+            id: 5,
             title: "10 đặc sản Điện Biên ngon không thể cưỡng lại",
-            image: food1,
-            category: "Cẩm nang du lịch",
+            image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80",
+            category: "Ẩm thực",
+            date: "29/07/2026",
         },
         {
-            id: 2,
-            title: "Cách ít người biết để thưởng thức Food tour Hạ Long",
-            image: food2,
-            category: "Cẩm nang du lịch",
+            id: 6,
+            title: "Cách ít người biết để thưởng thức Food tour Hạ Long chuẩn vị",
+            image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80",
+            category: "Ẩm thực",
+            date: "27/07/2026",
         },
         {
-            id: 3,
-            title: "Tổng hợp những quán ăn ngon ở Mù Cang Chải",
-            image: food3,
-            category: "Cẩm nang du lịch",
+            id: 7,
+            title: "Tổng hợp những quán ăn ngon ở Mù Cang Chải nhất định phải thử",
+            image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80",
+            category: "Ẩm thực",
+            date: "24/07/2026",
         },
         {
-            id: 4,
-            title: "Danh sách nhà hàng ở đảo Cô Tô, chất lượng tuyệt vời, giá thành phải chăng",
-            image: food4,
-            category: "Cẩm nang du lịch",
+            id: 8,
+            title: "Danh sách nhà hàng hải sản ở đảo Cô Tô tươi ngon, chất lượng tuyệt vời",
+            image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80",
+            category: "Ẩm thực",
+            date: "22/07/2026",
         },
     ];
+
+    const [travelGuides, setTravelGuides] = useState(defaultTravelGuides);
+    const [foods, setFoods] = useState(defaultFoods);
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const base = import.meta.env.VITE_API_BASE || "";
+                const [newsRes, foodRes] = await Promise.all([
+                    fetch(`${base}/api/blogs/category/tin-du-lich`),
+                    fetch(`${base}/api/blogs/category/am-thuc`),
+                ]);
+
+                if (newsRes.ok) {
+                    const json = await newsRes.json();
+                    const list = json?.data || [];
+                    if (Array.isArray(list) && list.length > 0) {
+                        setTravelGuides(list.slice(0, 4).map((g, idx) => ({
+                            id: g.id,
+                            title: g.title,
+                            image: g.image || defaultTravelGuides[idx % defaultTravelGuides.length].image,
+                            date: g.date || (g.createdAt ? new Date(g.createdAt).toLocaleDateString("vi-VN") : "30/07/2026"),
+                        })));
+                    }
+                }
+
+                if (foodRes.ok) {
+                    const json = await foodRes.json();
+                    const list = json?.data || [];
+                    if (Array.isArray(list) && list.length > 0) {
+                        setFoods(list.slice(0, 4).map((f, idx) => ({
+                            id: f.id,
+                            title: f.title,
+                            image: f.image || defaultFoods[idx % defaultFoods.length].image,
+                            date: f.date || (f.createdAt ? new Date(f.createdAt).toLocaleDateString("vi-VN") : "29/07/2026"),
+                        })));
+                    }
+                }
+            } catch (err) {
+                console.error("Fetch blogs error:", err);
+            }
+        };
+
+        fetchBlogs();
+    }, []);
 
     // Mock data for khuyến mãi
 
@@ -329,26 +380,26 @@ const Home = () => {
                     {/* Cẩm Nang Du Lịch */}
                     <div className="travel-guide-section">
                         <div className="travel-guide-container">
-                            {/* Cẩm Nang Du Lịch */}
+                            {/* Tin Du Lịch */}
                             <div className="travel-guide">
                                 <div className="category-header">
-                                    <h2>Cẩm Nang Du Lịch</h2>
-                                    <Link to="/blog?category=travel-guide" className="view-all">
+                                    <h2>Tin Du Lịch</h2>
+                                    <Link to="/blog?category=news" className="view-all">
                                         <span>Xem thêm</span>
                                         <i className="fa-solid fa-circle-chevron-right"></i>
                                     </Link>
                                 </div>
                                 <div className="travel-guide-grid">
                                     {travelGuides.map((guide) => (
-                                        <div key={guide.id} className="travel-guide-card">
+                                        <Link key={guide.id} to={`/blog/${guide.id}`} className="travel-guide-card">
                                             <img src={guide.image} alt={guide.title} className="travel-guide-image" />
                                             <div className="travel-guide-content">
                                                 <p className="travel-guide-title">{guide.title}</p>
                                                 <p className="travel-guide-date">
-                                                    <i className="fa-regular fa-clock"></i> 06/05/2025
+                                                    <i className="fa-regular fa-clock"></i> {guide.date || "06/05/2025"}
                                                 </p>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </div>
@@ -357,20 +408,20 @@ const Home = () => {
                             <div className="foods">
                                 <div className="category-header">
                                     <h2>Ẩm thực</h2>
-                                    <Link to="/blog?category=foods" className="view-all">
+                                    <Link to="/blog?category=food" className="view-all">
                                         <span>Xem thêm</span>
                                         <i className="fa-solid fa-circle-chevron-right"></i>
                                     </Link>
                                 </div>
                                 <div className="foods-list">
-                                    {foods.map((foods) => (
-                                        <div key={foods.id} className="foods-item">
-                                            <img src={foods.image} alt={foods.title} className="foods-image" />
+                                    {foods.map((food) => (
+                                        <Link key={food.id} to={`/blog/${food.id}`} className="foods-item">
+                                            <img src={food.image} alt={food.title} className="foods-image" />
                                             <div className="foods-content">
-                                                <p className="foods-title">{foods.title}</p>
-                                                <p className="foods-date">06/05/2025</p>
+                                                <p className="foods-title">{food.title}</p>
+                                                <p className="foods-date">{food.date || "06/05/2025"}</p>
                                             </div>
-                                        </div>
+                                        </Link>
                                     ))}
                                 </div>
                             </div>

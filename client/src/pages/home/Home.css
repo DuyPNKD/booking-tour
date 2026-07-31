@@ -381,10 +381,14 @@
     flex-direction: column;
     border-radius: 8px;
     overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease;
 }
 
 .travel-guide-card:hover {
     cursor: pointer;
+    transform: translateY(-2px);
 }
 
 .travel-guide-image {
@@ -404,6 +408,7 @@
 .travel-guide-title {
     font-size: 13px;
     margin-bottom: 2px;
+    color: #222;
 }
 
 .travel-guide-date {
@@ -429,6 +434,13 @@
     gap: 1rem;
     align-items: center;
     height: 100px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s ease;
+}
+
+.foods-item:hover {
+    transform: translateX(4px);
 }
 
 .foods-image {

@@ -47,25 +47,33 @@ const Blog = () => {
     const [food, setFood] = useState([]);
     const [visa, setVisa] = useState([]);
     const [promotion, setPromotion] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         let mounted = true;
+        setLoading(true);
         (async () => {
-            const [n, e, f, v, p] = await Promise.all([
-                fetchCategory("tin-du-lich"),
-                fetchCategory("kinh-nghiem"),
-                fetchCategory("am-thuc"),
-                fetchCategory("dich-vu-visa"),
-                fetchCategory("khuyen-mai"),
-            ]);
-            if (!mounted) return;
-            // Limit counts: news/experience/food = 5, visa/promotion = 6
-            const limit = (arr, max) => (Array.isArray(arr) ? arr.slice(0, max) : []);
-            setNews(limit(n, 5));
-            setExperience(limit(e, 5));
-            setFood(limit(f, 5));
-            setVisa(limit(v, 6));
-            setPromotion(limit(p, 6));
+            try {
+                const [n, e, f, v, p] = await Promise.all([
+                    fetchCategory("tin-du-lich"),
+                    fetchCategory("kinh-nghiem"),
+                    fetchCategory("am-thuc"),
+                    fetchCategory("dich-vu-visa"),
+                    fetchCategory("khuyen-mai"),
+                ]);
+                if (!mounted) return;
+                // Limit counts: news/experience/food = 5, visa/promotion = 6
+                const limit = (arr, max) => (Array.isArray(arr) ? arr.slice(0, max) : []);
+                setNews(limit(n, 5));
+                setExperience(limit(e, 5));
+                setFood(limit(f, 5));
+                setVisa(limit(v, 6));
+                setPromotion(limit(p, 6));
+            } catch (err) {
+                console.error("Fetch blog categories error:", err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
         })();
         return () => {
             mounted = false;
@@ -205,6 +213,62 @@ const Blog = () => {
             </>
         );
     };
+
+    if (loading) {
+        return (
+            <div className="blog blog-skeleton">
+                <div className="blog-container">
+                    <div className="blog-left">
+                        {[1, 2, 3].map((section) => (
+                            <section key={section} className="blog-section" style={{marginBottom: 40}}>
+                                <div className="category-header" style={{marginBottom: 16, display: "flex", justifyContent: "space-between"}}>
+                                    <div className="skeleton-box" style={{width: 180, height: 26}}></div>
+                                    <div className="skeleton-box" style={{width: 80, height: 20}}></div>
+                                </div>
+                                <div className="blog-news">
+                                    <div className="blog-news-featured">
+                                        <div className="featured-image-wrap">
+                                            <div className="skeleton-box featured-image" style={{width: "100%", height: "100%"}}></div>
+                                        </div>
+                                        <div className="featured-content">
+                                            <div className="skeleton-box mb-3" style={{width: "90%", height: 24}}></div>
+                                            <div className="skeleton-box mb-2" style={{width: "100%", height: 16}}></div>
+                                            <div className="skeleton-box mb-2" style={{width: "80%", height: 16}}></div>
+                                            <div className="skeleton-box mt-3" style={{width: 100, height: 32, borderRadius: 6}}></div>
+                                        </div>
+                                    </div>
+                                    <div className="blog-news-grid" style={{marginTop: 20}}>
+                                        {[1, 2, 3, 4].map((item) => (
+                                            <div key={item} className="news-card">
+                                                <div className="news-thumb-wrap">
+                                                    <div className="skeleton-box news-thumb" style={{width: "100%", height: "100%"}}></div>
+                                                </div>
+                                                <div className="news-info">
+                                                    <div className="skeleton-box mb-2" style={{width: "90%", height: 16}}></div>
+                                                    <div className="skeleton-box" style={{width: "50%", height: 14}}></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </section>
+                        ))}
+                    </div>
+
+                    <aside className="blog-right">
+                        <div className="blog-tabs">
+                            <div className="blog-tabs-header">
+                                <div className="skeleton-box mb-3" style={{width: 120, height: 22}}></div>
+                            </div>
+                            {[1, 2, 3, 4, 5].map((tab) => (
+                                <div key={tab} className="skeleton-box mb-2" style={{width: "100%", height: 36, borderRadius: 6}}></div>
+                            ))}
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="blog">
