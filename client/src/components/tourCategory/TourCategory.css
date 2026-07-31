@@ -185,3 +185,32 @@
     font-weight: 700;
     color: #ff5722;
 }
+
+/* Skeleton Loading Animation for TourCategory */
+@keyframes categorySkeletonShimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-box {
+    background: linear-gradient(90deg, #eef2f6 25%, #f7f9fc 37%, #eef2f6 63%);
+    background-size: 400% 100%;
+    animation: categorySkeletonShimmer 1.4s ease infinite;
+    border-radius: 6px;
+}
+
+@media (max-width: 992px) {
+    .tour-category-skeleton-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .tour-category-skeleton-container {
+        grid-template-columns: repeat(1, 1fr) !important;
+    }
+}

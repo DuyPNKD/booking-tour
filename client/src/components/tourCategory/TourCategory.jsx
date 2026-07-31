@@ -47,14 +47,29 @@ const TourCategory = ({title, link, categoryId}) => {
 
     if (loading) {
         return (
-            <div className="tour-section">
-                <div className="section-header">
-                    <h2 className="section-title">{title}</h2>
+            <section className="category-section">
+                <div className="category-header">
+                    <h2>{title}</h2>
+                    <div className="skeleton-box" style={{width: 90, height: 24}}></div>
                 </div>
-                <div className="loading-container">
-                    <Spin size="large" />
+
+                <div className="tour-category-skeleton-container" style={{display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 20, marginTop: 32}}>
+                    {[1, 2, 3, 4].map((n) => (
+                        <div key={n} className="tourCategory-card skeleton-card">
+                            <div className="skeleton-box" style={{width: "100%", height: 180, borderTopLeftRadius: 12, borderTopRightRadius: 12}}></div>
+                            <div className="tourCategory-content" style={{padding: 16}}>
+                                <div className="skeleton-box" style={{height: 20, width: "90%", marginBottom: 12}}></div>
+                                <div className="skeleton-box" style={{height: 14, width: "50%", marginBottom: 12}}></div>
+                                <div className="skeleton-box" style={{height: 14, width: "70%", marginBottom: 16}}></div>
+                                <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginTop: 8}}>
+                                    <div className="skeleton-box" style={{height: 14, width: "35%"}}></div>
+                                    <div className="skeleton-box" style={{height: 22, width: "40%"}}></div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            </div>
+            </section>
         );
     }
     return (
