@@ -232,12 +232,14 @@ export default function TourDetail() {
     const [schedules, setSchedules] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [terms, setTerms] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const {id} = useParams(); // giả sử route là /tour/:id
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true);
                 const API_BASE = import.meta.env.VITE_API_BASE || "";
                 const response = await axios.get(`${API_BASE}/api/tours/${id}`);
                 const {success, data} = response.data;
@@ -268,6 +270,8 @@ export default function TourDetail() {
                 }
             } catch (error) {
                 console.error("Lỗi khi fetch tour details:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -521,6 +525,65 @@ export default function TourDetail() {
         }
         return 0;
     };
+
+    if (loading) {
+        return (
+            <div className="tour-detail-container tour-detail-skeleton">
+                {/* Breadcrumb Skeleton */}
+                <div className="skeleton-box skeleton-breadcrumb"></div>
+
+                {/* Header Skeleton */}
+                <div className="tour-header" style={{marginBottom: 20}}>
+                    <div className="skeleton-box skeleton-tour-title"></div>
+                    <div className="skeleton-box skeleton-tour-rating"></div>
+                </div>
+
+                {/* Main Content Skeleton */}
+                <div className="tour-main" style={{position: "relative"}}>
+                    {/* Left Column */}
+                    <div className="tour-main-left">
+                        <div className="skeleton-box skeleton-main-img"></div>
+                        <div className="tour-main-thumbs" style={{marginTop: 12, display: "flex", gap: 10}}>
+                            <div className="skeleton-box skeleton-thumb"></div>
+                            <div className="skeleton-box skeleton-thumb"></div>
+                            <div className="skeleton-box skeleton-thumb"></div>
+                            <div className="skeleton-box skeleton-thumb"></div>
+                        </div>
+
+                        <div className="tour-main-summary" style={{marginTop: 24}}>
+                            <div className="skeleton-box skeleton-summary-row"></div>
+                            <div className="skeleton-box skeleton-summary-list"></div>
+                        </div>
+
+                        <div className="tour-main-tabs" style={{marginTop: 24, display: "flex", gap: 12}}>
+                            <div className="skeleton-box skeleton-tab-btn"></div>
+                            <div className="skeleton-box skeleton-tab-btn"></div>
+                            <div className="skeleton-box skeleton-tab-btn"></div>
+                            <div className="skeleton-box skeleton-tab-btn"></div>
+                        </div>
+
+                        <div className="tour-main-tab-content" style={{marginTop: 24}}>
+                            <div className="skeleton-box skeleton-line-full"></div>
+                            <div className="skeleton-box skeleton-line-full"></div>
+                            <div className="skeleton-box skeleton-line-70"></div>
+                            <div className="skeleton-box skeleton-line-50"></div>
+                        </div>
+                    </div>
+
+                    {/* Right Column (Price Box Skeleton) */}
+                    <div className="tour-main-right" style={{position: "sticky", top: 100}}>
+                        <div className="tour-price-box custom-tour-price-box">
+                            <div className="skeleton-box skeleton-price-box-header"></div>
+                            <div className="skeleton-box skeleton-date-group"></div>
+                            <div className="skeleton-box skeleton-guest-select"></div>
+                            <div className="skeleton-box skeleton-total-price"></div>
+                            <div className="skeleton-box skeleton-book-btn"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="tour-detail-container">
