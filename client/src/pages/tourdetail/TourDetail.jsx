@@ -431,17 +431,42 @@ export default function TourDetail() {
         setGuestCounts((prev) => {
             let min = 0;
             if (type === "adult") min = 1;
-            const next = {...prev, [type]: Math.max(min, prev[type] + delta)};
-            return next;
+            const current = typeof prev[type] === "number" ? prev[type] : (parseInt(prev[type], 10) || min);
+            const next = Math.max(min, current + delta);
+            return {...prev, [type]: next};
+        });
+    };
+
+    // Hàm xử lý nhập trực tiếp ô số lượng
+    const handleGuestInputChange = (type, value) => {
+        if (value === "") {
+            setGuestCounts((prev) => ({...prev, [type]: ""}));
+            return;
+        }
+        const parsed = parseInt(value, 10);
+        if (isNaN(parsed)) return;
+        let min = type === "adult" ? 1 : 0;
+        const validVal = Math.max(min, parsed);
+        setGuestCounts((prev) => ({...prev, [type]: validVal}));
+    };
+
+    const handleGuestInputBlur = (type) => {
+        let min = type === "adult" ? 1 : 0;
+        setGuestCounts((prev) => {
+            const current = prev[type];
+            if (current === "" || current === null || current === undefined || isNaN(Number(current)) || Number(current) < min) {
+                return {...prev, [type]: min};
+            }
+            return {...prev, [type]: Number(current)};
         });
     };
 
     // Tính tổng tiền
     const totalPrice =
-        guestCounts.adult * getPriceByType("adult") +
-        guestCounts.child58 * getPriceByType("child") +
-        guestCounts.child24 * getPriceByType("child") + // Nếu có loại child24 riêng thì sửa lại
-        guestCounts.infant * getPriceByType("infant");
+        (Number(guestCounts.adult) || 0) * getPriceByType("adult") +
+        (Number(guestCounts.child58) || 0) * getPriceByType("child") +
+        (Number(guestCounts.child24) || 0) * getPriceByType("child") + // Nếu có loại child24 riêng thì sửa lại
+        (Number(guestCounts.infant) || 0) * getPriceByType("infant");
 
     // ------Xử lý hiển thị active của ngày khởi hành------
     const selectedIndex = shortDepartures.findIndex((d) => d === selectedDate);
@@ -844,7 +869,14 @@ export default function TourDetail() {
                                         <button className="qty-btn" onClick={() => handleGuestChange("adult", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
-                                        <span className="tour-guest-count">{guestCounts.adult}</span>
+                                        <input
+                                            type="number"
+                                            className="tour-guest-count"
+                                            value={guestCounts.adult}
+                                            onChange={(e) => handleGuestInputChange("adult", e.target.value)}
+                                            onBlur={() => handleGuestInputBlur("adult")}
+                                            min={1}
+                                        />
                                         <button className="qty-btn" onClick={() => handleGuestChange("adult", 1)}>
                                             <i className="fa-solid fa-plus"></i>
                                         </button>
@@ -877,7 +909,14 @@ export default function TourDetail() {
                                         <button className="qty-btn" onClick={() => handleGuestChange("child58", -1)}>
                                             <i className="fa-solid fa-minus"></i>
                                         </button>
-                                        <span className="tour-guest-count">{guestCounts.child58}</span>
+                                        <input
+                                            type="number"
+                                            className="tour-guest-count"
+                                            value={guestCounts.child58}
+                                            onChange={(e) => handleGuestInputChange("child58", e.target.value)}
+                                            onBlur={() => handleGuestInputBlur("child58")}
+                                            min={0}
+                                        />
                                         <button className="qty-btn" onClick={() => handleGuestChange("child58", 1)}>
                                             <i className="fa-solid fa-plus"></i>
                                         </button>
