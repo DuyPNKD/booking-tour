@@ -119,6 +119,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
+// --- ĐĂNG KÝ TIẾN TRÌNH NGẦM (BACKGROUND SERVICE / WORKER) ---
+// Tự động quét và hủy đơn hàng quá hạn 15 phút chưa thanh toán + hoàn lại ghế trống
+builder.Services.AddHostedService<ExpiredBookingCleanupService>();
+
 // Cấu hình Swagger - Công cụ tạo tài liệu API tự động (Giống Swagger-UI trong Node)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
