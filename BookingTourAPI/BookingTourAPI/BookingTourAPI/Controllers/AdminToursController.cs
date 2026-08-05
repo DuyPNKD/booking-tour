@@ -1,6 +1,7 @@
 using BookingTourAPI.Data;
 using BookingTourAPI.Models;
 using BookingTourAPI.DTOs;
+using BookingTourAPI.Services;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,12 @@ namespace BookingTourAPI.Controllers
     public class AdminToursController : ControllerBase
     {
         private readonly BookingTourContext _context;
+        private readonly ICacheService _cacheService;
 
-        public AdminToursController(BookingTourContext context)
+        public AdminToursController(BookingTourContext context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         // GET: api/AdminTours
@@ -206,6 +209,9 @@ namespace BookingTourAPI.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                await _cacheService.RemoveByPrefixAsync("tours:");
+                await _cacheService.RemoveAsync("navbar:menu");
+
                 return StatusCode(201, new { id = tour.Id, message = "Created" });
             }
             catch (Exception ex)
@@ -303,6 +309,10 @@ namespace BookingTourAPI.Controllers
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
+                await _cacheService.RemoveByPrefixAsync("tours:");
+                await _cacheService.RemoveAsync($"tours:detail:{id}");
+                await _cacheService.RemoveAsync("navbar:menu");
+
                 return Ok(new { message = "Updated" });
             }
             catch (Exception ex)
@@ -325,6 +335,10 @@ namespace BookingTourAPI.Controllers
                 _context.Tours.Remove(tour); 
                 // Navigation Properties in EF Core typically imply cascading deletes if configured in setup/MySQL.
                 await _context.SaveChangesAsync();
+
+                await _cacheService.RemoveByPrefixAsync("tours:");
+                await _cacheService.RemoveAsync($"tours:detail:{id}");
+                await _cacheService.RemoveAsync("navbar:menu");
 
                 return Ok(new { message = "Deleted" });
             }

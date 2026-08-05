@@ -1,7 +1,9 @@
 using BookingTourAPI.Data; // Import namespace chứa Database Context (giống như import models/db)
+using BookingTourAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer; // Thư viện hỗ trợ xác thực JWT (giống passport-jwt)
 using Microsoft.EntityFrameworkCore; // Thư viện ORM (giống Sequelize hoặc TypeORM)
 using Microsoft.IdentityModel.Tokens; // Thư viện xử lý Token
+using StackExchange.Redis;
 using System.Text;
 
 // Khởi tạo đối tượng Builder để cấu hình các dịch vụ (Services) cho ứng dụng
@@ -86,13 +88,36 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.SnakeCaseLower;
     });
 
-// Đăng ký MailerService vào hệ thống DI (Dependency Injection)
-// 'AddScoped' nghĩa là tạo một instance mới cho mỗi request HTTP (giống như tạo mới một helper cho mỗi req)
-builder.Services.AddScoped<BookingTourAPI.Services.IMailerService, BookingTourAPI.Services.MailerService>();
+// Đăng ký MailerService và AI Agent Services vào hệ thống DI
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IMailerService, MailerService>();
+builder.Services.AddScoped<IRagService, RagService>();
+builder.Services.AddHttpClient<IClaudeService, ClaudeService>();
 
-// Đăng ký AI Agent & RAG Services
-builder.Services.AddScoped<BookingTourAPI.Services.IRagService, BookingTourAPI.Services.RagService>();
-builder.Services.AddHttpClient<BookingTourAPI.Services.IClaudeService, BookingTourAPI.Services.ClaudeService>();
+// --- ĐĂNG KÝ CACHE SERVICE (REDIS + IN-MEMORY FALLBACK) ---
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache(); // Đảm bảo bộ đệm luôn sẵn sàng 100% không crash app khi Redis chưa bật
+
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis") 
+    ?? builder.Configuration["REDIS_URL"] 
+    ?? "localhost:6379";
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    try
+    {
+        var configuration = ConfigurationOptions.Parse(redisConnectionString);
+        configuration.AbortOnConnectFail = false;
+        configuration.ConnectTimeout = 1000;
+        return ConnectionMultiplexer.Connect(configuration);
+    }
+    catch
+    {
+        return null!;
+    }
+});
+
+builder.Services.AddSingleton<ICacheService, RedisCacheService>();
 
 // Cấu hình Swagger - Công cụ tạo tài liệu API tự động (Giống Swagger-UI trong Node)
 builder.Services.AddEndpointsApiExplorer();

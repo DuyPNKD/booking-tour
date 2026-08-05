@@ -1,5 +1,6 @@
 using BookingTourAPI.Data;
 using BookingTourAPI.DTOs;
+using BookingTourAPI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,12 @@ namespace BookingTourAPI.Controllers
     public class NavbarController : ControllerBase
     {
         private readonly BookingTourContext _context;
+        private readonly ICacheService _cacheService;
 
-        public NavbarController(BookingTourContext context)
+        public NavbarController(BookingTourContext context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         [HttpGet]
@@ -21,6 +24,12 @@ namespace BookingTourAPI.Controllers
         {
             try
             {
+                var cacheKey = "navbar:menu";
+                var cachedMenu = await _cacheService.GetAsync<NavbarMenuDto>(cacheKey);
+                if (cachedMenu != null)
+                {
+                    return Ok(cachedMenu);
+                }
                 // Lấy tất cả region kèm subregion và location qua Include (Left Join tự động)
                 var regions = await _context.Regions
                     .Include(r => r.Subregions)
@@ -74,6 +83,7 @@ namespace BookingTourAPI.Controllers
                     }
                 }
 
+                await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromHours(1));
                 return Ok(result);
             }
             catch (Exception ex)

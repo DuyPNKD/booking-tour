@@ -155,7 +155,6 @@ export default function AiChatWidget() {
             </svg>
           </div>
           <span>Tư vấn AI</span>
-          <span className="ai-widget-badge">RAG</span>
         </button>
       )}
 

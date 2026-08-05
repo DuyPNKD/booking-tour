@@ -41,11 +41,14 @@ const Navbar = () => {
             try {
                 const API_BASE = import.meta.env.VITE_API_BASE || "";
                 const response = await axios.get(`${API_BASE}/navbar-menu`);
-                setDomesticRegions(response.data.domestic);
-                setInternationalRegions(response.data.international);
+                const domestic = response.data?.domestic || response.data?.Domestic || [];
+                const international = response.data?.international || response.data?.International || [];
 
-                if (response.data.domestic.length > 0) setHoveredDomestic(response.data.domestic[0].display_name);
-                if (response.data.international.length > 0) setHoveredInternational(response.data.international[0].display_name);
+                setDomesticRegions(domestic);
+                setInternationalRegions(international);
+
+                if (domestic.length > 0) setHoveredDomestic(domestic[0].display_name || domestic[0].displayName);
+                if (international.length > 0) setHoveredInternational(international[0].display_name || international[0].displayName);
             } catch (error) {
                 console.error("Error fetching navbar data:", error);
             }
@@ -75,28 +78,31 @@ const Navbar = () => {
                                     Tour trong nước
                                 </Link>
 
-                                <div className="mega-menu">
+                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
-                                        {domesticRegions.map((region) => (
-                                            <div
-                                                key={region.id}
-                                                className={`mega-menu-region${hoveredDomestic === region.display_name ? " active" : ""}`}
-                                                onMouseEnter={() => setHoveredDomestic(region.display_name)}
-                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
-                                            >
-                                                {region.display_name}
-                                            </div>
-                                        ))}
+                                        {(domesticRegions || []).map((region) => {
+                                            const name = region.display_name || region.displayName || region.name;
+                                            return (
+                                                <div
+                                                    key={region.id}
+                                                    className={`mega-menu-region${hoveredDomestic === name ? " active" : ""}`}
+                                                    onMouseEnter={() => setHoveredDomestic(name)}
+                                                    onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                                >
+                                                    {name}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <div className="mega-menu-right">
                                         <div className="mega-menu-content">
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
-                                                const currentDomestic = domesticRegions.find((region) => region.display_name === hoveredDomestic);
+                                                const currentDomestic = (domesticRegions || []).find((region) => (region.display_name || region.displayName || region.name) === hoveredDomestic);
                                                 return (
                                                     currentDomestic &&
-                                                    currentDomestic.destinations.map((dest) => (
-                                                        <div className="mega-menu-group-container" key={dest.group}>
+                                                    (currentDomestic.destinations || []).map((dest) => (
+                                                        <div className="mega-menu-group-container" key={dest.group || dest.id}>
                                                             <div
                                                                 className="mega-menu-group"
                                                                 onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
@@ -104,7 +110,7 @@ const Navbar = () => {
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
-                                                                {dest.places.map((place) => (
+                                                                {(dest.places || []).map((place) => (
                                                                     <span
                                                                         key={place.id}
                                                                         className="mega-menu-place"
@@ -129,28 +135,31 @@ const Navbar = () => {
                                 </Link>
                                 <div className="mega-menu">
                                     <div className="mega-menu-left">
-                                        {internationalRegions.map((region) => (
-                                            <div
-                                                key={region.id}
-                                                className={`mega-menu-region${hoveredInternational === region.display_name ? " active" : ""}`}
-                                                onMouseEnter={() => setHoveredInternational(region.display_name)}
-                                                onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
-                                            >
-                                                {region.display_name}
-                                            </div>
-                                        ))}
+                                        {(internationalRegions || []).map((region) => {
+                                            const name = region.display_name || region.displayName || region.name;
+                                            return (
+                                                <div
+                                                    key={region.id}
+                                                    className={`mega-menu-region${hoveredInternational === name ? " active" : ""}`}
+                                                    onMouseEnter={() => setHoveredInternational(name)}
+                                                    onClick={() => navigate(`/danh-muc-tour?region_id=${region.id}`)}
+                                                >
+                                                    {name}
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                     <div className="mega-menu-right">
                                         <div className="mega-menu-content">
                                             <p className="mega-menu-title">Khám phá các điểm đến</p>
                                             {(() => {
-                                                const currentDomestic = internationalRegions.find(
-                                                    (region) => region.display_name === hoveredInternational
+                                                const currentInt = (internationalRegions || []).find(
+                                                    (region) => (region.display_name || region.displayName || region.name) === hoveredInternational
                                                 );
                                                 return (
-                                                    currentDomestic &&
-                                                    currentDomestic.destinations.map((dest) => (
-                                                        <div className="mega-menu-group-container" key={dest.group}>
+                                                    currentInt &&
+                                                    (currentInt.destinations || []).map((dest) => (
+                                                        <div className="mega-menu-group-container" key={dest.group || dest.id}>
                                                             <div
                                                                 className="mega-menu-group"
                                                                 onClick={() => navigate(`/danh-muc-tour?subregion_id=${dest.id}`)}
@@ -158,7 +167,7 @@ const Navbar = () => {
                                                                 {dest.group}
                                                             </div>
                                                             <div className="mega-menu-places">
-                                                                {dest.places.map((place) => (
+                                                                {(dest.places || []).map((place) => (
                                                                     <span
                                                                         key={place.id}
                                                                         className="mega-menu-place"

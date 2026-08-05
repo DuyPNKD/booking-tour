@@ -1,5 +1,6 @@
 using BookingTourAPI.Data; // Import Database Context (Giống require('./models/db'))
 using BookingTourAPI.DTOs; // Import các Data Transfer Object (Giống Schema/Interface)
+using BookingTourAPI.Services;
 using Microsoft.AspNetCore.Mvc; // Import các thư viện lõi của API (Controller, Ok, NotFound...)
 using Microsoft.EntityFrameworkCore; // Import Entity Framework (ORM giống Sequelize/Mongoose)
 
@@ -10,11 +11,13 @@ namespace BookingTourAPI.Controllers
     public class ToursController : ControllerBase // Kế thừa ControllerBase để có các hàm trả kết quả như Ok(), NotFound()
     {
         private readonly BookingTourContext _context; // Biến lưu trữ kết nối Database
+        private readonly ICacheService _cacheService;
 
-        // Dependency Injection: Khi Controller được tạo, framework tự động "bơm" Database vào đây
-        public ToursController(BookingTourContext context)
+        // Dependency Injection: Khi Controller được tạo, framework tự động "bơm" Database và CacheService vào đây
+        public ToursController(BookingTourContext context, ICacheService cacheService)
         {
             _context = context;
+            _cacheService = cacheService;
         }
 
         // ---------------------------------------------------------
@@ -36,6 +39,13 @@ namespace BookingTourAPI.Controllers
         {
             try
             {
+                // Thử lấy kết quả từ Cache (Cache-Aside Pattern)
+                var cacheKey = $"tours:list:{regionId}:{subregionId}:{locationId}:{departure}:{duration}:{priceFrom}:{priceTo}:{sortBy}:{page}:{limit}";
+                var cachedResult = await _cacheService.GetAsync<object>(cacheKey);
+                if (cachedResult != null)
+                {
+                    return Ok(cachedResult);
+                }
                 // Khởi tạo câu truy vấn (Giống Tour.find())
                 var query = _context.Tours
                     // Include giống .populate() hoặc include trong Node.js (Join bảng)
@@ -134,8 +144,7 @@ namespace BookingTourAPI.Controllers
                     })
                     .ToListAsync(); // Chạy câu SQL xuống Database và trả về danh sách dạng List
 
-                // Trả về JSON (status 200) với cấu trúc { result: [...], pagination: {...} }
-                return Ok(new
+                var response = new
                 {
                     result = tours,
                     pagination = new
@@ -145,7 +154,10 @@ namespace BookingTourAPI.Controllers
                         currentPage = page,
                         totalPages
                     }
-                });
+                };
+
+                await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(15));
+                return Ok(response);
             }
             catch (Exception ex)
             {
@@ -164,6 +176,13 @@ namespace BookingTourAPI.Controllers
         {
             try
             {
+                var cacheKey = $"tours:detail:{id}";
+                var cachedData = await _cacheService.GetAsync<object>(cacheKey);
+                if (cachedData != null)
+                {
+                    return Ok(cachedData);
+                }
+
                 // Tìm Tour theo ID và join với TẤT CẢ các bảng liên quan (Location, Images, Departures...)
                 var tour = await _context.Tours
                     .Include(t => t.Location)
@@ -234,7 +253,9 @@ namespace BookingTourAPI.Controllers
                     }).ToList()
                 };
 
-                return Ok(new { success = true, data = detailDto }); // Trả về kết quả
+                var response = new { success = true, data = detailDto };
+                await _cacheService.SetAsync(cacheKey, response, TimeSpan.FromMinutes(30));
+                return Ok(response);
             }
             catch (Exception ex)
             {
